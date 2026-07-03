@@ -3,8 +3,7 @@ package database
 import (
 	"errors"
 	"fmt"
-	"main/internal/modules/instructor"
-	"main/internal/modules/student"
+
 	"os"
 
 	"gorm.io/driver/postgres"
@@ -39,5 +38,18 @@ func Migrate() error {
 		return errors.New("Database is not connected")
 	}
 
-	return DB.AutoMigrate(&student.Student{}, &instructor.Instructor{})
+	return DB.AutoMigrate(
+		&User{},
+		&Course{},
+		&Takes{},
+		&Teaches{},
+		&Class{},
+		&Material{},
+		&MaterialFile{},
+		&Assignment{},
+		&AssignmentFile{},
+		&SubmissionFile{},
+		&SubmissionGrades{},
+		&JWT{},
+	)
 }

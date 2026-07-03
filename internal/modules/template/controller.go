@@ -6,15 +6,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Handler struct {
+type Controller struct {
 	usecase *UseCase
 }
 
-func NewHandler(usecase *UseCase) *Handler {
-	return &Handler{usecase: usecase}
+func NewController(usecase *UseCase) *Controller {
+	return &Controller{usecase: usecase}
 }
 
-func (r *Handler) Ping(ctx *gin.Context) {
+type IController interface {
+	Ping() (string, error)
+}
+
+func (r *Controller) Ping(ctx *gin.Context) {
 	result, err := r.usecase.repo.Ping()
 
 	if err != nil {

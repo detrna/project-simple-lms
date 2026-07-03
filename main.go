@@ -1,10 +1,13 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
 	"main/config"
 	"main/database"
 	"main/internal/modules/template"
+	"main/internal/modules/user"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,8 +18,24 @@ func main() {
 
 	router := gin.Default()
 
-	database.Connect()
-	database.Migrate()
+	if err := database.Connect(); err != nil {
+		log.Fatalf("Migration failed: %v", err)
+	}
+
+	if err := database.Migrate(); err != nil {
+		log.Fatalf("Migration failed: %v", err)
+	}
+
+	db := database.DB
+
+	shouldSeed := flag.Bool("seed", false, "run database seeders")
+	flag.Parse()
+	if *shouldSeed {
+		if err := database.Seed(db); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
 
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -47,6 +66,7 @@ func main() {
 	api := router.Group("/api/v1")
 
 	template.Register(api.Group("/templates"), database.DB)
+	user.Register(api.Group("/users"), database.DB)
 
 	router.Run()
 }
