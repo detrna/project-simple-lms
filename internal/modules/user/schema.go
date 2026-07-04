@@ -1,18 +1,41 @@
 package user
 
-import "github.com/google/uuid"
+import (
+	"time"
 
-type GetUserResponse struct {
-	ID       uuid.UUID `json:"id"`
-	UserID   string    `json:"userId"`
-	Name     string    `json:"name"`
-	Email    string    `json:"email"`
-	Password string    `json:"password"`
+	"github.com/google/uuid"
+)
+
+type UserResponse struct {
+	ID        uuid.UUID `json:"id"`
+	SystemID  string    `json:"systemId"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Role      string    `json:"role"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 type CreateUserSchema struct {
-	UserID   string `json:"userId"`
+	SystemID string `json:"systemId"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
+	Role     string `json:"role"`
 	Password string `json:"password"`
+}
+
+type UpdateUserBodySchema struct {
+	SystemID *string `json:"systemId"`
+	Name     *string `json:"name"`
+	Email    *string `json:"email"`
+	Role     *string `json:"role"`
+	Password *string `json:"password"`
+}
+
+type UpdateUserSchema struct {
+	ID       *uuid.UUID `json:"id"`
+	SystemID *string    `json:"systemId"`
+	Name     *string    `json:"name"`
+	Email    *string    `json:"email"`
+	Role     *string    `json:"role"`
+	Password *string    `json:"password"`
 }

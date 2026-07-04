@@ -1,4 +1,4 @@
-package user
+package class
 
 import (
 	"time"
@@ -6,12 +6,9 @@ import (
 	"github.com/google/uuid"
 )
 
-type User struct {
+type Class struct {
 	ID        uuid.UUID
-	SystemID  string
+	CourseID  uuid.UUID
 	Name      string
-	Email     string
-	Password  string
-	Role      string
 	CreatedAt time.Time
 }

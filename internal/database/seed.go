@@ -10,6 +10,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+var Users []User
+var Classes []Class
+
 func Seed(db *gorm.DB) error {
 	if db == nil {
 		return errors.New("Database is not connected")
@@ -29,6 +32,10 @@ func Seed(db *gorm.DB) error {
 		return err
 	}
 
+	if err := seedTakes(db, ctx); err != nil {
+		return err
+	}
+
 	if err := seedAssignments(db, ctx); err != nil {
 		return err
 	}
@@ -41,7 +48,7 @@ func Seed(db *gorm.DB) error {
 }
 
 func seedUsers(db *gorm.DB, ctx context.Context) error {
-	users := []User{
+	Users = []User{
 		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111111"), SystemID: "STU-001", Name: "Student 1", Email: "student1@example.com", Password: "password", Role: "student"},
 		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111112"), SystemID: "STU-002", Name: "Student 2", Email: "student2@example.com", Password: "password", Role: "student"},
 		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111113"), SystemID: "STU-003", Name: "Student 3", Email: "student3@example.com", Password: "password", Role: "student"},
@@ -62,7 +69,7 @@ func seedUsers(db *gorm.DB, ctx context.Context) error {
 
 	return db.WithContext(ctx).
 		Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "system_id"}}, DoNothing: true}).
-		Create(&users).Error
+		Create(&Users).Error
 }
 
 func seedCourses(db *gorm.DB, ctx context.Context) error {
@@ -80,7 +87,7 @@ func seedCourses(db *gorm.DB, ctx context.Context) error {
 }
 
 func seedClasses(db *gorm.DB, ctx context.Context) error {
-	classes := []Class{
+	Classes = []Class{
 		{ID: uuid.MustParse("55555555-5555-5555-5555-555555555551"), CourseID: uuid.MustParse("44444444-4444-4444-4444-444444444441"), Name: "English Class"},
 		{ID: uuid.MustParse("55555555-5555-5555-5555-555555555552"), CourseID: uuid.MustParse("44444444-4444-4444-4444-444444444442"), Name: "Mathematics Class"},
 		{ID: uuid.MustParse("55555555-5555-5555-5555-555555555553"), CourseID: uuid.MustParse("44444444-4444-4444-4444-444444444443"), Name: "Informatics Class"},
@@ -90,7 +97,21 @@ func seedClasses(db *gorm.DB, ctx context.Context) error {
 
 	return db.WithContext(ctx).
 		Clauses(clause.OnConflict{DoNothing: true}).
-		Create(&classes).Error
+		Create(&Classes).Error
+}
+
+func seedTakes(db *gorm.DB, ctx context.Context) error {
+	takes := []Takes{
+		{ID: uuid.MustParse("88888888-8888-8888-8888-888888888881"), UserID: uuid.MustParse("11111111-1111-1111-1111-111111111111"), ClassID: uuid.MustParse("55555555-5555-5555-5555-555555555551"), Grade: 0},
+		{ID: uuid.MustParse("88888888-8888-8888-8888-888888888882"), UserID: uuid.MustParse("11111111-1111-1111-1111-111111111112"), ClassID: uuid.MustParse("55555555-5555-5555-5555-555555555551"), Grade: 0},
+		{ID: uuid.MustParse("88888888-8888-8888-8888-888888888883"), UserID: uuid.MustParse("11111111-1111-1111-1111-111111111113"), ClassID: uuid.MustParse("55555555-5555-5555-5555-555555555552"), Grade: 0},
+		{ID: uuid.MustParse("88888888-8888-8888-8888-888888888884"), UserID: uuid.MustParse("11111111-1111-1111-1111-111111111114"), ClassID: uuid.MustParse("55555555-5555-5555-5555-555555555553"), Grade: 0},
+		{ID: uuid.MustParse("88888888-8888-8888-8888-888888888885"), UserID: uuid.MustParse("11111111-1111-1111-1111-111111111115"), ClassID: uuid.MustParse("55555555-5555-5555-5555-555555555554"), Grade: 0},
+	}
+
+	return db.WithContext(ctx).
+		Clauses(clause.OnConflict{DoNothing: true}).
+		Create(&takes).Error
 }
 
 func seedAssignments(db *gorm.DB, ctx context.Context) error {
