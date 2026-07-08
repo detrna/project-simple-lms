@@ -22,7 +22,10 @@ func Initialize() (*Infrastructure, error) {
 	}
 
 	logger := NewLogger(cfg.Logger)
+
 	db := database.Load(cfg.Database)
+
+	logger.Info("database connected")
 
 	return &Infrastructure{Config: cfg, DB: db, Logger: logger}, nil
 }

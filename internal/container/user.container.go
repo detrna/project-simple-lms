@@ -15,7 +15,7 @@ type UserContainer struct {
 func NewUserContainer(infra *infrastructure.Infrastructure) *UserContainer {
 	repo := user.NewRepository(infra.DB)
 	usecase := user.NewUseCase(repo)
-	controller := user.NewController(usecase)
+	controller := user.NewController(usecase, infra.Logger)
 
 	return &UserContainer{
 		UseCase:    usecase,

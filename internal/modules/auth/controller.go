@@ -30,7 +30,7 @@ func (controller *Controller) Login(c *gin.Context) {
 	err := c.ShouldBindBodyWithJSON(&dto)
 
 	if err != nil {
-		shared.HandleError(c, shared.ErrBadRequest)
+		shared.HandleError(c, controller.logger, shared.ErrBadRequest)
 		return
 	}
 
@@ -39,7 +39,7 @@ func (controller *Controller) Login(c *gin.Context) {
 	Tokens, err := controller.usecase.Login(ctx, dto)
 
 	if err != nil {
-		shared.HandleError(c, err)
+		shared.HandleError(c, controller.logger, err)
 		return
 	}
 

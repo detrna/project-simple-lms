@@ -24,7 +24,7 @@ func GetEnv(key, defaultValue string) string {
 }
 
 func Load() (*Config, error) {
-	if err := godotenv.Load(); err == nil {
+	if err := godotenv.Load(); err != nil {
 		return nil, err
 	}
 

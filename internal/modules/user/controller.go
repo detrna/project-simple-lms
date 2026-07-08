@@ -10,10 +10,11 @@ import (
 
 type Controller struct {
 	usecase *UseCase
+	logger  shared.Logger
 }
 
-func NewController(usecase *UseCase) *Controller {
-	return &Controller{usecase: usecase}
+func NewController(usecase *UseCase, logger shared.Logger) *Controller {
+	return &Controller{usecase: usecase, logger: logger}
 }
 
 type IController interface {
@@ -79,7 +80,7 @@ func (controller *Controller) CreateUser(c *gin.Context) {
 	user, err := controller.usecase.CreateUser(ctx, dto)
 
 	if err != nil {
-		shared.HandleError(c, err)
+		shared.HandleError(c, controller.logger, err)
 		return
 	}
 

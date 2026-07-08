@@ -3,6 +3,7 @@ package app
 import (
 	"main/internal/container"
 	"main/internal/infrastructure"
+	"main/internal/middleware"
 	"main/internal/modules/auth"
 	"main/internal/modules/user"
 
@@ -12,11 +13,15 @@ import (
 func SetupRouter(infra *infrastructure.Infrastructure) *gin.Engine {
 	router := gin.Default()
 
-	api := router.Group("/api/v1")
+	router.Use(
+		middleware.RequestLogger(infra.Logger),
+		middleware.ErrorLogger(infra.Logger),
+	)
 
 	userModule := container.NewUserContainer(infra)
 	authModule := container.NewAuthContainer(infra, userModule.Repo)
 
+	api := router.Group("/api/v1")
 	user.RegisterRoutes(api, userModule.Controller)
 	auth.RegisterRoutes(api, authModule.Controller)
 
