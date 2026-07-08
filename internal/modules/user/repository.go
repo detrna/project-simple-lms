@@ -3,15 +3,21 @@ package user
 import (
 	"context"
 	"errors"
-	"main/internal/database"
+	"main/internal/domain"
+	"main/internal/infrastructure/database"
+	"main/internal/shared"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
+// User is an alias to User for local use
+type User = domain.User
+
 type IRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*User, error)
 	FindBySystemID(ctx context.Context, id uuid.UUID) (*User, error)
+	FindByEmail(ctx context.Context, email string) (*User, error)
 	Create(ctx context.Context, data User) (*User, error)
 	Update(ctx context.Context, data User) (*User, error)
 	Delete(ctx context.Context, id uuid.UUID) error
@@ -50,7 +56,7 @@ func ToDatabaseUser(u User) database.User {
 }
 
 func (repo Repository) FindByID(ctx context.Context, id uuid.UUID) (*User, error) {
-	rows, err := gorm.G[User](repo.db).
+	rows, err := gorm.G[database.User](repo.db).
 		Where("id = ?", id).
 		First(ctx)
 
@@ -58,11 +64,13 @@ func (repo Repository) FindByID(ctx context.Context, id uuid.UUID) (*User, error
 		return nil, err
 	}
 
-	return &rows, nil
+	user := ToDomainUser(rows)
+
+	return &user, nil
 }
 
 func (repo Repository) FindBySystemID(ctx context.Context, id uuid.UUID) (*User, error) {
-	rows, err := gorm.G[User](repo.db).
+	rows, err := gorm.G[database.User](repo.db).
 		Where("User_id = ?", id).
 		First(ctx)
 
@@ -70,7 +78,9 @@ func (repo Repository) FindBySystemID(ctx context.Context, id uuid.UUID) (*User,
 		return nil, err
 	}
 
-	return &rows, nil
+	user := ToDomainUser(rows)
+
+	return &user, nil
 }
 
 func (repo Repository) Create(ctx context.Context, data User) (*User, error) {
@@ -119,7 +129,9 @@ func (repo Repository) Update(ctx context.Context, data User) (*User, error) {
 }
 
 func (repo Repository) Delete(ctx context.Context, id uuid.UUID) error {
-	rows, err := gorm.G[database.User](repo.db).Where("id = ?", id).Delete(ctx)
+	rows, err := gorm.G[database.User](repo.db).
+		Where("id = ?", id).
+		Delete(ctx)
 
 	if err != nil {
 		return err
@@ -130,4 +142,22 @@ func (repo Repository) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (repo Repository) FindByEmail(ctx context.Context, email string) (*User, error) {
+	rows, err := gorm.G[database.User](repo.db).
+		Where("email = ?", email).
+		First(ctx)
+
+	if err == gorm.ErrRecordNotFound {
+		return nil, shared.ErrRecordNotFound
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	user := ToDomainUser(rows)
+
+	return &user, nil
 }

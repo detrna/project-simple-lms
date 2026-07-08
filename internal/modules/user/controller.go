@@ -1,6 +1,7 @@
 package user
 
 import (
+	"main/internal/shared"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,7 @@ func NewController(usecase *UseCase) *Controller {
 
 type IController interface {
 	GetUserByID(c *gin.Context)
-	GetUserByUserID(c *gin.Context)
+	GetUserBySystemID(c *gin.Context)
 	CreateUser(c *gin.Context)
 	UpdateUser(c *gin.Context)
 	DeleteUser(c *gin.Context)
@@ -78,7 +79,7 @@ func (controller *Controller) CreateUser(c *gin.Context) {
 	user, err := controller.usecase.CreateUser(ctx, dto)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		shared.HandleError(c, err)
 		return
 	}
 

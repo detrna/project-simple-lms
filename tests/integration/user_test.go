@@ -4,8 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"main/internal/app"
-	"main/internal/database"
+	"main/internal/infrastructure/database"
 	"main/internal/modules/user"
 	"main/tests/factory"
 	"net/http"
@@ -17,8 +16,6 @@ import (
 )
 
 func TestGetUserByID(t *testing.T) {
-	router := app.NewApp()
-
 	indexedUser := factory.CreateUser(t, "Student1")
 
 	req := httptest.NewRequest(
@@ -29,7 +26,7 @@ func TestGetUserByID(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	router.ServeHTTP(w, req)
+	Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
@@ -42,8 +39,6 @@ func TestGetUserByID(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	router := app.NewApp()
-
 	requestData := user.CreateUserSchema{
 		SystemID: "student1",
 		Name:     "student1",
@@ -60,7 +55,7 @@ func TestCreate(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	router.ServeHTTP(w, req)
+	Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 
@@ -73,8 +68,6 @@ func TestCreate(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
-	router := app.NewApp()
-
 	indexedUser := factory.CreateUser(t, "Student1")
 
 	newName := "Student2"
@@ -90,7 +83,7 @@ func TestUpdateUser(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	router.ServeHTTP(w, req)
+	Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
@@ -105,15 +98,13 @@ func TestUpdateUser(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
-	router := app.NewApp()
-
 	indexedUser := factory.CreateUser(t, "student1")
 
 	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/users/%s", indexedUser.ID), nil)
 
 	w := httptest.NewRecorder()
 
-	router.ServeHTTP(w, req)
+	Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }

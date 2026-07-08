@@ -2,9 +2,8 @@ package factory
 
 import (
 	"context"
+	"main/internal/infrastructure/database"
 	"testing"
-
-	"main/internal/database"
 
 	"github.com/stretchr/testify/require"
 )
@@ -22,7 +21,7 @@ func EnrollStudent(
 		UserID:  user.ID,
 	}
 
-	err := database.DB.
+	err := DB.
 		WithContext(context.Background()).
 		Create(&take).Error
 

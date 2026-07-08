@@ -3,8 +3,8 @@ package integration_test
 import (
 	"encoding/json"
 	"fmt"
-	"main/internal/app"
-	"main/internal/database"
+
+	"main/internal/infrastructure/database"
 	"main/tests/factory"
 	"net/http"
 	"net/http/httptest"
@@ -15,8 +15,6 @@ import (
 )
 
 func TestGetStudentsByClassID(t *testing.T) {
-	router := app.NewApp()
-
 	course := factory.CreateCourse(t)
 
 	class := factory.CreateClass(t, course)
@@ -33,7 +31,7 @@ func TestGetStudentsByClassID(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	router.ServeHTTP(w, req)
+	Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 

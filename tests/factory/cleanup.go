@@ -1,12 +1,11 @@
 package factory
 
 import (
-	"main/internal/database"
 	"testing"
 )
 
 func Cleanup(t *testing.T) {
-	db := database.DB
+	db := Infra.DB
 
 	db.Exec("TRUNCATE takes CASCADE")
 	db.Exec("TRUNCATE classes CASCADE")

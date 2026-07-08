@@ -6,15 +6,29 @@ import (
 	"testing"
 
 	"main/internal/app"
-	"main/internal/database"
+	"main/internal/infrastructure"
+	"main/internal/infrastructure/database"
+	"main/tests/factory"
+
+	"github.com/gin-gonic/gin"
 )
 
+var Router *gin.Engine
+
 func TestMain(m *testing.M) {
-	if err := app.Initialize(); err != nil {
+	infra, err := infrastructure.Initialize()
+
+	if err != nil {
 		log.Fatal(err)
 	}
 
+	factory.Infra = infra
+	factory.DB = infra.DB
+
+	Router = app.SetupRouter(infra)
+
 	TruncateDatabase()
+	defer TruncateDatabase()
 
 	code := m.Run()
 

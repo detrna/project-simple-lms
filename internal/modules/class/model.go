@@ -1,14 +1,11 @@
 package class
 
 import (
-	"time"
-
-	"github.com/google/uuid"
+	"main/internal/domain"
 )
 
-type Class struct {
-	ID        uuid.UUID
-	CourseID  uuid.UUID
-	Name      string
-	CreatedAt time.Time
-}
+// Class is an alias to domain.Class for local use
+type Class = domain.Class
+type Takes = domain.Takes
+type Teaches = domain.Teaches
+type User = domain.User

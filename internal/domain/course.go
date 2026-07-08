@@ -1,4 +1,4 @@
-package user
+package domain
 
 import (
 	"time"
@@ -6,12 +6,9 @@ import (
 	"github.com/google/uuid"
 )
 
-type User struct {
+type Course struct {
 	ID        uuid.UUID
-	SystemID  string
 	Name      string
-	Email     string
-	Password  string
-	Role      string
+	Credits   int
 	CreatedAt time.Time
 }

@@ -15,7 +15,7 @@ func NewController(usecase *UseCase) *Controller {
 }
 
 type IController interface {
-	Ping() (string, error)
+	Ping(ctx *gin.Context)
 }
 
 func (r *Controller) Ping(ctx *gin.Context) {

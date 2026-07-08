@@ -1,22 +1,24 @@
 package app
 
 import (
-	"main/internal/database"
-	"main/internal/modules/class"
-	"main/internal/modules/template"
+	"main/internal/container"
+	"main/internal/infrastructure"
+	"main/internal/modules/auth"
 	"main/internal/modules/user"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(infra *infrastructure.Infrastructure) *gin.Engine {
 	router := gin.Default()
 
 	api := router.Group("/api/v1")
 
-	template.Register(api.Group("/templates"), database.DB)
-	user.Register(api.Group("/users"), database.DB)
-	class.Register(api.Group("/classes"), database.DB)
+	userModule := container.NewUserContainer(infra)
+	authModule := container.NewAuthContainer(infra, userModule.Repo)
+
+	user.RegisterRoutes(api, userModule.Controller)
+	auth.RegisterRoutes(api, authModule.Controller)
 
 	return router
 }

@@ -2,8 +2,11 @@ package user
 
 import (
 	"context"
+	"fmt"
+	"main/internal/shared"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UseCase struct {
@@ -18,7 +21,7 @@ type IUseCase interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (*UserResponse, error)
 	GetUserByUserID(ctx context.Context, id uuid.UUID) (*UserResponse, error)
 	CreateUser(ctx context.Context, data CreateUserSchema) (*UserResponse, error)
-	UpdateUser(ctx context.Context, data User) (*UserResponse, error)
+	UpdateUser(ctx context.Context, data UpdateUserSchema) (*UserResponse, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 }
 
@@ -58,18 +61,40 @@ func (usecase UseCase) GetUserByUserID(ctx context.Context, id uuid.UUID) (*User
 }
 
 func (usecase UseCase) CreateUser(ctx context.Context, data CreateUserSchema) (*UserResponse, error) {
+	dbAccount, err := usecase.repo.FindByEmail(ctx, data.Email)
+
+	if err != shared.ErrRecordNotFound {
+		fmt.Print("NOWAYING3")
+		return nil, err
+	}
+
+	if dbAccount != nil {
+		fmt.Print("NOWAYING2")
+		return nil, shared.ErrEmailTaken
+	}
+
+	err = nil
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
+
+	if err != nil {
+		fmt.Print("NOWAYING")
+		return nil, err
+	}
+
 	user := User{
 		ID:       uuid.New(),
 		SystemID: data.SystemID,
 		Name:     data.Name,
 		Email:    data.Email,
 		Role:     data.Role,
-		Password: data.Password,
+		Password: string(hashedPassword),
 	}
 
 	result, err := usecase.repo.Create(ctx, user)
 
 	if err != nil {
+		fmt.Print("NOWAYING1")
 		return nil, err
 	}
 

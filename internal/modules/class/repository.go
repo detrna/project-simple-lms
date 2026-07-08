@@ -2,7 +2,8 @@ package class
 
 import (
 	"context"
-	"main/internal/database"
+	"main/internal/domain"
+	"main/internal/infrastructure/database"
 	"main/internal/modules/user"
 
 	"github.com/google/uuid"
@@ -10,7 +11,7 @@ import (
 )
 
 type IRepository interface {
-	GetStudents(ctx context.Context, classID uuid.UUID) ([]user.User, error)
+	GetStudents(ctx context.Context, classID uuid.UUID) ([]domain.User, error)
 	GetMyClasses(ctx context.Context, userID uuid.UUID) ([]Class, error)
 }
 
@@ -22,7 +23,7 @@ func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{db: db}
 }
 
-func (repo Repository) GetStudents(ctx context.Context, classID uuid.UUID) ([]user.User, error) {
+func (repo Repository) GetStudents(ctx context.Context, classID uuid.UUID) ([]domain.User, error) {
 	rows, err := gorm.G[database.Takes](repo.db).
 		Preload("User", nil).
 		Where("class_id = ?", classID).
@@ -32,7 +33,7 @@ func (repo Repository) GetStudents(ctx context.Context, classID uuid.UUID) ([]us
 		return nil, err
 	}
 
-	var students []user.User
+	var students []domain.User
 
 	for _, take := range rows {
 		students = append(students, user.ToDomainUser(take.User))

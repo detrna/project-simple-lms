@@ -3,8 +3,8 @@ package database
 import (
 	"errors"
 	"fmt"
-
-	"os"
+	"log"
+	"main/internal/config"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -12,16 +12,16 @@ import (
 
 var DB *gorm.DB
 
-func Connect() error {
+func Connect(dbConfig config.DatabaseConfig) error {
 
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_SSLMODE"),
+		dbConfig.Host,
+		dbConfig.User,
+		dbConfig.Password,
+		dbConfig.DBName,
+		dbConfig.Port,
+		dbConfig.SSLMode,
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -52,4 +52,16 @@ func Migrate() error {
 		&SubmissionGrades{},
 		&JWT{},
 	)
+}
+
+func Load(dbConfig config.DatabaseConfig) *gorm.DB {
+	if err := Connect(dbConfig); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := Migrate(); err != nil {
+		log.Fatal(err)
+	}
+
+	return DB
 }
