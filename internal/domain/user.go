@@ -17,8 +17,9 @@ type User struct {
 }
 
 type JWT struct {
-	ID        uuid.UUID
-	UserID    uuid.UUID
-	Value     string
-	CreatedAt time.Time
+	JTI      uuid.UUID
+	UserID   uuid.UUID
+	SystemID string
+	Name     string
+	Role     string
 }

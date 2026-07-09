@@ -1,18 +1,15 @@
 package shared
 
 import (
+	"main/internal/domain"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
-type JWTPayload struct {
-	UserId   string
-	SystemId string
-	Name     string
-	Role     string
-}
+type JWTPayload = domain.JWT
 
 type Claims struct {
 	Payload JWTPayload
@@ -26,8 +23,9 @@ var refreshSecret = os.Getenv("JWT_REFRESH_SECRET")
 func GenerateAccessToken(data JWTPayload) (string, error) {
 	claims := Claims{
 		Payload: JWTPayload{
-			UserId:   data.UserId,
-			SystemId: data.SystemId,
+			JTI:      uuid.New(),
+			UserID:   data.UserID,
+			SystemID: data.SystemID,
 			Role:     data.Role,
 			Name:     data.Name,
 		},
@@ -46,8 +44,9 @@ func GenerateAccessToken(data JWTPayload) (string, error) {
 func GenerateRefreshToken(data JWTPayload) (string, error) {
 	claims := Claims{
 		Payload: JWTPayload{
-			UserId:   data.UserId,
-			SystemId: data.SystemId,
+			JTI:      uuid.New(),
+			UserID:   data.UserID,
+			SystemID: data.SystemID,
 			Role:     data.Role,
 			Name:     data.Name,
 		},

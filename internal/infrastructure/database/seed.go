@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -48,23 +49,30 @@ func Seed(db *gorm.DB) error {
 }
 
 func seedUsers(db *gorm.DB, ctx context.Context) error {
+	password, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
+	adminPassword, err := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
+
+	if err != nil {
+		panic(err)
+	}
+
 	Users = []User{
-		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111111"), SystemID: "STU-001", Name: "Student 1", Email: "student1@example.com", Password: "password", Role: "student"},
-		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111112"), SystemID: "STU-002", Name: "Student 2", Email: "student2@example.com", Password: "password", Role: "student"},
-		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111113"), SystemID: "STU-003", Name: "Student 3", Email: "student3@example.com", Password: "password", Role: "student"},
-		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111114"), SystemID: "STU-004", Name: "Student 4", Email: "student4@example.com", Password: "password", Role: "student"},
-		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111115"), SystemID: "STU-005", Name: "Student 5", Email: "student5@example.com", Password: "password", Role: "student"},
-		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111116"), SystemID: "STU-006", Name: "Student 6", Email: "student6@example.com", Password: "password", Role: "student"},
-		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111117"), SystemID: "STU-007", Name: "Student 7", Email: "student7@example.com", Password: "password", Role: "student"},
-		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111118"), SystemID: "STU-008", Name: "Student 8", Email: "student8@example.com", Password: "password", Role: "student"},
-		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111119"), SystemID: "STU-009", Name: "Student 9", Email: "student9@example.com", Password: "password", Role: "student"},
-		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111120"), SystemID: "STU-010", Name: "Student 10", Email: "student10@example.com", Password: "password", Role: "student"},
-		{ID: uuid.MustParse("22222222-2222-2222-2222-222222222221"), SystemID: "INST-001", Name: "Instructor 1", Email: "instructor1@example.com", Password: "password", Role: "instructor"},
-		{ID: uuid.MustParse("22222222-2222-2222-2222-222222222222"), SystemID: "INST-002", Name: "Instructor 2", Email: "instructor2@example.com", Password: "password", Role: "instructor"},
-		{ID: uuid.MustParse("22222222-2222-2222-2222-222222222223"), SystemID: "INST-003", Name: "Instructor 3", Email: "instructor3@example.com", Password: "password", Role: "instructor"},
-		{ID: uuid.MustParse("22222222-2222-2222-2222-222222222224"), SystemID: "INST-004", Name: "Instructor 4", Email: "instructor4@example.com", Password: "password", Role: "instructor"},
-		{ID: uuid.MustParse("22222222-2222-2222-2222-222222222225"), SystemID: "INST-005", Name: "Instructor 5", Email: "instructor5@example.com", Password: "password", Role: "instructor"},
-		{ID: uuid.MustParse("33333333-3333-3333-3333-333333333331"), SystemID: "ADMIN-001", Name: "Admin", Email: "admin@example.com", Password: "password", Role: "admin"},
+		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111111"), SystemID: "STU-001", Name: "Student 1", Email: "student1@example.com", Password: string(password), Role: "student"},
+		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111112"), SystemID: "STU-002", Name: "Student 2", Email: "student2@example.com", Password: string(password), Role: "student"},
+		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111113"), SystemID: "STU-003", Name: "Student 3", Email: "student3@example.com", Password: string(password), Role: "student"},
+		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111114"), SystemID: "STU-004", Name: "Student 4", Email: "student4@example.com", Password: string(password), Role: "student"},
+		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111115"), SystemID: "STU-005", Name: "Student 5", Email: "student5@example.com", Password: string(password), Role: "student"},
+		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111116"), SystemID: "STU-006", Name: "Student 6", Email: "student6@example.com", Password: string(password), Role: "student"},
+		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111117"), SystemID: "STU-007", Name: "Student 7", Email: "student7@example.com", Password: string(password), Role: "student"},
+		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111118"), SystemID: "STU-008", Name: "Student 8", Email: "student8@example.com", Password: string(password), Role: "student"},
+		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111119"), SystemID: "STU-009", Name: "Student 9", Email: "student9@example.com", Password: string(password), Role: "student"},
+		{ID: uuid.MustParse("11111111-1111-1111-1111-111111111120"), SystemID: "STU-010", Name: "Student 10", Email: "student10@example.com", Password: string(password), Role: "student"},
+		{ID: uuid.MustParse("22222222-2222-2222-2222-222222222221"), SystemID: "INST-001", Name: "Instructor 1", Email: "instructor1@example.com", Password: string(password), Role: "instructor"},
+		{ID: uuid.MustParse("22222222-2222-2222-2222-222222222222"), SystemID: "INST-002", Name: "Instructor 2", Email: "instructor2@example.com", Password: string(password), Role: "instructor"},
+		{ID: uuid.MustParse("22222222-2222-2222-2222-222222222223"), SystemID: "INST-003", Name: "Instructor 3", Email: "instructor3@example.com", Password: string(password), Role: "instructor"},
+		{ID: uuid.MustParse("22222222-2222-2222-2222-222222222224"), SystemID: "INST-004", Name: "Instructor 4", Email: "instructor4@example.com", Password: string(password), Role: "instructor"},
+		{ID: uuid.MustParse("22222222-2222-2222-2222-222222222225"), SystemID: "INST-005", Name: "Instructor 5", Email: "instructor5@example.com", Password: string(password), Role: "instructor"},
+		{ID: uuid.MustParse("33333333-3333-3333-3333-333333333331"), SystemID: "ADMIN-001", Name: "Admin", Email: "admin@example.com", Password: string(adminPassword), Role: "admin"},
 	}
 
 	return db.WithContext(ctx).

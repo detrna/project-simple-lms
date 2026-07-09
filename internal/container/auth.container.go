@@ -9,6 +9,7 @@ import (
 type AuthContainer struct {
 	UseCase    auth.IUseCase
 	Controller auth.IController
+	Routes     *auth.Routes
 	Repo       auth.IRepository
 	UserRepo   user.IRepository
 }
@@ -17,10 +18,12 @@ func NewAuthContainer(infra *infrastructure.Infrastructure, userRepo user.IRepos
 	repo := auth.NewRepository(infra.DB, infra.Logger)
 	usecase := auth.NewUseCase(repo, userRepo, infra.Logger)
 	controller := auth.NewController(usecase, infra.Logger)
+	routes := auth.NewRoutes(controller, *infra.Config)
 
 	return &AuthContainer{
 		UseCase:    usecase,
 		Controller: controller,
+		Routes:     routes,
 		Repo:       repo,
 		UserRepo:   userRepo,
 	}

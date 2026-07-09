@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"main/internal/modules/user"
 	"main/internal/shared"
-	"time"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -21,15 +20,15 @@ type UseCase struct {
 type IUseCase interface {
 	Login(ctx context.Context, data LoginSchema) (*Tokens, error)
 	// Recover(ctx context.Context, data RecoverSchema) (*Tokens, error)
-	// Logout(ctx context.Context, id uuid.UUID) error
-	// Refresh(ctx context.Context, token string) (*Tokens, error)
+	Logout(ctx context.Context, id uuid.UUID) error
+	Refresh(ctx context.Context, JWTPayload JWT) (*Tokens, error)
 }
 
 func NewUseCase(repo IRepository, userRepo user.IRepository, logger shared.Logger) *UseCase {
 	return (&UseCase{repo: repo, userRepo: userRepo, logger: logger})
 }
 
-func (usecase UseCase) Login(ctx context.Context, data LoginSchema) (*Tokens, error) {
+func (usecase *UseCase) Login(ctx context.Context, data LoginSchema) (*Tokens, error) {
 	dbAccount, err := usecase.userRepo.FindByEmail(ctx, data.Email)
 
 	if err != nil {
@@ -42,15 +41,16 @@ func (usecase UseCase) Login(ctx context.Context, data LoginSchema) (*Tokens, er
 		return nil, shared.ErrCredentialsIncorrect
 	}
 
-	jwtPayload := shared.JWTPayload{
-		UserId:   dbAccount.ID.String(),
-		SystemId: dbAccount.SystemID,
+	JWTPayload := JWT{
+		JTI:      uuid.New(),
+		UserID:   dbAccount.ID,
+		SystemID: dbAccount.SystemID,
 		Name:     dbAccount.Name,
 		Role:     dbAccount.Role,
 	}
 
-	accessToken, err := shared.GenerateAccessToken(jwtPayload)
-	refreshToken, err := shared.GenerateRefreshToken(jwtPayload)
+	accessToken, err := shared.GenerateAccessToken(JWTPayload)
+	refreshToken, err := shared.GenerateRefreshToken(JWTPayload)
 
 	if err != nil {
 		return nil, err
@@ -59,14 +59,47 @@ func (usecase UseCase) Login(ctx context.Context, data LoginSchema) (*Tokens, er
 	sum := sha256.Sum256([]byte(refreshToken))
 	hashedToken := hex.EncodeToString(sum[:])
 
-	dbJWT := JWT{
-		ID:        uuid.New(),
-		UserID:    dbAccount.ID,
-		Value:     string(hashedToken),
-		CreatedAt: time.Now(),
+	result, err := usecase.repo.CreateJWT(ctx, JWTPayload, hashedToken)
+
+	if err != nil {
+		return nil, err
 	}
 
-	result, err := usecase.repo.CreateJWT(ctx, dbJWT)
+	return &Tokens{AccessToken: accessToken, RefreshToken: *result}, nil
+}
+
+func (usecase *UseCase) Logout(ctx context.Context, ID uuid.UUID) error {
+	err := usecase.repo.DeleteJWT(ctx, ID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (usecase *UseCase) Refresh(ctx context.Context, JWTPayload JWT) (*Tokens, error) {
+	err := usecase.repo.CheckJWT(ctx, JWTPayload.JTI)
+
+	if err != nil {
+		return nil, err
+	}
+
+	accessToken, err := shared.GenerateAccessToken(JWTPayload)
+	refreshToken, err := shared.GenerateRefreshToken(JWTPayload)
+
+	if err != nil {
+		return nil, err
+	}
+
+	sum := sha256.Sum256([]byte(refreshToken))
+	hashedToken := hex.EncodeToString(sum[:])
+
+	result, err := usecase.repo.CreateJWT(ctx, JWTPayload, hashedToken)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return &Tokens{AccessToken: accessToken, RefreshToken: *result}, nil
 }

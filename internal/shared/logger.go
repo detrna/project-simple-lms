@@ -1,4 +1,3 @@
-package shared
 
 type Logger interface {
 	Info(msg string, args ...any)

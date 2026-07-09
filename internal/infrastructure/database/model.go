@@ -125,7 +125,7 @@ type SubmissionGrades struct {
 type JWT struct {
 	ID        uuid.UUID `gorm:"primaryKey"`
 	UserID    uuid.UUID `gorm:"not null"`
-	Value     string    `gorm:"not null"`
+	Token     string    `gorm:"not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
 
 	User User `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
