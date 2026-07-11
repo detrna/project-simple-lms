@@ -19,6 +19,7 @@ type UseCase struct {
 	userRepo user.IRepository
 	logger   pkg.Logger
 	redis    pkg.RedisClient
+	resend   pkg.ResendClient
 }
 
 type IUseCase interface {
@@ -116,7 +117,7 @@ func (usecase UseCase) Recover(ctx context.Context, data RecoverSchema) error {
 		return err
 	}
 
-	err = shared.SendRecoveryOTP(ctx, usecase.redis, *dbAccount)
+	err = usecase.resend.SendRecoveryOTP(ctx, *dbAccount)
 
 	if err != nil {
 		return err

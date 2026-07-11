@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"fmt"
+	"main/internal/domain"
 	"main/internal/shared"
 
 	"github.com/google/uuid"
@@ -25,7 +26,7 @@ type IUseCase interface {
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 }
 
-func OmitPassword(u *User) UserResponse {
+func OmitPassword(u *domain.User) UserResponse {
 	return UserResponse{
 		ID:        u.ID,
 		SystemID:  u.SystemID,
@@ -82,7 +83,7 @@ func (usecase UseCase) CreateUser(ctx context.Context, data CreateUserSchema) (*
 		return nil, err
 	}
 
-	user := User{
+	user := domain.User{
 		ID:       uuid.New(),
 		SystemID: data.SystemID,
 		Name:     data.Name,
@@ -104,7 +105,7 @@ func (usecase UseCase) CreateUser(ctx context.Context, data CreateUserSchema) (*
 }
 
 func (usecase UseCase) UpdateUser(ctx context.Context, data UpdateUserSchema) (*UserResponse, error) {
-	var user User
+	var user domain.User
 
 	user.ID = *data.ID
 

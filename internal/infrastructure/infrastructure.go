@@ -13,6 +13,7 @@ type Infrastructure struct {
 	DB     *gorm.DB
 	Logger pkg.Logger
 	Redis  pkg.RedisClient
+	Resend *ResendClient
 }
 
 func Initialize() (*Infrastructure, error) {
@@ -28,5 +29,9 @@ func Initialize() (*Infrastructure, error) {
 
 	logger.Info("database connected")
 
-	return &Infrastructure{Config: cfg, DB: db, Logger: logger}, nil
+	redis := RedisSetup(cfg.Redis)
+
+	resend := &ResendClient{redis}
+
+	return &Infrastructure{Config: cfg, DB: db, Logger: logger, Redis: redis, Resend: resend}, nil
 }

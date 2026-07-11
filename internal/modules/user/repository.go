@@ -11,15 +11,12 @@ import (
 	"gorm.io/gorm"
 )
 
-// User is an alias to User for local use
-type User = domain.User
-
 type IRepository interface {
-	FindByID(ctx context.Context, id uuid.UUID) (*User, error)
-	FindBySystemID(ctx context.Context, id uuid.UUID) (*User, error)
-	FindByEmail(ctx context.Context, email string) (*User, error)
-	Create(ctx context.Context, data User) (*User, error)
-	Update(ctx context.Context, data User) (*User, error)
+	FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error)
+	FindBySystemID(ctx context.Context, id uuid.UUID) (*domain.User, error)
+	FindByEmail(ctx context.Context, email string) (*domain.User, error)
+	Create(ctx context.Context, data domain.User) (*domain.User, error)
+	Update(ctx context.Context, data domain.User) (*domain.User, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
@@ -31,8 +28,8 @@ func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{db: db}
 }
 
-func ToDomainUser(u database.User) User {
-	return User{
+func ToDomainUser(u database.User) domain.User {
+	return domain.User{
 		ID:        u.ID,
 		SystemID:  u.SystemID,
 		Name:      u.Name,
@@ -43,7 +40,7 @@ func ToDomainUser(u database.User) User {
 	}
 }
 
-func ToDatabaseUser(u User) database.User {
+func ToDatabaseUser(u domain.User) database.User {
 	return database.User{
 		ID:        u.ID,
 		SystemID:  u.SystemID,
@@ -55,7 +52,7 @@ func ToDatabaseUser(u User) database.User {
 	}
 }
 
-func (repo Repository) FindByID(ctx context.Context, id uuid.UUID) (*User, error) {
+func (repo Repository) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	rows, err := gorm.G[database.User](repo.db).
 		Where("id = ?", id).
 		First(ctx)
@@ -69,7 +66,7 @@ func (repo Repository) FindByID(ctx context.Context, id uuid.UUID) (*User, error
 	return &user, nil
 }
 
-func (repo Repository) FindBySystemID(ctx context.Context, id uuid.UUID) (*User, error) {
+func (repo Repository) FindBySystemID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	rows, err := gorm.G[database.User](repo.db).
 		Where("User_id = ?", id).
 		First(ctx)
@@ -83,7 +80,7 @@ func (repo Repository) FindBySystemID(ctx context.Context, id uuid.UUID) (*User,
 	return &user, nil
 }
 
-func (repo Repository) Create(ctx context.Context, data User) (*User, error) {
+func (repo Repository) Create(ctx context.Context, data domain.User) (*domain.User, error) {
 	dbUser := ToDatabaseUser(data)
 
 	err := gorm.G[database.User](repo.db).Create(ctx, &dbUser)
@@ -96,7 +93,7 @@ func (repo Repository) Create(ctx context.Context, data User) (*User, error) {
 	return &createdUser, nil
 }
 
-func (repo Repository) Update(ctx context.Context, data User) (*User, error) {
+func (repo Repository) Update(ctx context.Context, data domain.User) (*domain.User, error) {
 	dbUser := ToDatabaseUser(data)
 
 	var result database.User
@@ -144,7 +141,7 @@ func (repo Repository) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (repo Repository) FindByEmail(ctx context.Context, email string) (*User, error) {
+func (repo Repository) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
 	rows, err := gorm.G[database.User](repo.db).
 		Where("email = ?", email).
 		First(ctx)
