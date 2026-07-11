@@ -23,6 +23,9 @@ func HandleError(c *gin.Context, logger pkg.Logger, err error) {
 	case errors.Is(err, ErrRecordNotFound):
 		c.JSON(http.StatusBadRequest, err)
 
+	case errors.Is(err, ErrIncorrectOTP):
+		c.JSON(http.StatusBadRequest, err)
+
 	default:
 		c.JSON(http.StatusInternalServerError, err)
 	}
@@ -33,4 +36,5 @@ var (
 	ErrCredentialsIncorrect = errors.New("incorrect email or password")
 	ErrBadRequest           = errors.New("bad request")
 	ErrRecordNotFound       = errors.New("couldn't find any record of requested data")
+	ErrIncorrectOTP         = errors.New("incorrect otp code")
 )

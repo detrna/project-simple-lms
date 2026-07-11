@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
 	"main/internal/domain"
 	"main/internal/modules/user"
 	"main/internal/pkg"
@@ -135,7 +134,7 @@ func (usecase UseCase) VerifyRecovery(ctx context.Context, data VerifyRecoverSch
 	}
 
 	if code != data.OTP {
-		return nil, errors.New("incorrect otp code")
+		return nil, shared.ErrIncorrectOTP
 	}
 
 	dbAccount, _ := usecase.userRepo.FindByEmail(ctx, data.Email)

@@ -21,7 +21,7 @@ func main() {
 		log.Fatalf("Bootstrap failed: %v", err)
 	}
 
-	logger := *infrastructure.Logger
+	logger := infrastructure.Logger
 	logger.Info("application starting")
 
 	if *seed {
