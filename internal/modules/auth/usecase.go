@@ -4,7 +4,10 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
+	"main/internal/domain"
 	"main/internal/modules/user"
+	"main/internal/pkg"
 	"main/internal/shared"
 
 	"github.com/google/uuid"
@@ -14,18 +17,20 @@ import (
 type UseCase struct {
 	repo     IRepository
 	userRepo user.IRepository
-	logger   shared.Logger
+	logger   pkg.Logger
+	redis    pkg.RedisClient
 }
 
 type IUseCase interface {
 	Login(ctx context.Context, data LoginSchema) (*Tokens, error)
-	// Recover(ctx context.Context, data RecoverSchema) (*Tokens, error)
+	Recover(ctx context.Context, data RecoverSchema) error
+	VerifyRecovery(ctx context.Context, data VerifyRecoverSchema) (*domain.User, error)
 	Logout(ctx context.Context, id uuid.UUID) error
 	Refresh(ctx context.Context, JWTPayload JWT) (*Tokens, error)
 }
 
-func NewUseCase(repo IRepository, userRepo user.IRepository, logger shared.Logger) *UseCase {
-	return (&UseCase{repo: repo, userRepo: userRepo, logger: logger})
+func NewUseCase(repo IRepository, userRepo user.IRepository, logger pkg.Logger, redis pkg.RedisClient) *UseCase {
+	return (&UseCase{repo: repo, userRepo: userRepo, logger: logger, redis: redis})
 }
 
 func (usecase *UseCase) Login(ctx context.Context, data LoginSchema) (*Tokens, error) {
@@ -102,4 +107,40 @@ func (usecase *UseCase) Refresh(ctx context.Context, JWTPayload JWT) (*Tokens, e
 	}
 
 	return &Tokens{AccessToken: accessToken, RefreshToken: *result}, nil
+}
+
+func (usecase UseCase) Recover(ctx context.Context, data RecoverSchema) error {
+	dbAccount, err := usecase.userRepo.FindByEmail(ctx, data.Email)
+
+	if err != nil {
+		return err
+	}
+
+	err = shared.SendRecoveryOTP(ctx, usecase.redis, *dbAccount)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (usecase UseCase) VerifyRecovery(ctx context.Context, data VerifyRecoverSchema) (*domain.User, error) {
+	code, err := usecase.redis.Get(ctx, data.Email)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if code != data.OTP {
+		return nil, errors.New("incorrect otp code")
+	}
+
+	dbAccount, _ := usecase.userRepo.FindByEmail(ctx, data.Email)
+
+	dbAccount.Password = data.Password
+
+	newAccount, err := usecase.userRepo.Update(ctx, *dbAccount)
+
+	return newAccount, nil
 }

@@ -1,14 +1,13 @@
 package middleware
 
 import (
-	"main/internal/config"
 	"main/internal/shared"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func Authenticate(cfg config.JWTConfig) gin.HandlerFunc {
+func Authenticate(secretKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.Request.Header.Get("Authorization")[1]
 
@@ -16,7 +15,7 @@ func Authenticate(cfg config.JWTConfig) gin.HandlerFunc {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token didn't exist"})
 		}
 
-		claims, err := shared.ParseToken(string(token), cfg.AccessSecret)
+		claims, err := shared.ParseToken(string(token), secretKey)
 
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token invalid"})

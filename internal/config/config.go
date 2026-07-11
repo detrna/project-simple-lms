@@ -12,6 +12,7 @@ type Config struct {
 	Logger   LoggerConfig
 	JWT      JWTConfig
 	Bcrypt   BcryptConfig
+	Redis    RedisConfig
 	App      AppConfig
 }
 
@@ -34,6 +35,7 @@ func Load() (*Config, error) {
 		Logger:   *LoadLoggerConfig(),
 		JWT:      *LoadJWTConfig(),
 		Bcrypt:   *LoadBcryptConfig(),
+		Redis:    *LoadRedisConfig(),
 		App:      *LoadAppConfig(),
 	}, nil
 }

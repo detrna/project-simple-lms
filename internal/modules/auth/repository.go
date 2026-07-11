@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 	"main/internal/infrastructure/database"
-	"main/internal/shared"
+	"main/internal/pkg"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -17,7 +17,7 @@ type IRepository interface {
 
 type Repository struct {
 	db     *gorm.DB
-	logger shared.Logger
+	logger pkg.Logger
 }
 
 func ToDatabaseJWT(JWT JWT, token string) *database.JWT {
@@ -28,7 +28,7 @@ func ToDatabaseJWT(JWT JWT, token string) *database.JWT {
 	}
 }
 
-func NewRepository(db *gorm.DB, logger shared.Logger) *Repository {
+func NewRepository(db *gorm.DB, logger pkg.Logger) *Repository {
 	return &Repository{db: db, logger: logger}
 }
 

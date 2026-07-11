@@ -2,6 +2,7 @@ package auth
 
 import (
 	"main/internal/config"
+	"main/internal/pkg"
 	"main/internal/shared"
 	"net/http"
 
@@ -10,11 +11,11 @@ import (
 
 type Controller struct {
 	usecase *UseCase
-	logger  shared.Logger
+	logger  pkg.Logger
 	cfg     *config.Config
 }
 
-func NewController(usecase *UseCase, logger shared.Logger) *Controller {
+func NewController(usecase *UseCase, logger pkg.Logger) *Controller {
 	return &Controller{usecase: usecase, logger: logger}
 }
 

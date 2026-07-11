@@ -2,12 +2,13 @@ package shared
 
 import (
 	"errors"
+	"main/internal/pkg"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func HandleError(c *gin.Context, logger Logger, err error) {
+func HandleError(c *gin.Context, logger pkg.Logger, err error) {
 	logger.Warn(err.Error())
 	switch {
 	case errors.Is(err, ErrEmailTaken):

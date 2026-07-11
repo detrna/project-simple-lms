@@ -2,12 +2,12 @@ package middleware
 
 import (
 	"log/slog"
-	"main/internal/shared"
+	"main/internal/pkg"
 
 	"github.com/gin-gonic/gin"
 )
 
-func ErrorLogger(logger shared.Logger) gin.HandlerFunc {
+func ErrorLogger(logger pkg.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
 

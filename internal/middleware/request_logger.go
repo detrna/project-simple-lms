@@ -2,14 +2,14 @@ package middleware
 
 import (
 	"log/slog"
-	"main/internal/shared"
+	"main/internal/pkg"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-func RequestLogger(logger shared.Logger) gin.HandlerFunc {
+func RequestLogger(logger pkg.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		requestID := uuid.NewString()

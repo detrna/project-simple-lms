@@ -1,9 +1,9 @@
 package infrastructure
 
 import (
-	"log/slog"
 	"main/internal/config"
 	"main/internal/infrastructure/database"
+	"main/internal/pkg"
 
 	"gorm.io/gorm"
 )
@@ -11,7 +11,8 @@ import (
 type Infrastructure struct {
 	Config *config.Config
 	DB     *gorm.DB
-	Logger *slog.Logger
+	Logger pkg.Logger
+	Redis  pkg.RedisClient
 }
 
 func Initialize() (*Infrastructure, error) {

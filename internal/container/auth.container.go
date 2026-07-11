@@ -16,9 +16,9 @@ type AuthContainer struct {
 
 func NewAuthContainer(infra *infrastructure.Infrastructure, userRepo user.IRepository) *AuthContainer {
 	repo := auth.NewRepository(infra.DB, infra.Logger)
-	usecase := auth.NewUseCase(repo, userRepo, infra.Logger)
+	usecase := auth.NewUseCase(repo, userRepo, infra.Logger, infra.Redis)
 	controller := auth.NewController(usecase, infra.Logger)
-	routes := auth.NewRoutes(controller, *infra.Config)
+	routes := auth.NewRoutes(controller, infra.Config.JWT.AccessSecret)
 
 	return &AuthContainer{
 		UseCase:    usecase,
