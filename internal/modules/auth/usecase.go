@@ -15,11 +15,12 @@ import (
 )
 
 type UseCase struct {
-	repo     IRepository
-	userRepo user.IRepository
-	logger   pkg.Logger
-	redis    pkg.RedisClient
-	resend   pkg.ResendClient
+	repo        IRepository
+	userRepo    user.IRepository
+	logger      pkg.Logger
+	redis       pkg.RedisClient
+	resend      pkg.ResendClient
+	JWTProvider pkg.JWTProvider
 }
 
 type IUseCase interface {
@@ -27,7 +28,7 @@ type IUseCase interface {
 	Recover(ctx context.Context, data RecoverSchema) error
 	VerifyRecovery(ctx context.Context, data VerifyRecoverSchema) (*domain.User, error)
 	Logout(ctx context.Context, id uuid.UUID) error
-	Refresh(ctx context.Context, JWTPayload JWT) (*Tokens, error)
+	Refresh(ctx context.Context, JWTPayload domain.JWTPayload) (*Tokens, error)
 }
 
 func NewUseCase(repo IRepository, userRepo user.IRepository, logger pkg.Logger, redis pkg.RedisClient) *UseCase {
@@ -47,7 +48,7 @@ func (usecase *UseCase) Login(ctx context.Context, data LoginSchema) (*Tokens, e
 		return nil, shared.ErrCredentialsIncorrect
 	}
 
-	JWTPayload := JWT{
+	JWTPayload := domain.JWTPayload{
 		JTI:      uuid.New(),
 		UserID:   dbAccount.ID,
 		SystemID: dbAccount.SystemID,
@@ -55,8 +56,8 @@ func (usecase *UseCase) Login(ctx context.Context, data LoginSchema) (*Tokens, e
 		Role:     dbAccount.Role,
 	}
 
-	accessToken, err := shared.GenerateAccessToken(JWTPayload)
-	refreshToken, err := shared.GenerateRefreshToken(JWTPayload)
+	accessToken, err := usecase.JWTProvider.GenerateAccessToken(JWTPayload)
+	refreshToken, err := usecase.JWTProvider.GenerateRefreshToken(JWTPayload)
 
 	if err != nil {
 		return nil, err
@@ -84,15 +85,15 @@ func (usecase *UseCase) Logout(ctx context.Context, ID uuid.UUID) error {
 	return nil
 }
 
-func (usecase *UseCase) Refresh(ctx context.Context, JWTPayload JWT) (*Tokens, error) {
+func (usecase *UseCase) Refresh(ctx context.Context, JWTPayload domain.JWTPayload) (*Tokens, error) {
 	err := usecase.repo.CheckJWT(ctx, JWTPayload.JTI)
 
 	if err != nil {
 		return nil, err
 	}
 
-	accessToken, err := shared.GenerateAccessToken(JWTPayload)
-	refreshToken, err := shared.GenerateRefreshToken(JWTPayload)
+	accessToken, err := usecase.JWTProvider.GenerateAccessToken(JWTPayload)
+	refreshToken, err := usecase.JWTProvider.GenerateRefreshToken(JWTPayload)
 
 	if err != nil {
 		return nil, err

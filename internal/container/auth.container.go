@@ -18,7 +18,7 @@ func NewAuthContainer(infra *infrastructure.Infrastructure, userRepo user.IRepos
 	repo := auth.NewRepository(infra.DB, infra.Logger)
 	usecase := auth.NewUseCase(repo, userRepo, infra.Logger, infra.Redis)
 	controller := auth.NewController(usecase, infra.Logger)
-	routes := auth.NewRoutes(controller, infra.Config.JWT.AccessSecret)
+	routes := auth.NewRoutes(controller, infra.JWTProvider)
 
 	return &AuthContainer{
 		UseCase:    usecase,

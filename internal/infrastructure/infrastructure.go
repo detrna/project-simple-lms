@@ -9,11 +9,12 @@ import (
 )
 
 type Infrastructure struct {
-	Config *config.Config
-	DB     *gorm.DB
-	Logger pkg.Logger
-	Redis  pkg.RedisClient
-	Resend *ResendClient
+	Config      *config.Config
+	DB          *gorm.DB
+	Logger      pkg.Logger
+	Redis       pkg.RedisClient
+	JWTProvider pkg.JWTProvider
+	Resend      pkg.ResendClient
 }
 
 func Initialize() (*Infrastructure, error) {

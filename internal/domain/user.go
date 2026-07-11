@@ -16,7 +16,7 @@ type User struct {
 	CreatedAt time.Time
 }
 
-type JWT struct {
+type JWTPayload struct {
 	JTI      uuid.UUID
 	UserID   uuid.UUID
 	SystemID string

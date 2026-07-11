@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"main/internal/domain"
 	"main/internal/infrastructure/database"
 	"main/internal/pkg"
 
@@ -10,7 +11,7 @@ import (
 )
 
 type IRepository interface {
-	CreateJWT(ctx context.Context, JWTPayload JWT, token string) (*string, error)
+	CreateJWT(ctx context.Context, JWTPayload domain.JWTPayload, token string) (*string, error)
 	DeleteJWT(ctx context.Context, ID uuid.UUID) error
 	CheckJWT(ctx context.Context, ID uuid.UUID) error
 }
@@ -20,7 +21,7 @@ type Repository struct {
 	logger pkg.Logger
 }
 
-func ToDatabaseJWT(JWT JWT, token string) *database.JWT {
+func ToDatabaseJWT(JWT domain.JWTPayload, token string) *database.JWT {
 	return &database.JWT{
 		ID:     JWT.JTI,
 		UserID: JWT.UserID,
@@ -32,7 +33,7 @@ func NewRepository(db *gorm.DB, logger pkg.Logger) *Repository {
 	return &Repository{db: db, logger: logger}
 }
 
-func (repo Repository) CreateJWT(ctx context.Context, JWTPayload JWT, token string) (*string, error) {
+func (repo Repository) CreateJWT(ctx context.Context, JWTPayload domain.JWTPayload, token string) (*string, error) {
 	jwt := ToDatabaseJWT(JWTPayload, token)
 	err := gorm.G[database.JWT](repo.db).Create(ctx, jwt)
 

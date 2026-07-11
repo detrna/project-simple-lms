@@ -2,6 +2,7 @@ package auth
 
 import (
 	"main/internal/config"
+	"main/internal/domain"
 	"main/internal/pkg"
 	"main/internal/shared"
 	"net/http"
@@ -13,6 +14,7 @@ type Controller struct {
 	usecase *UseCase
 	logger  pkg.Logger
 	cfg     *config.Config
+	jwt     pkg.JWTProvider
 }
 
 func NewController(usecase *UseCase, logger pkg.Logger) *Controller {
@@ -62,7 +64,7 @@ func (controller *Controller) Login(c *gin.Context) {
 
 func (controller *Controller) Logout(c *gin.Context) {
 	value, _ := c.Get("user")
-	JWTPayload, _ := value.(*JWT)
+	JWTPayload, _ := value.(*domain.JWTPayload)
 
 	ctx := c.Request.Context()
 	err := controller.usecase.Logout(ctx, JWTPayload.JTI)
@@ -94,15 +96,14 @@ func (controller *Controller) Refresh(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, "token did not exist")
 	}
 
-	key := controller.cfg.JWT.RefreshSecret
-	claims, err := shared.ParseToken(token, key)
+	jwtPayload, err := controller.jwt.ParseRefreshToken(token)
 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "token expired")
 	}
 
 	ctx := c.Request.Context()
-	result, err := controller.usecase.Refresh(ctx, claims.Payload)
+	result, err := controller.usecase.Refresh(ctx, *jwtPayload)
 
 	secure := controller.cfg.App.Mode == "PRODUCTION"
 	c.SetCookie(

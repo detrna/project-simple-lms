@@ -3,10 +3,10 @@ package config
 import "strconv"
 
 type JWTConfig struct {
-	AccessSecret         string
-	RefreshSecret        string
-	AccessExpiryMinutes  int
-	RefreshExpiryMinutes int
+	AccessSecret        string
+	RefreshSecret       string
+	AccessExpiryMinutes int
+	RefreshExpiryDays   int
 }
 
 func LoadJWTConfig() *JWTConfig {
@@ -16,9 +16,9 @@ func LoadJWTConfig() *JWTConfig {
 	refreshExpiry, _ := strconv.Atoi(GetEnv("JWT_REFRESH_EXPIRY_DAYS", "7"))
 
 	return &JWTConfig{
-		AccessSecret:         accessSecret,
-		RefreshSecret:        refreshSecret,
-		AccessExpiryMinutes:  accessExpiry,
-		RefreshExpiryMinutes: refreshExpiry,
+		AccessSecret:        accessSecret,
+		RefreshSecret:       refreshSecret,
+		AccessExpiryMinutes: accessExpiry,
+		RefreshExpiryDays:   refreshExpiry,
 	}
 }
