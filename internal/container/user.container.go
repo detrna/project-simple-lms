@@ -2,8 +2,9 @@
 package container
 
 import (
-	"main/internal/infrastructure"
+	"main/internal/infrastructure/repository"
 	"main/internal/modules/user"
+	"main/internal/pkg"
 )
 
 type UserContainer struct {
@@ -12,14 +13,14 @@ type UserContainer struct {
 	Controller user.IController
 }
 
-func NewUserContainer(infra *infrastructure.Infrastructure) *UserContainer {
-	repo := user.NewRepository(infra.DB)
-	usecase := user.NewUseCase(repo)
+func NewUserContainer(infra pkg.Packages, repo repository.Repository) *UserContainer {
+	userRepo := repo.UserRepository
+	usecase := user.NewUseCase(userRepo)
 	controller := user.NewController(usecase, infra.Logger)
 
 	return &UserContainer{
 		UseCase:    usecase,
 		Controller: controller,
-		Repo:       repo,
+		Repo:       userRepo,
 	}
 }

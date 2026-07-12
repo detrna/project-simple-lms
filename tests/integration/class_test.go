@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"main/internal/infrastructure/database"
-	"main/tests/factory"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,13 +14,13 @@ import (
 )
 
 func TestGetStudentsByClassID(t *testing.T) {
-	course := factory.CreateCourse(t)
+	course := Factory.CreateCourse(t)
 
-	class := factory.CreateClass(t, course)
+	class := Factory.CreateClass(t, course)
 
-	student := factory.CreateUser(t, "Student1")
+	student := Factory.CreateUser(t, "Student1")
 
-	factory.EnrollStudent(t, class, student)
+	Factory.EnrollStudent(t, class, student)
 
 	req := httptest.NewRequest(
 		http.MethodGet,

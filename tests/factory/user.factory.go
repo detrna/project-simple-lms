@@ -10,14 +10,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func CreateUser(
+func (f Factory) CreateUser(
 	t *testing.T,
 	name string,
 ) *database.User {
 
 	t.Helper()
 
-	cost := Infra.Config.Bcrypt.Cost
+	cost := f.Config.Bcrypt.Cost
 
 	password := "password123"
 
@@ -32,7 +32,7 @@ func CreateUser(
 		Password: string(hashedPassword),
 	}
 
-	err = DB.
+	err = f.DB.
 		WithContext(context.Background()).
 		Create(user).Error
 

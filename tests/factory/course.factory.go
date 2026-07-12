@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func CreateCourse(t *testing.T) *database.Course {
+func (f Factory) CreateCourse(t *testing.T) *database.Course {
 	t.Helper()
 
 	course := &database.Course{
@@ -17,7 +17,7 @@ func CreateCourse(t *testing.T) *database.Course {
 		Name: "Computer Science",
 	}
 
-	err := database.DB.
+	err := f.DB.
 		WithContext(context.Background()).
 		Create(course).Error
 

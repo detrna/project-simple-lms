@@ -4,7 +4,7 @@ import (
 	"context"
 	"main/internal/domain"
 	"main/internal/infrastructure/database"
-	"main/internal/modules/user"
+	"main/internal/infrastructure/repository/mapper"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -36,7 +36,7 @@ func (repo Repository) GetStudents(ctx context.Context, classID uuid.UUID) ([]do
 	var students []domain.User
 
 	for _, take := range rows {
-		students = append(students, user.ToDomainUser(take.User))
+		students = append(students, mapper.ToDomainUser(take.User))
 	}
 
 	return students, nil

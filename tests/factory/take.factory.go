@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func EnrollStudent(
+func (f Factory) EnrollStudent(
 	t *testing.T,
 	class *database.Class,
 	user *database.User,
@@ -21,7 +21,7 @@ func EnrollStudent(
 		UserID:  user.ID,
 	}
 
-	err := DB.
+	err := f.DB.
 		WithContext(context.Background()).
 		Create(&take).Error
 

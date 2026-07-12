@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"main/internal/infrastructure/database"
 	"main/internal/modules/user"
-	"main/tests/factory"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,7 +15,7 @@ import (
 )
 
 func TestGetUserByID(t *testing.T) {
-	indexedUser := factory.CreateUser(t, "Student1")
+	indexedUser := Factory.CreateUser(t, "Student1")
 
 	req := httptest.NewRequest(
 		http.MethodGet,
@@ -68,7 +67,7 @@ func TestCreate(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
-	indexedUser := factory.CreateUser(t, "Student1")
+	indexedUser := Factory.CreateUser(t, "Student1")
 
 	newName := "Student2"
 
@@ -98,7 +97,7 @@ func TestUpdateUser(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
-	indexedUser := factory.CreateUser(t, "student1")
+	indexedUser := Factory.CreateUser(t, "student1")
 
 	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/users/%s", indexedUser.ID), nil)
 

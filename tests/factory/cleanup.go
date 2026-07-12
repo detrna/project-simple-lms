@@ -4,8 +4,8 @@ import (
 	"testing"
 )
 
-func Cleanup(t *testing.T) {
-	db := Infra.DB
+func (f Factory) Cleanup(t *testing.T) {
+	db := f.DB
 
 	db.Exec("TRUNCATE takes CASCADE")
 	db.Exec("TRUNCATE classes CASCADE")

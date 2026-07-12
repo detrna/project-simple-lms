@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"main/internal/modules/auth"
-	"main/tests/factory"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,7 +13,7 @@ import (
 )
 
 func TestLogin(t *testing.T) {
-	targettedUser := factory.CreateUser(t, "Student1")
+	targettedUser := Factory.CreateUser(t, "Student1")
 
 	reqData := auth.LoginSchema{Email: targettedUser.Email, Password: "password123"}
 

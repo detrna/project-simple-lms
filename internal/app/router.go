@@ -2,14 +2,15 @@ package app
 
 import (
 	"main/internal/container"
-	"main/internal/infrastructure"
+	"main/internal/infrastructure/repository"
 	"main/internal/middleware"
 	"main/internal/modules/user"
+	"main/internal/pkg"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(infra *infrastructure.Infrastructure) *gin.Engine {
+func SetupRouter(infra pkg.Packages, repo repository.Repository) *gin.Engine {
 	router := gin.Default()
 
 	router.Use(
@@ -17,8 +18,8 @@ func SetupRouter(infra *infrastructure.Infrastructure) *gin.Engine {
 		middleware.ErrorLogger(infra.Logger),
 	)
 
-	userModule := container.NewUserContainer(infra)
-	authModule := container.NewAuthContainer(infra, userModule.Repo)
+	userModule := container.NewUserContainer(infra, repo)
+	authModule := container.NewAuthContainer(infra, repo)
 
 	api := router.Group("/api/v1")
 	user.RegisterRoutes(api, userModule.Controller)

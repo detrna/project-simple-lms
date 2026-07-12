@@ -1,9 +1,10 @@
 package container
 
 import (
-	"main/internal/infrastructure"
+	"main/internal/infrastructure/repository"
 	"main/internal/modules/auth"
 	"main/internal/modules/user"
+	"main/internal/pkg"
 )
 
 type AuthContainer struct {
@@ -14,9 +15,11 @@ type AuthContainer struct {
 	UserRepo   user.IRepository
 }
 
-func NewAuthContainer(infra *infrastructure.Infrastructure, userRepo user.IRepository) *AuthContainer {
-	repo := auth.NewRepository(infra.DB, infra.Logger)
-	usecase := auth.NewUseCase(repo, userRepo, infra.Logger, infra.Redis)
+func NewAuthContainer(infra pkg.Packages, repo repository.Repository) *AuthContainer {
+	authRepo := repo.AuthRepository
+	userRepo := repo.UserRepository
+
+	usecase := auth.NewUseCase(authRepo, userRepo, infra)
 	controller := auth.NewController(usecase, infra.Logger)
 	routes := auth.NewRoutes(controller, infra.JWTProvider)
 
@@ -24,7 +27,7 @@ func NewAuthContainer(infra *infrastructure.Infrastructure, userRepo user.IRepos
 		UseCase:    usecase,
 		Controller: controller,
 		Routes:     routes,
-		Repo:       repo,
+		Repo:       authRepo,
 		UserRepo:   userRepo,
 	}
 }

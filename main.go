@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"main/internal/app"
+	"main/internal/config"
 	"main/internal/infrastructure"
 	"main/internal/infrastructure/database"
 )
@@ -15,22 +16,28 @@ var seed = flag.Bool("seed", false, "run seed")
 func main() {
 	flag.Parse()
 
-	infrastructure, err := infrastructure.Initialize()
+	cfg, err := config.Load()
+
+	if err != nil {
+		log.Fatal("couldn't load config")
+	}
+
+	packages, db, repository, err := infrastructure.Initialize(*cfg)
 
 	if err != nil {
 		log.Fatalf("Bootstrap failed: %v", err)
 	}
 
-	logger := infrastructure.Logger
+	logger := packages.Logger
 	logger.Info("application starting")
 
 	if *seed {
-		database.Seed(infrastructure.DB)
+		database.Seed(db)
 	}
 
-	port := infrastructure.Config.Server.Port
+	port := cfg.Server.Port
 
-	router := app.SetupRouter(infrastructure)
+	router := app.SetupRouter(*packages, *repository)
 	router.Run(":" + port)
 
 	logger.Info("http server listening on port ", slog.String("port", port))

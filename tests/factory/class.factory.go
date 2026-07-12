@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func CreateClass(
+func (f Factory) CreateClass(
 	t *testing.T,
 	course *database.Course,
 ) *database.Class {
@@ -22,7 +22,7 @@ func CreateClass(
 		Name:     "Physics",
 	}
 
-	err := database.DB.
+	err := f.DB.
 		WithContext(context.Background()).
 		Create(class).Error
 

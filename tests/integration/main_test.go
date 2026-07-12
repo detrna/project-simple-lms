@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"main/internal/app"
+	"main/internal/config"
 	"main/internal/infrastructure"
 	"main/internal/infrastructure/database"
 	"main/tests/factory"
@@ -14,18 +15,24 @@ import (
 )
 
 var Router *gin.Engine
+var Factory *factory.Factory
 
 func TestMain(m *testing.M) {
-	infra, err := infrastructure.Initialize()
+	cfg, err := config.Load()
+
+	if err != nil {
+		log.Fatal("couldn't load config")
+	}
+
+	infra, db, repo, err := infrastructure.Initialize(*cfg)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	factory.Infra = infra
-	factory.DB = infra.DB
+	Factory = factory.NewFactory(infra, db, cfg)
 
-	Router = app.SetupRouter(infra)
+	Router = app.SetupRouter(*infra, *repo)
 
 	TruncateDatabase()
 	defer TruncateDatabase()
