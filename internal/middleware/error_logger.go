@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log/slog"
 	"main/internal/pkg"
 
 	"github.com/gin-gonic/gin"
@@ -17,12 +16,11 @@ func ErrorLogger(logger pkg.Logger) gin.HandlerFunc {
 
 		err := c.Errors.Last().Err
 
-		logger.Error(
-			"request failed",
-			slog.String("method", c.Request.Method),
-			slog.String("path", c.Request.URL.Path),
-			slog.Int("status", c.Writer.Status()),
-			slog.Any("error", err),
+		logger.ErrorLog(
+			c.Request.Method,
+			c.Request.URL.Path,
+			c.Writer.Status(),
+			err,
 		)
 	}
 }

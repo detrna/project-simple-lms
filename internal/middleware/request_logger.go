@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log/slog"
 	"main/internal/pkg"
 	"time"
 
@@ -14,15 +13,16 @@ func RequestLogger(logger pkg.Logger) gin.HandlerFunc {
 		start := time.Now()
 		requestID := uuid.NewString()
 
+		c.Set("requestID", requestID)
+
 		c.Next()
 
-		logger.Info(
-			"request completed",
-			slog.String("request_id", requestID),
-			slog.String("method", c.Request.Method),
-			slog.String("path", c.Request.URL.Path),
-			slog.Int("status", c.Writer.Status()),
-			slog.Duration("duration", time.Since(start)),
+		logger.RequestLog(
+			requestID,
+			c.Request.Method,
+			c.Request.URL.Path,
+			c.Writer.Status(),
+			start,
 		)
 	}
 }
