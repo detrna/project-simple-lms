@@ -21,3 +21,13 @@ func (b BcryptHasher) CompareHashAndPassword(hashed string, literal string) erro
 
 	return err
 }
+
+func (b BcryptHasher) Hash(value string) ([]byte, error) {
+	hashed, err := bcrypt.GenerateFromPassword([]byte(value), b.cost)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return hashed, nil
+}

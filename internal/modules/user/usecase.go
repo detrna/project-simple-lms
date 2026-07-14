@@ -4,18 +4,19 @@ import (
 	"context"
 	"fmt"
 	"main/internal/domain"
+	"main/internal/pkg"
 	"main/internal/shared"
 
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type UseCase struct {
-	repo IRepository
+	repo   IRepository
+	bcrypt pkg.BcryptHasher
 }
 
-func NewUseCase(repo IRepository) *UseCase {
-	return (&UseCase{repo: repo})
+func NewUseCase(repo IRepository, bcrypt pkg.BcryptHasher) *UseCase {
+	return (&UseCase{repo: repo, bcrypt: bcrypt})
 }
 
 type IUseCase interface {
@@ -65,21 +66,18 @@ func (usecase UseCase) CreateUser(ctx context.Context, data CreateUserSchema) (*
 	dbAccount, err := usecase.repo.FindByEmail(ctx, data.Email)
 
 	if err != shared.ErrRecordNotFound {
-		fmt.Print("NOWAYING3")
 		return nil, err
 	}
 
 	if dbAccount != nil {
-		fmt.Print("NOWAYING2")
 		return nil, shared.ErrEmailTaken
 	}
 
 	err = nil
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
+	hashedPassword, err := usecase.bcrypt.Hash(dbAccount.Password)
 
 	if err != nil {
-		fmt.Print("NOWAYING")
 		return nil, err
 	}
 
