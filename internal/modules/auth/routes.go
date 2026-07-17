@@ -8,20 +8,19 @@ import (
 )
 
 type Routes struct {
-	controller  IController
-	jwtProvider pkg.JWTProvider
+	controller    IController
+	tokenProvider pkg.JWTProvider
+	logger        pkg.Logger
 }
 
-func NewRoutes(c IController, jwtProvider pkg.JWTProvider) *Routes {
-	return &Routes{controller: c, jwtProvider: jwtProvider}
+func NewRoutes(c IController, jwtProvider pkg.JWTProvider, logger pkg.Logger) *Routes {
+	return &Routes{controller: c, tokenProvider: jwtProvider, logger: logger}
 }
 
 func (routes Routes) RegisterRoutes(rg *gin.RouterGroup) {
 	router := rg.Group("/auth")
 
-	router.Use(middleware.Authenticate(routes.jwtProvider))
-
 	router.POST("/login", routes.controller.Login)
-	router.DELETE("/logout", routes.controller.Logout)
+	router.DELETE("/logout", middleware.Authenticate(routes.tokenProvider), routes.controller.Logout)
 	router.POST("/refresh", routes.controller.Refresh)
 }

@@ -12,10 +12,18 @@ import (
 	"github.com/google/uuid"
 )
 
+type UseCasePackages struct {
+	Bcrypt        pkg.BcryptHasher
+	Mailer        pkg.ResendClient
+	TokenProvider pkg.JWTProvider
+	Redis         pkg.RedisClient
+	Logger        pkg.Logger
+}
+
 type UseCase struct {
 	repo     IRepository
 	userRepo user.IRepository
-	infra    pkg.Packages
+	packages UseCasePackages
 }
 
 type IUseCase interface {
@@ -26,8 +34,8 @@ type IUseCase interface {
 	Refresh(ctx context.Context, JWTPayload domain.JWTPayload) (*Tokens, error)
 }
 
-func NewUseCase(repo IRepository, userRepo user.IRepository, infra pkg.Packages) *UseCase {
-	return (&UseCase{repo: repo, userRepo: userRepo, infra: infra})
+func NewUseCase(repo IRepository, userRepo user.IRepository, pkg UseCasePackages) *UseCase {
+	return (&UseCase{repo: repo, userRepo: userRepo, packages: pkg})
 }
 
 func (usecase *UseCase) Login(ctx context.Context, data LoginSchema) (*Tokens, error) {
@@ -37,7 +45,7 @@ func (usecase *UseCase) Login(ctx context.Context, data LoginSchema) (*Tokens, e
 		return nil, err
 	}
 
-	err = usecase.infra.BcryptHasher.CompareHashAndPassword(dbAccount.Password, data.Password)
+	err = usecase.packages.Bcrypt.CompareHashAndPassword(dbAccount.Password, data.Password)
 
 	if err != nil {
 		return nil, shared.ErrCredentialsIncorrect
@@ -51,8 +59,8 @@ func (usecase *UseCase) Login(ctx context.Context, data LoginSchema) (*Tokens, e
 		Role:     dbAccount.Role,
 	}
 
-	accessToken, err := usecase.infra.JWTProvider.GenerateAccessToken(JWTPayload)
-	refreshToken, err := usecase.infra.JWTProvider.GenerateRefreshToken(JWTPayload)
+	accessToken, err := usecase.packages.TokenProvider.GenerateAccessToken(JWTPayload)
+	refreshToken, err := usecase.packages.TokenProvider.GenerateRefreshToken(JWTPayload)
 
 	if err != nil {
 		return nil, err
@@ -87,8 +95,8 @@ func (usecase *UseCase) Refresh(ctx context.Context, JWTPayload domain.JWTPayloa
 		return nil, err
 	}
 
-	accessToken, err := usecase.infra.JWTProvider.GenerateAccessToken(JWTPayload)
-	refreshToken, err := usecase.infra.JWTProvider.GenerateRefreshToken(JWTPayload)
+	accessToken, err := usecase.packages.TokenProvider.GenerateAccessToken(JWTPayload)
+	refreshToken, err := usecase.packages.TokenProvider.GenerateRefreshToken(JWTPayload)
 
 	if err != nil {
 		return nil, err
@@ -113,7 +121,7 @@ func (usecase UseCase) Recover(ctx context.Context, data RecoverSchema) error {
 		return err
 	}
 
-	err = usecase.infra.ResendClient.SendRecoveryOTP(ctx, *dbAccount)
+	err = usecase.packages.Mailer.SendRecoveryOTP(ctx, *dbAccount)
 
 	if err != nil {
 		return err
@@ -123,7 +131,7 @@ func (usecase UseCase) Recover(ctx context.Context, data RecoverSchema) error {
 }
 
 func (usecase UseCase) VerifyRecovery(ctx context.Context, data VerifyRecoverSchema) (*domain.User, error) {
-	code, err := usecase.infra.RedisClient.Get(ctx, data.Email)
+	code, err := usecase.packages.Redis.Get(ctx, data.Email)
 
 	if err != nil {
 		return nil, err

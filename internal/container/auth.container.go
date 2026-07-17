@@ -1,6 +1,7 @@
 package container
 
 import (
+	"main/internal/config"
 	"main/internal/infrastructure/repository"
 	"main/internal/modules/auth"
 	"main/internal/modules/user"
@@ -15,13 +16,21 @@ type AuthContainer struct {
 	UserRepo   user.IRepository
 }
 
-func NewAuthContainer(infra pkg.Packages, repo repository.Repository) *AuthContainer {
+func NewAuthContainer(cfg *config.Config, infra pkg.Packages, repo repository.Repository) *AuthContainer {
 	authRepo := repo.AuthRepository
 	userRepo := repo.UserRepository
 
-	usecase := auth.NewUseCase(authRepo, userRepo, infra)
-	controller := auth.NewController(usecase, infra.Logger)
-	routes := auth.NewRoutes(controller, infra.JWTProvider)
+	useCasePacakges := auth.UseCasePackages{
+		Bcrypt:        infra.BcryptHasher,
+		Mailer:        infra.ResendClient,
+		TokenProvider: infra.JWTProvider,
+		Redis:         infra.RedisClient,
+		Logger:        infra.Logger,
+	}
+
+	usecase := auth.NewUseCase(authRepo, userRepo, useCasePacakges)
+	controller := auth.NewController(usecase, infra.Logger, infra.JWTProvider, cfg.App.Mode == "PRODUCTION")
+	routes := auth.NewRoutes(controller, infra.JWTProvider, infra.Logger)
 
 	return &AuthContainer{
 		UseCase:    usecase,
