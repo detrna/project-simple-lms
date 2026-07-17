@@ -1,12 +1,27 @@
 package user
 
-import "github.com/gin-gonic/gin"
+import (
+	"main/internal/middleware"
+	"main/internal/pkg"
 
-func RegisterRoutes(rg *gin.RouterGroup, controller IController) {
+	"github.com/gin-gonic/gin"
+)
+
+type Routes struct {
+	controller    IController
+	tokenProvider pkg.JWTProvider
+	logger        pkg.Logger
+}
+
+func NewRoutes(c IController, tokenProvider pkg.JWTProvider, logger pkg.Logger) *Routes {
+	return &Routes{controller: c, tokenProvider: tokenProvider, logger: logger}
+}
+
+func (routes Routes) RegisterRoutes(rg *gin.RouterGroup, controller IController) {
 	router := rg.Group("/users")
 
 	router.GET("/:id", controller.GetUserByID)
-	router.POST("", controller.CreateUser)
-	router.PATCH("/:id", controller.UpdateUser)
-	router.DELETE("/:id", controller.DeleteUser)
+	router.POST("", middleware.Authenticate(routes.tokenProvider), controller.CreateUser)
+	router.PATCH("/:id", middleware.Authenticate(routes.tokenProvider), controller.UpdateUser)
+	router.DELETE("/:id", middleware.Authenticate(routes.tokenProvider), controller.DeleteUser)
 }

@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"fmt"
 	"main/internal/domain"
 	"main/internal/pkg"
 	"main/internal/shared"
@@ -13,10 +12,11 @@ import (
 type UseCase struct {
 	repo   IRepository
 	bcrypt pkg.BcryptHasher
+	logger pkg.Logger
 }
 
-func NewUseCase(repo IRepository, bcrypt pkg.BcryptHasher) *UseCase {
-	return (&UseCase{repo: repo, bcrypt: bcrypt})
+func NewUseCase(repo IRepository, bcrypt pkg.BcryptHasher, logger pkg.Logger) *UseCase {
+	return (&UseCase{repo: repo, bcrypt: bcrypt, logger: logger})
 }
 
 type IUseCase interface {
@@ -93,7 +93,6 @@ func (usecase UseCase) CreateUser(ctx context.Context, data CreateUserSchema) (*
 	result, err := usecase.repo.Create(ctx, user)
 
 	if err != nil {
-		fmt.Print("NOWAYING1")
 		return nil, err
 	}
 
