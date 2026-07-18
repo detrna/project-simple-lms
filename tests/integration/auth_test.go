@@ -20,7 +20,7 @@ func TestLogin(t *testing.T) {
 	reqBody, err := json.Marshal(reqData)
 	require.NoError(t, err)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/auth/login", bytes.NewBuffer(reqBody))
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/login", bytes.NewBuffer(reqBody))
 
 	w := httptest.NewRecorder()
 

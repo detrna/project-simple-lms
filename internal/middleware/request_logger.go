@@ -13,8 +13,6 @@ func RequestLogger(logger pkg.Logger) gin.HandlerFunc {
 		start := time.Now()
 		requestID := uuid.NewString()
 
-		c.Set("requestID", requestID)
-
 		c.Next()
 
 		logger.RequestLog(

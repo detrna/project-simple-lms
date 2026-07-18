@@ -29,5 +29,16 @@ func Authenticate(jwtProvider pkg.JWTProvider) gin.HandlerFunc {
 			)
 			return
 		}
+
+		jwtPayload, err := jwtProvider.ParseAccessToken(string(token))
+
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token invalid"})
+			return
+		}
+
+		c.Set("user", jwtPayload)
+
+		c.Next()
 	}
 }
