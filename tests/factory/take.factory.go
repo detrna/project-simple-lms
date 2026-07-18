@@ -13,7 +13,6 @@ func (f Factory) EnrollStudent(
 	class *database.Class,
 	user *database.User,
 ) {
-
 	t.Helper()
 
 	take := database.Takes{

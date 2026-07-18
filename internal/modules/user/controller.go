@@ -72,7 +72,7 @@ func (controller *Controller) CreateUser(c *gin.Context) {
 	err := c.ShouldBindBodyWithJSON(&dto)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		shared.HandleError(c, controller.logger, err)
 		return
 	}
 

@@ -32,46 +32,64 @@ func NewTokenProvider(cfg config.JWTConfig) pkg.JWTProvider {
 	}
 }
 
-func (provider *JWTProvider) GenerateAccessToken(data domain.JWTPayload) (string, error) {
+func (jwtProvider *JWTProvider) GenerateAccessToken(data *domain.User) (*domain.JWT, error) {
+	payload := domain.JWTPayload{
+		JTI:      uuid.New(),
+		UserID:   data.ID,
+		SystemID: data.SystemID,
+		Role:     data.Role,
+		Name:     data.Name,
+	}
+
 	claims := Claims{
-		Payload: domain.JWTPayload{
-			JTI:      uuid.New(),
-			UserID:   data.UserID,
-			SystemID: data.SystemID,
-			Role:     data.Role,
-			Name:     data.Name,
-		},
+		Payload: payload,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(provider.accessExpiryMinutes) * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(jwtProvider.accessExpiryMinutes) * time.Minute)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			Issuer:    "project-simple-lms",
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signed := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := signed.SignedString(jwtProvider.accessSecret)
 
-	return token.SignedString(provider.accessSecret)
+	if err != nil {
+		return nil, err
+	}
+
+	token := domain.JWT{Payload: payload, Value: tokenString}
+
+	return &token, nil
 }
 
-func (provider *JWTProvider) GenerateRefreshToken(data domain.JWTPayload) (string, error) {
+func (jwtProvider *JWTProvider) GenerateRefreshToken(data *domain.User) (*domain.JWT, error) {
+	payload := domain.JWTPayload{
+		JTI:      uuid.New(),
+		UserID:   data.ID,
+		SystemID: data.SystemID,
+		Role:     data.Role,
+		Name:     data.Name,
+	}
+
 	claims := Claims{
-		Payload: domain.JWTPayload{
-			JTI:      uuid.New(),
-			UserID:   data.UserID,
-			SystemID: data.SystemID,
-			Role:     data.Role,
-			Name:     data.Name,
-		},
+		Payload: payload,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(provider.refreshExpiryDays) * 24 * time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(jwtProvider.refreshExpiryDays) * 24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			Issuer:    "project-simple-lms",
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signed := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := signed.SignedString(jwtProvider.accessSecret)
 
-	return token.SignedString(provider.refreshSecret)
+	if err != nil {
+		return nil, err
+	}
+
+	token := domain.JWT{Payload: payload, Value: tokenString}
+
+	return &token, nil
 }
 
 func (provider *JWTProvider) ParseAccessToken(tokenString string) (*domain.JWTPayload, error) {

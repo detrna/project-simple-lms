@@ -22,7 +22,7 @@ func SetupRouter(cfg *config.Config, infra pkg.Packages, repo repository.Reposit
 	authModule := container.NewAuthContainer(cfg, infra, repo)
 
 	api := router.Group("/api/v1")
-	userModule.Routes.RegisterRoutes(api, userModule.Controller)
+	userModule.Routes.RegisterRoutes(api)
 	authModule.Routes.RegisterRoutes(api)
 
 	return router

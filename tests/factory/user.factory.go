@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func (f Factory) CreateUser(
@@ -17,19 +16,44 @@ func (f Factory) CreateUser(
 
 	t.Helper()
 
-	cost := f.Config.Bcrypt.Cost
-
 	password := "password123"
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), cost)
-
+	hashedPassword, err := f.Infra.BcryptHasher.Hash(password)
 	require.NoError(t, err)
 
 	user := &database.User{
 		ID:       uuid.New(),
+		SystemID: name + "-test",
 		Name:     name,
 		Email:    name + "@mail.com",
 		Password: string(hashedPassword),
+		Role:     "user",
+	}
+
+	err = f.DB.
+		WithContext(context.Background()).
+		Create(user).Error
+
+	require.NoError(t, err)
+
+	return user
+}
+
+func (f Factory) CreateAdmin(t *testing.T) *database.User {
+	t.Helper()
+
+	password := "password123"
+
+	hashedPassword, err := f.Infra.BcryptHasher.Hash(password)
+	require.NoError(t, err)
+
+	user := &database.User{
+		ID:       uuid.New(),
+		SystemID: "admin-test",
+		Name:     "admin",
+		Email:    "admin@mail.com",
+		Password: string(hashedPassword),
+		Role:     "admin",
 	}
 
 	err = f.DB.

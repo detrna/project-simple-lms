@@ -13,21 +13,27 @@ func HandleError(c *gin.Context, logger pkg.Logger, err error) {
 	switch {
 	case errors.Is(err, ErrEmailTaken):
 		c.JSON(http.StatusConflict, err)
+		return
 
 	case errors.Is(err, ErrCredentialsIncorrect):
 		c.JSON(http.StatusConflict, err)
+		return
 
 	case errors.Is(err, ErrBadRequest):
 		c.JSON(http.StatusBadRequest, err)
+		return
 
 	case errors.Is(err, ErrRecordNotFound):
 		c.JSON(http.StatusBadRequest, err)
+		return
 
 	case errors.Is(err, ErrIncorrectOTP):
 		c.JSON(http.StatusBadRequest, err)
+		return
 
 	default:
 		c.JSON(http.StatusInternalServerError, err)
+		return
 	}
 }
 

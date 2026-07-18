@@ -73,9 +73,7 @@ func (usecase UseCase) CreateUser(ctx context.Context, data CreateUserSchema) (*
 		return nil, shared.ErrEmailTaken
 	}
 
-	err = nil
-
-	hashedPassword, err := usecase.bcrypt.Hash(dbAccount.Password)
+	hashedPassword, err := usecase.bcrypt.Hash(data.Password)
 
 	if err != nil {
 		return nil, err

@@ -12,7 +12,7 @@ type User struct {
 	Name      string    `gorm:"not null"`
 	Email     string    `gorm:"not null"`
 	Password  string    `gorm:"not null"`
-	Role      string    `gorm:"not null"`
+	Role      string    `gorm:"not null;default:user"`
 	CreatedAt time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
 
 	SubmissionFile   []SubmissionFile   `gorm:"foreignKey:UserID"`

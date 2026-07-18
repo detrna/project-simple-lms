@@ -11,4 +11,5 @@ func (f Factory) Cleanup(t *testing.T) {
 	db.Exec("TRUNCATE classes CASCADE")
 	db.Exec("TRUNCATE courses CASCADE")
 	db.Exec("TRUNCATE users CASCADE")
+	db.Exec("TRUNCATE jwts CASCADE")
 }

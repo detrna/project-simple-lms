@@ -89,12 +89,14 @@ func (controller *Controller) Refresh(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "token did not exist")
+		return
 	}
 
 	jwtPayload, err := controller.tokenProvider.ParseRefreshToken(token)
 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "token expired")
+		return
 	}
 
 	ctx := c.Request.Context()

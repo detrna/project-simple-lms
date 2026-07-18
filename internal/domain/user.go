@@ -23,3 +23,8 @@ type JWTPayload struct {
 	Name     string
 	Role     string
 }
+
+type JWT struct {
+	Payload JWTPayload
+	Value   string
+}

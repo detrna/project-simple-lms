@@ -3,26 +3,31 @@ package middleware
 import (
 	"main/internal/pkg"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Authenticate(jwtProvider pkg.JWTProvider) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.Request.Header.Get("Authorization")[1]
+		authHeader := c.GetHeader("Authorization")
 
-		if string(token) == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token didn't exist"})
+		if authHeader == "" {
+			c.AbortWithStatusJSON(
+				http.StatusUnauthorized,
+				gin.H{"error": "Token didn't exist"},
+			)
+			return
 		}
 
-		jwtPayload, err := jwtProvider.ParseAccessToken(string(token))
+		token := strings.TrimPrefix(authHeader, "Bearer ")
 
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token invalid"})
+		if token == authHeader {
+			c.AbortWithStatusJSON(
+				http.StatusUnauthorized,
+				gin.H{"error": "Invalid authorization format"},
+			)
+			return
 		}
-
-		c.Set("user", jwtPayload)
-
-		c.Next()
 	}
 }

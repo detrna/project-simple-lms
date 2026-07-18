@@ -51,31 +51,23 @@ func (usecase *UseCase) Login(ctx context.Context, data LoginSchema) (*Tokens, e
 		return nil, shared.ErrCredentialsIncorrect
 	}
 
-	JWTPayload := domain.JWTPayload{
-		JTI:      uuid.New(),
-		UserID:   dbAccount.ID,
-		SystemID: dbAccount.SystemID,
-		Name:     dbAccount.Name,
-		Role:     dbAccount.Role,
-	}
-
-	accessToken, err := usecase.packages.TokenProvider.GenerateAccessToken(JWTPayload)
-	refreshToken, err := usecase.packages.TokenProvider.GenerateRefreshToken(JWTPayload)
+	accessToken, err := usecase.packages.TokenProvider.GenerateAccessToken(dbAccount)
+	refreshToken, err := usecase.packages.TokenProvider.GenerateRefreshToken(dbAccount)
 
 	if err != nil {
 		return nil, err
 	}
 
-	sum := sha256.Sum256([]byte(refreshToken))
+	sum := sha256.Sum256([]byte(refreshToken.Value))
 	hashedToken := hex.EncodeToString(sum[:])
 
-	result, err := usecase.repo.CreateJWT(ctx, JWTPayload, hashedToken)
+	result, err := usecase.repo.CreateJWT(ctx, accessToken.Payload, hashedToken)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &Tokens{AccessToken: accessToken, RefreshToken: *result}, nil
+	return &Tokens{AccessToken: accessToken.Value, RefreshToken: *result}, nil
 }
 
 func (usecase *UseCase) Logout(ctx context.Context, ID uuid.UUID) error {
@@ -95,14 +87,21 @@ func (usecase *UseCase) Refresh(ctx context.Context, JWTPayload domain.JWTPayloa
 		return nil, err
 	}
 
-	accessToken, err := usecase.packages.TokenProvider.GenerateAccessToken(JWTPayload)
-	refreshToken, err := usecase.packages.TokenProvider.GenerateRefreshToken(JWTPayload)
+	user := domain.User{
+		ID:       JWTPayload.UserID,
+		Role:     JWTPayload.Role,
+		Name:     JWTPayload.Name,
+		SystemID: JWTPayload.SystemID,
+	}
+
+	accessToken, err := usecase.packages.TokenProvider.GenerateAccessToken(&user)
+	refreshToken, err := usecase.packages.TokenProvider.GenerateRefreshToken(&user)
 
 	if err != nil {
 		return nil, err
 	}
 
-	sum := sha256.Sum256([]byte(refreshToken))
+	sum := sha256.Sum256([]byte(refreshToken.Value))
 	hashedToken := hex.EncodeToString(sum[:])
 
 	result, err := usecase.repo.CreateJWT(ctx, JWTPayload, hashedToken)
@@ -111,7 +110,7 @@ func (usecase *UseCase) Refresh(ctx context.Context, JWTPayload domain.JWTPayloa
 		return nil, err
 	}
 
-	return &Tokens{AccessToken: accessToken, RefreshToken: *result}, nil
+	return &Tokens{AccessToken: accessToken.Value, RefreshToken: *result}, nil
 }
 
 func (usecase UseCase) Recover(ctx context.Context, data RecoverSchema) error {
