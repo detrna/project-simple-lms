@@ -80,7 +80,7 @@ func TestUpdateUser(t *testing.T) {
 
 	newName := "Student2"
 
-	requestData := user.UpdateUserSchema{Name: &newName}
+	requestData := user.AdminUpdateUserSchema{Name: &newName}
 
 	requestBody, err := json.Marshal(requestData)
 	require.NoError(t, err)

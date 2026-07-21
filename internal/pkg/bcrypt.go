@@ -1,6 +1,6 @@
 package pkg
 
 type BcryptHasher interface {
-	CompareHashAndPassword(string, string) error
-	Hash(string) ([]byte, error)
+	CompareHashAndPassword(hashed string, literal string) error
+	Hash(literal string) ([]byte, error)
 }

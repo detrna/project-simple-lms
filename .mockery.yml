@@ -1,0 +1,34 @@
+# .mockery.yml
+
+template: testify
+formatter: goimports
+generate: true
+log-level: info
+force-file-write: true
+dir: "{{.InterfaceDir}}/mocks"
+filename: mocks.go
+
+packages:
+  main/internal/pkg:
+    config:
+      all: true
+      recursive: true
+      pkgname: "pkg_mocks"
+
+  main/internal/modules/user:
+    config:
+      all: true
+      recursive: true
+      pkgname: "user_mocks"
+
+  main/internal/modules/auth:
+    config:
+      all: true
+      recursive: true
+      pkgname: "auth_mocks"
+
+  main/internal/middleware:
+    config:
+      all: true
+      recursive: true
+      pkgname: "middleware_mocks"

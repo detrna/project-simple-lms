@@ -3,7 +3,7 @@ package middleware_test
 import (
 	"errors"
 	"main/internal/middleware"
-	mocks "main/internal/pkg/tests"
+	pkg_mocks "main/internal/pkg/mocks"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,7 +13,7 @@ import (
 )
 
 func TestErrorLogger_NoError(t *testing.T) {
-	mockLogger := new(mocks.MockLogger)
+	mockLogger := new(pkg_mocks.MockLogger)
 
 	router := gin.New()
 
@@ -42,7 +42,7 @@ func TestErrorLogger_NoError(t *testing.T) {
 }
 
 func TestErrorLogger_WithError(t *testing.T) {
-	mockLogger := new(mocks.MockLogger)
+	mockLogger := new(pkg_mocks.MockLogger)
 
 	expectedErr := errors.New("something went wrong")
 

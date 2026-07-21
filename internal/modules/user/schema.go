@@ -31,7 +31,7 @@ type UpdateUserBodySchema struct {
 	Password *string `json:"password"`
 }
 
-type UpdateUserSchema struct {
+type AdminUpdateUserSchema struct {
 	ID       *uuid.UUID `json:"id"`
 	SystemID *string    `json:"systemId"`
 	Name     *string    `json:"name"`

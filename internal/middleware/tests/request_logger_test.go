@@ -2,7 +2,7 @@ package middleware_test
 
 import (
 	"main/internal/middleware"
-	mocks "main/internal/pkg/tests"
+	pkg_mocks "main/internal/pkg/mocks"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,7 +13,7 @@ import (
 )
 
 func TestRequestLogger_FailedRequest(t *testing.T) {
-	mockLogger := new(mocks.MockLogger)
+	mockLogger := new(pkg_mocks.MockLogger)
 
 	mockLogger.
 		On(
@@ -54,7 +54,7 @@ func TestRequestLogger_FailedRequest(t *testing.T) {
 }
 
 func TestRequestLogger_SuccessRequest(t *testing.T) {
-	mockLogger := new(mocks.MockLogger)
+	mockLogger := new(pkg_mocks.MockLogger)
 
 	mockLogger.
 		On(

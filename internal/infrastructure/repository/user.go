@@ -26,6 +26,10 @@ func (repo UserRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.
 		Where("id = ?", id).
 		First(ctx)
 
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, shared.ErrRecordNotFound
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -35,11 +39,15 @@ func (repo UserRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.
 	return &user, nil
 }
 
-func (repo UserRepository) FindBySystemID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+func (repo UserRepository) FindBySystemID(ctx context.Context, id string) (*domain.User, error) {
 	rows, err := gorm.G[database.User](repo.db).
-		Where("User_id = ?", id).
+		Where("system_id = ?", id).
 		First(ctx)
 
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, shared.ErrRecordNotFound
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -49,8 +57,8 @@ func (repo UserRepository) FindBySystemID(ctx context.Context, id uuid.UUID) (*d
 	return &user, nil
 }
 
-func (repo UserRepository) Create(ctx context.Context, data domain.User) (*domain.User, error) {
-	dbUser := mapper.ToDatabaseUser(data)
+func (repo UserRepository) Create(ctx context.Context, data *domain.User) (*domain.User, error) {
+	dbUser := mapper.ToDatabaseUser(*data)
 
 	err := gorm.G[database.User](repo.db).Create(ctx, &dbUser)
 	if err != nil {
@@ -62,8 +70,8 @@ func (repo UserRepository) Create(ctx context.Context, data domain.User) (*domai
 	return &createdUser, nil
 }
 
-func (repo UserRepository) Update(ctx context.Context, data domain.User) (*domain.User, error) {
-	dbUser := mapper.ToDatabaseUser(data)
+func (repo UserRepository) Update(ctx context.Context, data *domain.User) (*domain.User, error) {
+	dbUser := mapper.ToDatabaseUser(*data)
 
 	var result database.User
 

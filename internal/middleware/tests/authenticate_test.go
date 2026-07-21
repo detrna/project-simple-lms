@@ -3,7 +3,7 @@ package middleware_test
 import (
 	"main/internal/domain"
 	"main/internal/middleware"
-	mocks "main/internal/pkg/tests"
+	pkg_mocks "main/internal/pkg/mocks"
 	"main/internal/shared"
 	"net/http"
 	"net/http/httptest"
@@ -51,7 +51,7 @@ func TestAuthenticate_InvalidToken(t *testing.T) {
 }
 
 func TestAuthenticate_Success(t *testing.T) {
-	mockJWT := new(mocks.MockJWTProvider)
+	mockJWT := new(pkg_mocks.MockJWTProvider)
 
 	expectedPayload := &domain.JWTPayload{
 		UserID:   uuid.New(),

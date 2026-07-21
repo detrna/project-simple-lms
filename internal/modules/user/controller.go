@@ -78,7 +78,7 @@ func (controller *Controller) CreateUser(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	user, err := controller.usecase.CreateUser(ctx, dto)
+	user, err := controller.usecase.CreateUser(ctx, &dto)
 
 	if err != nil {
 		shared.HandleError(c, controller.logger, err)
@@ -105,7 +105,7 @@ func (controller *Controller) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	dto := UpdateUserSchema{
+	dto := AdminUpdateUserSchema{
 		ID:       &id,
 		Name:     body.Name,
 		Email:    body.Email,
@@ -114,7 +114,7 @@ func (controller *Controller) UpdateUser(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	result, err := controller.usecase.UpdateUser(ctx, dto)
+	result, err := controller.usecase.AdminUpdateUser(ctx, &dto)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())

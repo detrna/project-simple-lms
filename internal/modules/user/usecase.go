@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"errors"
 	"main/internal/domain"
 	"main/internal/pkg"
 	"main/internal/shared"
@@ -21,9 +22,9 @@ func NewUseCase(repo IRepository, bcrypt pkg.BcryptHasher, logger pkg.Logger) *U
 
 type IUseCase interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (*UserResponse, error)
-	GetUserByUserID(ctx context.Context, id uuid.UUID) (*UserResponse, error)
-	CreateUser(ctx context.Context, data CreateUserSchema) (*UserResponse, error)
-	UpdateUser(ctx context.Context, data UpdateUserSchema) (*UserResponse, error)
+	GetUserBySystemID(ctx context.Context, id string) (*UserResponse, error)
+	CreateUser(ctx context.Context, data *CreateUserSchema) (*UserResponse, error)
+	AdminUpdateUser(ctx context.Context, data *AdminUpdateUserSchema) (*UserResponse, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 }
 
@@ -50,7 +51,7 @@ func (usecase UseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*UserResp
 	return &dto, nil
 }
 
-func (usecase UseCase) GetUserByUserID(ctx context.Context, id uuid.UUID) (*UserResponse, error) {
+func (usecase UseCase) GetUserBySystemID(ctx context.Context, id string) (*UserResponse, error) {
 	result, err := usecase.repo.FindBySystemID(ctx, id)
 
 	if err != nil {
@@ -62,10 +63,10 @@ func (usecase UseCase) GetUserByUserID(ctx context.Context, id uuid.UUID) (*User
 	return &dto, nil
 }
 
-func (usecase UseCase) CreateUser(ctx context.Context, data CreateUserSchema) (*UserResponse, error) {
+func (usecase UseCase) CreateUser(ctx context.Context, data *CreateUserSchema) (*UserResponse, error) {
 	dbAccount, err := usecase.repo.FindByEmail(ctx, data.Email)
 
-	if err != shared.ErrRecordNotFound {
+	if !errors.Is(err, shared.ErrRecordNotFound) && err != nil {
 		return nil, err
 	}
 
@@ -88,7 +89,7 @@ func (usecase UseCase) CreateUser(ctx context.Context, data CreateUserSchema) (*
 		Password: string(hashedPassword),
 	}
 
-	result, err := usecase.repo.Create(ctx, user)
+	result, err := usecase.repo.Create(ctx, &user)
 
 	if err != nil {
 		return nil, err
@@ -99,28 +100,52 @@ func (usecase UseCase) CreateUser(ctx context.Context, data CreateUserSchema) (*
 	return &dto, nil
 }
 
-func (usecase UseCase) UpdateUser(ctx context.Context, data UpdateUserSchema) (*UserResponse, error) {
-	var user domain.User
+func (usecase UseCase) AdminUpdateUser(ctx context.Context, data *AdminUpdateUserSchema) (*UserResponse, error) {
+	var user *domain.User
+
+	user, err := usecase.repo.FindByID(ctx, *data.ID)
+
+	if err != nil {
+		return nil, err
+	}
 
 	user.ID = *data.ID
 
-	if data.Email != nil {
+	if data.Email != nil && data.Email != &user.Email {
+		if err := shared.CheckExistingRecord(
+			ctx,
+			*data.Email,
+			usecase.repo.FindByEmail,
+			shared.ErrEmailTaken,
+		); err != nil {
+			return nil, err
+		}
+
 		user.Email = *data.Email
 	}
 
-	if data.Name != nil {
+	if data.Name != nil && data.Email != &user.Name {
 		user.Name = *data.Name
 	}
 
-	if data.Password != nil {
+	if data.Password != nil && data.Password != &user.Password {
 		user.Password = *data.Password
 	}
 
-	if data.SystemID != nil {
+	if data.SystemID != nil && data.SystemID != &user.SystemID {
+		if err := shared.CheckExistingRecord(
+			ctx,
+			*data.SystemID,
+			usecase.repo.FindBySystemID,
+			shared.ErrEmailTaken,
+		); err != nil {
+			return nil, err
+		}
+
 		user.SystemID = *data.SystemID
 	}
 
-	if data.Role != nil {
+	if data.Role != nil && data.Role != &user.Role {
 		user.Role = *data.Role
 	}
 
@@ -136,5 +161,9 @@ func (usecase UseCase) UpdateUser(ctx context.Context, data UpdateUserSchema) (*
 }
 
 func (usecase UseCase) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	if _, err := usecase.repo.FindByID(ctx, id); err != nil {
+		return err
+	}
+
 	return usecase.repo.Delete(ctx, id)
 }

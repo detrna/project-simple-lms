@@ -144,7 +144,7 @@ func (usecase UseCase) VerifyRecovery(ctx context.Context, data VerifyRecoverSch
 
 	dbAccount.Password = data.Password
 
-	newAccount, err := usecase.userRepo.Update(ctx, *dbAccount)
+	newAccount, err := usecase.userRepo.Update(ctx, dbAccount)
 
 	return newAccount, nil
 }
