@@ -7,12 +7,10 @@ import (
 	"main/internal/domain"
 	"main/internal/modules/user"
 	user_mocks "main/internal/modules/user/mocks"
-	pkg_mocks "main/internal/pkg/mocks"
 	"main/internal/shared"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -22,21 +20,12 @@ import (
 )
 
 func TestAdminUpdateUser_Success(t *testing.T) {
-	mockUsecase := &user_mocks.MockIUseCase{}
-	ctrl := user.NewController(mockUsecase, &pkg_mocks.MockLogger{})
+	mockUsecase := user_mocks.NewMockIUseCase(t)
+	mockLogger := NewMockLogger(t)
+	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	id := uuid.New()
-	createdAt := time.Now()
-
-	account := domain.User{
-		ID:        id,
-		SystemID:  "user-test-1",
-		Name:      "user-test",
-		Role:      "default",
-		Email:     "user-test@mail.com",
-		Password:  "password123",
-		CreatedAt: createdAt,
-	}
+	existingUser := NewUserSample(id)
 
 	newName := "user-test-2"
 	requestData := user.UpdateUserBodySchema{
@@ -44,55 +33,54 @@ func TestAdminUpdateUser_Success(t *testing.T) {
 	}
 
 	mockResult := user.UserResponse{
-		ID:        account.ID,
-		SystemID:  account.SystemID,
-		Name:      newName,
-		Email:     account.Email,
-		Role:      account.Role,
-		CreatedAt: account.CreatedAt,
+		ID:       existingUser.ID,
+		SystemID: existingUser.SystemID,
+		Name:     newName,
+		Email:    existingUser.Email,
+		Role:     existingUser.Role,
 	}
 
 	expected := &mockResult
 
 	ctx := context.Background()
-	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("user.UpdateUserSchema")).Return(&mockResult, nil)
+	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("*user.AdminUpdateUserSchema")).Return(&mockResult, nil)
 
 	router := gin.New()
 	router.PATCH("/:id/admin", func(c *gin.Context) {
-		ctrl.UpdateUser(c)
+		ctrl.AdminUpdateUser(c)
 	})
 
 	w := httptest.NewRecorder()
 
-	path := "/" + (account.ID).String() + "/admin"
+	path := "/" + (existingUser.ID).String() + "/admin"
 	body, err := json.Marshal(requestData)
 	require.NoError(t, err)
 
 	req := httptest.NewRequest(
-		http.MethodPost,
+		http.MethodPatch,
 		path,
 		bytes.NewReader(body),
 	)
 	req.Header.Set("Content-Type", "application/json")
 
 	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
 
 	var response shared.ResponseSuccess[user.UserResponse]
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	require.NoError(t, err)
 
-	assert.Equal(t, http.StatusCreated, w.Code)
-	assert.Equal(t, *expected, response.Data)
+	assert.Equal(t, expected, response.Data)
 
 	mockUsecase.AssertExpectations(t)
 }
 
 func TestAdminUpdateUser_RecordNotFound(t *testing.T) {
-	mockUsecase := &user_mocks.MockIUseCase{}
-	ctrl := user.NewController(mockUsecase, &pkg_mocks.MockLogger{})
+	mockUsecase := user_mocks.NewMockIUseCase(t)
+	mockLogger := NewMockLogger(t)
+	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	id := uuid.New()
-
 	account := domain.User{
 		ID: id,
 	}
@@ -103,11 +91,11 @@ func TestAdminUpdateUser_RecordNotFound(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("user.UpdateUserSchema")).Return(nil, shared.ErrRecordNotFound)
+	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("*user.AdminUpdateUserSchema")).Return(nil, shared.ErrRecordNotFound)
 
 	router := gin.New()
 	router.PATCH("/:id/admin", func(c *gin.Context) {
-		ctrl.UpdateUser(c)
+		ctrl.AdminUpdateUser(c)
 	})
 
 	w := httptest.NewRecorder()
@@ -117,7 +105,7 @@ func TestAdminUpdateUser_RecordNotFound(t *testing.T) {
 	require.NoError(t, err)
 
 	req := httptest.NewRequest(
-		http.MethodPost,
+		http.MethodPatch,
 		path,
 		bytes.NewReader(body),
 	)
@@ -136,8 +124,9 @@ func TestAdminUpdateUser_RecordNotFound(t *testing.T) {
 }
 
 func TestAdminUpdateUser_EmailTaken(t *testing.T) {
-	mockUsecase := &user_mocks.MockIUseCase{}
-	ctrl := user.NewController(mockUsecase, &pkg_mocks.MockLogger{})
+	mockUsecase := user_mocks.NewMockIUseCase(t)
+	mockLogger := NewMockLogger(t)
+	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	newEmail := "user-test-updated@mail.com"
 	requestData := user.UpdateUserBodySchema{
@@ -145,11 +134,11 @@ func TestAdminUpdateUser_EmailTaken(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("user.UpdateUserSchema")).Return(nil, shared.ErrEmailTaken)
+	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("*user.AdminUpdateUserSchema")).Return(nil, shared.ErrEmailTaken)
 
 	router := gin.New()
 	router.PATCH("/:id/admin", func(c *gin.Context) {
-		ctrl.UpdateUser(c)
+		ctrl.AdminUpdateUser(c)
 	})
 
 	w := httptest.NewRecorder()
@@ -159,7 +148,7 @@ func TestAdminUpdateUser_EmailTaken(t *testing.T) {
 	require.NoError(t, err)
 
 	req := httptest.NewRequest(
-		http.MethodPost,
+		http.MethodPatch,
 		path,
 		bytes.NewReader(body),
 	)
@@ -171,15 +160,16 @@ func TestAdminUpdateUser_EmailTaken(t *testing.T) {
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	require.NoError(t, err)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusConflict, w.Code)
 	assert.Equal(t, shared.ErrEmailTaken.Error(), response.Error)
 
 	mockUsecase.AssertExpectations(t)
 }
 
 func TestAdminUpdateUser_SystemIDTaken(t *testing.T) {
-	mockUsecase := &user_mocks.MockIUseCase{}
-	ctrl := user.NewController(mockUsecase, &pkg_mocks.MockLogger{})
+	mockUsecase := user_mocks.NewMockIUseCase(t)
+	mockLogger := NewMockLogger(t)
+	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	newSystemID := "user-test-2"
 	requestData := user.UpdateUserBodySchema{
@@ -187,11 +177,11 @@ func TestAdminUpdateUser_SystemIDTaken(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("user.UpdateUserSchema")).Return(nil, shared.ErrSystemIDTaken)
+	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("*user.AdminUpdateUserSchema")).Return(nil, shared.ErrSystemIDTaken)
 
 	router := gin.New()
 	router.PATCH("/:id/admin", func(c *gin.Context) {
-		ctrl.UpdateUser(c)
+		ctrl.AdminUpdateUser(c)
 	})
 
 	w := httptest.NewRecorder()
@@ -201,7 +191,7 @@ func TestAdminUpdateUser_SystemIDTaken(t *testing.T) {
 	require.NoError(t, err)
 
 	req := httptest.NewRequest(
-		http.MethodPost,
+		http.MethodPatch,
 		path,
 		bytes.NewReader(body),
 	)
@@ -213,7 +203,7 @@ func TestAdminUpdateUser_SystemIDTaken(t *testing.T) {
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	require.NoError(t, err)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusConflict, w.Code)
 	assert.Equal(t, shared.ErrSystemIDTaken.Error(), response.Error)
 
 	mockUsecase.AssertExpectations(t)

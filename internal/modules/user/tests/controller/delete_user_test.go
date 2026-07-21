@@ -6,7 +6,6 @@ import (
 	"main/internal/domain"
 	"main/internal/modules/user"
 	user_mocks "main/internal/modules/user/mocks"
-	pkg_mocks "main/internal/pkg/mocks"
 	"main/internal/shared"
 	"net/http"
 	"net/http/httptest"
@@ -20,11 +19,11 @@ import (
 )
 
 func TestDeleteUser_Success(t *testing.T) {
-	mockUsecase := &user_mocks.MockIUseCase{}
-	ctrl := user.NewController(mockUsecase, &pkg_mocks.MockLogger{})
+	mockUsecase := user_mocks.NewMockIUseCase(t)
+	mockLogger := NewMockLogger(t)
+	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	id := uuid.New()
-
 	account := domain.User{
 		ID: id,
 	}
@@ -48,19 +47,20 @@ func TestDeleteUser_Success(t *testing.T) {
 
 	router.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusNoContent, w.Code)
 
 	mockUsecase.AssertExpectations(t)
 }
 
-func DeleteUser_RecordNotFound(t *testing.T) {
-	mockUsecase := &user_mocks.MockIUseCase{}
-	ctrl := user.NewController(mockUsecase, &pkg_mocks.MockLogger{})
+func TestDeleteUser_RecordNotFound(t *testing.T) {
+	mockUsecase := user_mocks.NewMockIUseCase(t)
+	mockLogger := NewMockLogger(t)
+	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	id := uuid.New()
 
 	ctx := context.Background()
-	mockUsecase.On("DeleteUser", ctx, mock.AnythingOfType("uuid.UUID")).Return(shared.ErrRecordNotFound)
+	mockUsecase.On("GetUserByID", ctx, mock.AnythingOfType("uuid.UUID")).Return(nil, shared.ErrRecordNotFound)
 
 	router := gin.New()
 	router.DELETE("/:id", func(c *gin.Context) {
@@ -83,7 +83,7 @@ func DeleteUser_RecordNotFound(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Equal(t, shared.ErrBadRequest.Error(), response.Error)
+	assert.Equal(t, shared.ErrRecordNotFound.Error(), response.Error)
 
 	mockUsecase.AssertExpectations(t)
 }

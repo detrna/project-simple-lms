@@ -22,6 +22,6 @@ func (routes Routes) RegisterRoutes(rg *gin.RouterGroup) {
 
 	router.GET("/:id", routes.controller.GetUserByID)
 	router.POST("", middleware.Authenticate(routes.tokenProvider), routes.controller.CreateUser)
-	router.PATCH("/:id", middleware.Authenticate(routes.tokenProvider), routes.controller.UpdateUser)
+	router.PATCH("/:id", middleware.Authenticate(routes.tokenProvider), routes.controller.AdminUpdateUser)
 	router.DELETE("/:id", middleware.Authenticate(routes.tokenProvider), routes.controller.DeleteUser)
 }

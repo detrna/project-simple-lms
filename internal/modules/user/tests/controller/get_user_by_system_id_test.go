@@ -3,15 +3,12 @@ package user_controller_test
 import (
 	"context"
 	"encoding/json"
-	"main/internal/domain"
 	"main/internal/modules/user"
 	user_mocks "main/internal/modules/user/mocks"
-	pkg_mocks "main/internal/pkg/mocks"
 	"main/internal/shared"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -21,28 +18,19 @@ import (
 )
 
 func TestGetUserBySystemID_Success(t *testing.T) {
-	mockUsecase := &user_mocks.MockIUseCase{}
-	ctrl := user.NewController(mockUsecase, &pkg_mocks.MockLogger{})
+	mockUsecase := user_mocks.NewMockIUseCase(t)
+	mockLogger := NewMockLogger(t)
+	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	id := uuid.New()
-	createdAt := time.Now()
-
-	account := domain.User{
-		ID:        id,
-		SystemID:  "user-test-1",
-		Name:      "user-test",
-		Role:      "default",
-		Email:     "user-test@mail.com",
-		Password:  "password123",
-		CreatedAt: createdAt,
-	}
+	userSample := NewUserSample(id)
 
 	mockResult := user.UserResponse{
-		ID:       account.ID,
-		SystemID: account.SystemID,
-		Name:     account.Name,
-		Email:    account.Email,
-		Role:     account.Role,
+		ID:       userSample.ID,
+		SystemID: userSample.SystemID,
+		Name:     userSample.Name,
+		Email:    userSample.Email,
+		Role:     userSample.Role,
 	}
 
 	expected := &mockResult
@@ -52,12 +40,12 @@ func TestGetUserBySystemID_Success(t *testing.T) {
 
 	router := gin.New()
 	router.GET("/system/:systemId", func(c *gin.Context) {
-		ctrl.GetUserByID(c)
+		ctrl.GetUserBySystemID(c)
 	})
 
 	w := httptest.NewRecorder()
 
-	path := "/system/" + account.SystemID
+	path := "/system/" + userSample.SystemID
 	req := httptest.NewRequest(
 		http.MethodGet,
 		path,
@@ -71,17 +59,18 @@ func TestGetUserBySystemID_Success(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, *expected, response.Data)
+	assert.Equal(t, expected, response.Data)
 
 	mockUsecase.AssertExpectations(t)
 }
 
 func TestGetUserBySystemID_RecordNotFound(t *testing.T) {
-	mockUsecase := &user_mocks.MockIUseCase{}
-	ctrl := user.NewController(mockUsecase, &pkg_mocks.MockLogger{})
+	mockUsecase := user_mocks.NewMockIUseCase(t)
+	mockLogger := NewMockLogger(t)
+	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	ctx := context.Background()
-	mockUsecase.On("GetUserBySystemID", ctx, mock.AnythingOfType("uuid.UUID")).Return(nil, shared.ErrRecordNotFound)
+	mockUsecase.On("GetUserBySystemID", ctx, mock.AnythingOfType("string")).Return(nil, shared.ErrRecordNotFound)
 
 	router := gin.New()
 	router.GET("/system/:systemId", func(c *gin.Context) {
@@ -104,7 +93,7 @@ func TestGetUserBySystemID_RecordNotFound(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Equal(t, shared.ErrBadRequest.Error(), response.Error)
+	assert.Equal(t, shared.ErrRecordNotFound.Error(), response.Error)
 
 	mockUsecase.AssertExpectations(t)
 }

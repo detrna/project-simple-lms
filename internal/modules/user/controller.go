@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"main/internal/pkg"
 	"main/internal/shared"
 	"net/http"
@@ -22,7 +23,7 @@ type IController interface {
 	GetUserByID(c *gin.Context)
 	GetUserBySystemID(c *gin.Context)
 	CreateUser(c *gin.Context)
-	UpdateUser(c *gin.Context)
+	AdminUpdateUser(c *gin.Context)
 	DeleteUser(c *gin.Context)
 }
 
@@ -30,49 +31,52 @@ func (controller *Controller) GetUserByID(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 
 	if err != nil {
-		c.AbortWithStatus(400)
+		shared.HandleError(c, controller.logger, shared.ErrBadRequest)
 		return
 	}
 
 	ctx := c.Request.Context()
-
 	result, err := controller.usecase.GetUserByID(ctx, id)
 
 	if err != nil {
-		c.AbortWithStatus(500)
+		shared.HandleError(c, controller.logger, err)
 		return
 	}
 
-	payload := shared.ResponseSuccess[any]{
-		Data: *result,
+	payload := shared.ResponseDTO[UserResponse]{
+		Data: result,
 	}
 
 	shared.HandleResponse(c, payload)
 }
 
 func (controller *Controller) GetUserBySystemID(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("UserId"))
+	id := c.Param("systemId")
 
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	if id == "" {
+		fmt.Print("APAKAH")
+		shared.HandleError(c, controller.logger, shared.ErrBadRequest)
 		return
 	}
 
 	ctx := c.Request.Context()
-
-	result, err := controller.usecase.GetUserByID(ctx, id)
+	result, err := controller.usecase.GetUserBySystemID(ctx, id)
 
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		fmt.Print("OALAH")
+		shared.HandleError(c, controller.logger, err)
 		return
 	}
 
-	c.JSON(200, result)
+	payload := shared.ResponseDTO[UserResponse]{
+		Data: result,
+	}
+
+	shared.HandleResponse(c, payload)
 }
 
 func (controller *Controller) CreateUser(c *gin.Context) {
 	var dto CreateUserSchema
-
 	err := c.ShouldBindBodyWithJSON(&dto)
 
 	if err != nil {
@@ -81,31 +85,36 @@ func (controller *Controller) CreateUser(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-
-	user, err := controller.usecase.CreateUser(ctx, &dto)
+	result, err := controller.usecase.CreateUser(ctx, &dto)
 
 	if err != nil {
 		shared.HandleError(c, controller.logger, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, user)
+	statusCode := http.StatusCreated
+	payload := shared.ResponseDTO[UserResponse]{
+		Data:       result,
+		StatusCode: &statusCode,
+	}
+
+	shared.HandleResponse(c, payload)
 }
 
-func (controller *Controller) UpdateUser(c *gin.Context) {
+func (controller *Controller) AdminUpdateUser(c *gin.Context) {
 	var body UpdateUserBodySchema
 
 	err := c.ShouldBindBodyWithJSON(&body)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		shared.HandleError(c, controller.logger, err)
 		return
 	}
 
 	id, err := uuid.Parse(c.Param("id"))
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		shared.HandleError(c, controller.logger, err)
 		return
 	}
 
@@ -117,27 +126,29 @@ func (controller *Controller) UpdateUser(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-
 	result, err := controller.usecase.AdminUpdateUser(ctx, &dto)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		shared.HandleError(c, controller.logger, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, result)
+	payload := shared.ResponseDTO[UserResponse]{
+		Data: result,
+	}
+
+	shared.HandleResponse(c, payload)
 }
 
 func (controller *Controller) DeleteUser(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		shared.HandleError(c, controller.logger, err)
 		return
 	}
 
 	ctx := c.Request.Context()
-
 	if err := controller.usecase.DeleteUser(ctx, id); err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 	}

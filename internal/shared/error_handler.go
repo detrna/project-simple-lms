@@ -20,7 +20,7 @@ func HandleError(c *gin.Context, logger pkg.Logger, err error) {
 	}
 
 	switch {
-	case errors.Is(err, ErrEmailTaken):
+	case errors.Is(err, ErrEmailTaken) || errors.Is(err, ErrSystemIDTaken):
 		c.JSON(http.StatusConflict, error)
 		return
 
