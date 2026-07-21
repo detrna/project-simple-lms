@@ -10,11 +10,11 @@ import (
 )
 
 type Controller struct {
-	usecase *UseCase
+	usecase IUseCase
 	logger  pkg.Logger
 }
 
-func NewController(usecase *UseCase, logger pkg.Logger) *Controller {
+func NewController(usecase IUseCase, logger pkg.Logger) *Controller {
 	return &Controller{usecase: usecase, logger: logger}
 }
 
@@ -43,7 +43,11 @@ func (controller *Controller) GetUserByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, result)
+	payload := shared.ResponseSuccess[any]{
+		Data: *result,
+	}
+
+	shared.HandleResponse(c, payload)
 }
 
 func (controller *Controller) GetUserBySystemID(c *gin.Context) {
