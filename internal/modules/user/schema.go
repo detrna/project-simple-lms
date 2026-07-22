@@ -1,6 +1,7 @@
 package user
 
 import (
+	"main/internal/domain"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,7 +24,7 @@ type CreateUserSchema struct {
 	Password string `json:"password"`
 }
 
-type UpdateUserBodySchema struct {
+type AdminUpdateUserSchema struct {
 	SystemID *string `json:"systemId"`
 	Name     *string `json:"name"`
 	Email    *string `json:"email"`
@@ -31,16 +32,20 @@ type UpdateUserBodySchema struct {
 	Password *string `json:"password"`
 }
 
-type AdminUpdateUserSchema struct {
-	ID       *uuid.UUID `json:"id"`
-	SystemID *string    `json:"systemId"`
-	Name     *string    `json:"name"`
-	Email    *string    `json:"email"`
-	Role     *string    `json:"role"`
-	Password *string    `json:"password"`
+type AdminUpdateUserDTO struct {
+	ID       uuid.UUID
+	SystemID *string
+	Name     *string
+	Email    *string
+	Role     *string
+	Password *string
 }
 
 type UpdateUserSchema struct {
-	ID       uuid.UUID `json:"id"`
-	Password *string   `json:"password"`
+	Password *string `json:"password"`
+}
+
+type UpdateUserDTO struct {
+	User     *domain.JWTPayload
+	Password *string
 }

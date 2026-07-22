@@ -24,7 +24,8 @@ type IUseCase interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (*UserResponse, error)
 	GetUserBySystemID(ctx context.Context, id string) (*UserResponse, error)
 	CreateUser(ctx context.Context, data *CreateUserSchema) (*UserResponse, error)
-	AdminUpdateUser(ctx context.Context, data *AdminUpdateUserSchema) (*UserResponse, error)
+	AdminUpdateUser(ctx context.Context, data *AdminUpdateUserDTO) (*UserResponse, error)
+	UpdateUser(ctx context.Context, data *UpdateUserDTO) (*UserResponse, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 }
 
@@ -100,16 +101,16 @@ func (usecase UseCase) CreateUser(ctx context.Context, data *CreateUserSchema) (
 	return &dto, nil
 }
 
-func (usecase UseCase) AdminUpdateUser(ctx context.Context, data *AdminUpdateUserSchema) (*UserResponse, error) {
+func (usecase UseCase) AdminUpdateUser(ctx context.Context, data *AdminUpdateUserDTO) (*UserResponse, error) {
 	var user *domain.User
 
-	user, err := usecase.repo.FindByID(ctx, *data.ID)
+	user, err := usecase.repo.FindByID(ctx, data.ID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	user.ID = *data.ID
+	user.ID = data.ID
 
 	if data.Email != nil && data.Email != &user.Email {
 		if err := shared.CheckExistingRecord(
@@ -166,4 +167,28 @@ func (usecase UseCase) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return usecase.repo.Delete(ctx, id)
+}
+
+func (usecase UseCase) UpdateUser(ctx context.Context, data *UpdateUserDTO) (*UserResponse, error) {
+	existingAccount, err := usecase.repo.FindByID(ctx, data.User.UserID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if data.Password == &existingAccount.Password {
+		return nil, shared.ErrBadRequest
+	}
+
+	existingAccount.Password = *data.Password
+
+	result, err := usecase.repo.Update(ctx, existingAccount)
+
+	if err != nil {
+		return nil, err
+	}
+
+	payload := OmitPassword(result)
+
+	return &payload, nil
 }

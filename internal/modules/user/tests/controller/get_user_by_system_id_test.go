@@ -25,7 +25,7 @@ func TestGetUserBySystemID_Success(t *testing.T) {
 	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	id := uuid.New()
-	userSample := user_factory.NewUserSample(id)
+	userSample := user_factory.NewUser(id)
 
 	mockResult := user.UserResponse{
 		ID:       userSample.ID,

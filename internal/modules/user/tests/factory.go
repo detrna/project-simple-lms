@@ -20,3 +20,15 @@ func NewUser(id uuid.UUID) *domain.User {
 
 	return &user
 }
+
+func NewJWTPayload(data *domain.User) *domain.JWTPayload {
+	jwt := domain.JWTPayload{
+		JTI:      uuid.New(),
+		UserID:   data.ID,
+		SystemID: data.SystemID,
+		Name:     data.Name,
+		Role:     data.Name,
+	}
+
+	return &jwt
+}

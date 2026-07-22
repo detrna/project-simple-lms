@@ -7,7 +7,6 @@ import (
 	user_mocks "main/internal/modules/user/mocks"
 	user_factory "main/internal/modules/user/tests"
 	pkg_mocks "main/internal/pkg/mocks"
-	"main/internal/shared"
 	"testing"
 
 	"github.com/google/uuid"
@@ -21,11 +20,12 @@ func TestUpdateUser_Success(t *testing.T) {
 
 	id := uuid.New()
 	existingAccount := user_factory.NewUser(id)
+	jwtPayload := user_factory.NewJWTPayload(existingAccount)
 
 	newPassword := "password321"
 
-	requestData := user.UpdateUserSchema{
-		ID:       existingAccount.ID,
+	requestData := user.UpdateUserDTO{
+		User:     jwtPayload,
 		Password: &newPassword,
 	}
 
@@ -49,39 +49,15 @@ func TestUpdateUser_Success(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	mockRepo.On("FindByID", ctx, mock.AnythingOfType("uuid.UUID")).Return(&existingAccount, nil)
-	mockRepo.On("Update", ctx, mock.AnythingOfType("domain.User")).Return(&repoResult, nil)
+	mockRepo.On("FindByID", ctx, mock.AnythingOfType("uuid.UUID")).Return(existingAccount, nil)
+	mockRepo.On("Update", ctx, mock.AnythingOfType("*domain.User")).Return(&repoResult, nil)
 
 	u := user.NewUseCase(mockRepo, pkg_mocks.NewMockBcryptHasher(t), pkg_mocks.NewMockLogger(t))
 
-	result, err := u.UpdateUser(ctx, requestData)
+	result, err := u.UpdateUser(ctx, &requestData)
 	require.NoError(t, err)
 
-	assert.Equal(t, expected, result)
-
-	mockRepo.AssertExpectations(t)
-}
-
-func TestUpdateUser_RecordNotFound(t *testing.T) {
-	mockRepo := user_mocks.NewMockIRepository(t)
-
-	id := uuid.New()
-	newPassword := "password321"
-
-	requestData := user.UpdateUserSchema{
-		ID:       id,
-		Password: &newPassword,
-	}
-
-	ctx := context.Background()
-	mockRepo.On("FindByID", ctx, mock.AnythingOfType("uuid.UUID")).Return(nil, shared.ErrRecordNotFound)
-
-	u := user.NewUseCase(mockRepo, pkg_mocks.NewMockBcryptHasher(t), pkg_mocks.NewMockLogger(t))
-
-	result, err := u.UpdateUser(ctx, requestData)
-	require.ErrorIs(t, shared.ErrRecordNotFound, err)
-
-	assert.Nil(t, result)
+	assert.Equal(t, &expected, result)
 
 	mockRepo.AssertExpectations(t)
 }

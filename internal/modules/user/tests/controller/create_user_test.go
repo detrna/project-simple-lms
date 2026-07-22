@@ -26,7 +26,7 @@ func TestCreateUser_Success(t *testing.T) {
 	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	id := uuid.New()
-	userSample := user_factory.NewUserSample(id)
+	userSample := user_factory.NewUser(id)
 
 	requestData := user.CreateUserSchema{
 		SystemID: userSample.SystemID,
@@ -85,7 +85,7 @@ func TestCreateUser_EmailTaken(t *testing.T) {
 	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	id := uuid.New()
-	userSample := user_factory.NewUserSample(id)
+	userSample := user_factory.NewUser(id)
 
 	requestData := user.CreateUserSchema{
 		SystemID: userSample.SystemID,
@@ -134,7 +134,7 @@ func TestCreateUser_SystemIDTaken(t *testing.T) {
 	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	id := uuid.New()
-	userSample := user_factory.NewUserSample(id)
+	userSample := user_factory.NewUser(id)
 
 	requestData := user.CreateUserSchema{
 		SystemID: userSample.SystemID,

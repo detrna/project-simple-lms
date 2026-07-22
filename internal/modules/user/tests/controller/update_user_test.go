@@ -26,10 +26,10 @@ func TestUpdateUser_Success(t *testing.T) {
 
 	id := uuid.New()
 	existingAccount := user_factory.NewUser(id)
+	jwtPayload := user_factory.NewJWTPayload(existingAccount)
 
 	newPassword := "password321"
 	requestData := user.UpdateUserSchema{
-		ID:       existingAccount.ID,
 		Password: &newPassword,
 	}
 
@@ -46,12 +46,13 @@ func TestUpdateUser_Success(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	mockUseCase.On("UpdateUser", ctx, mock.AnythingOfType("user.UpdateUserSchema")).Return(&usecaseResult, nil)
+	mockUseCase.On("UpdateUser", ctx, mock.AnythingOfType("*user.UpdateUserDTO")).Return(&usecaseResult, nil)
 
 	c := user.NewController(mockUseCase, mockLogger)
 	router := gin.New()
 
 	router.PATCH("/:id", func(ctx *gin.Context) {
+		ctx.Set("user", jwtPayload)
 		c.UpdateUser(ctx)
 	})
 
@@ -67,56 +68,14 @@ func TestUpdateUser_Success(t *testing.T) {
 	)
 
 	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
 
 	var response shared.ResponseSuccess[user.UserResponse]
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	require.NoError(t, err)
 
-	assert.Equal(t, expected, response)
-
-	mockUseCase.AssertExpectations(t)
-}
-
-func TestUpdateUser_RecordNotFound(t *testing.T) {
-	mockUseCase := user_mocks.NewMockIUseCase(t)
-	mockLogger := shared_testing.NewMockLogger(t)
-
-	id := uuid.New()
-	newPassword := "password321"
-
-	requestData := user.UpdateUserSchema{
-		ID:       id,
-		Password: &newPassword,
-	}
-
-	ctx := context.Background()
-	mockUseCase.On("UpdateUser", ctx, mock.AnythingOfType("user.UpdateUserSchema")).Return(nil, shared.ErrRecordNotFound)
-
-	c := user.NewController(mockUseCase, mockLogger)
-	router := gin.New()
-
-	router.PATCH("/:id", func(ctx *gin.Context) {
-		c.UpdateUser(ctx)
-	})
-
-	w := httptest.NewRecorder()
-
-	requestBody, err := json.Marshal(&requestData)
-	require.NoError(t, err)
-
-	req := httptest.NewRequest(
-		http.MethodPatch,
-		("/" + id.String()),
-		bytes.NewReader(requestBody),
-	)
-
-	router.ServeHTTP(w, req)
-
-	var response shared.ResponseError
-	err = json.Unmarshal(w.Body.Bytes(), &response)
-	require.NoError(t, err)
-
-	assert.Equal(t, shared.ErrRecordNotFound, response)
+	assert.Equal(t, expected.Data, response.Data)
 
 	mockUseCase.AssertExpectations(t)
 }

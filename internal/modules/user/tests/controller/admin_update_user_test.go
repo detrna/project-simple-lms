@@ -30,7 +30,7 @@ func TestAdminUpdateUser_Success(t *testing.T) {
 	existingUser := user_factory.NewUser(id)
 
 	newName := "user-test-2"
-	requestData := user.UpdateUserBodySchema{
+	requestData := user.AdminUpdateUserSchema{
 		Name: &newName,
 	}
 
@@ -45,7 +45,7 @@ func TestAdminUpdateUser_Success(t *testing.T) {
 	expected := &mockResult
 
 	ctx := context.Background()
-	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("*user.AdminUpdateUserSchema")).Return(&mockResult, nil)
+	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("*user.AdminUpdateUserDTO")).Return(&mockResult, nil)
 
 	router := gin.New()
 	router.PATCH("/:id/admin", func(c *gin.Context) {
@@ -88,12 +88,12 @@ func TestAdminUpdateUser_RecordNotFound(t *testing.T) {
 	}
 
 	newName := "user-test-2"
-	requestData := user.UpdateUserBodySchema{
+	requestData := user.AdminUpdateUserSchema{
 		Name: &newName,
 	}
 
 	ctx := context.Background()
-	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("*user.AdminUpdateUserSchema")).Return(nil, shared.ErrRecordNotFound)
+	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("*user.AdminUpdateUserDTO")).Return(nil, shared.ErrRecordNotFound)
 
 	router := gin.New()
 	router.PATCH("/:id/admin", func(c *gin.Context) {
@@ -131,12 +131,12 @@ func TestAdminUpdateUser_EmailTaken(t *testing.T) {
 	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	newEmail := "user-test-updated@mail.com"
-	requestData := user.UpdateUserBodySchema{
+	requestData := user.AdminUpdateUserSchema{
 		Email: &newEmail,
 	}
 
 	ctx := context.Background()
-	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("*user.AdminUpdateUserSchema")).Return(nil, shared.ErrEmailTaken)
+	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("*user.AdminUpdateUserDTO")).Return(nil, shared.ErrEmailTaken)
 
 	router := gin.New()
 	router.PATCH("/:id/admin", func(c *gin.Context) {
@@ -174,12 +174,12 @@ func TestAdminUpdateUser_SystemIDTaken(t *testing.T) {
 	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	newSystemID := "user-test-2"
-	requestData := user.UpdateUserBodySchema{
+	requestData := user.AdminUpdateUserSchema{
 		SystemID: &newSystemID,
 	}
 
 	ctx := context.Background()
-	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("*user.AdminUpdateUserSchema")).Return(nil, shared.ErrSystemIDTaken)
+	mockUsecase.On("AdminUpdateUser", ctx, mock.AnythingOfType("*user.AdminUpdateUserDTO")).Return(nil, shared.ErrSystemIDTaken)
 
 	router := gin.New()
 	router.PATCH("/:id/admin", func(c *gin.Context) {

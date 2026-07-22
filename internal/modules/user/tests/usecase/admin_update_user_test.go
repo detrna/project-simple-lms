@@ -28,8 +28,8 @@ func TestAdminUpdateUser_Success(t *testing.T) {
 
 	newName := "user-test-updated"
 
-	request := user.AdminUpdateUserSchema{
-		ID:       &id,
+	request := user.AdminUpdateUserDTO{
+		ID:       id,
 		SystemID: &systemID,
 		Email:    &email,
 		Name:     &newName,
@@ -81,8 +81,8 @@ func TestAdminUpdateUser_RecordNotFound(t *testing.T) {
 	id := uuid.New()
 	newName := "user-test-updated"
 
-	request := user.AdminUpdateUserSchema{
-		ID:   &id,
+	request := user.AdminUpdateUserDTO{
+		ID:   id,
 		Name: &newName,
 	}
 
@@ -108,8 +108,8 @@ func TestUpdateUser_EmailTaken(t *testing.T) {
 	newEmail := "user-test-updated@mail.com"
 	createdAt := time.Now()
 
-	request := user.AdminUpdateUserSchema{
-		ID:    &id,
+	request := user.AdminUpdateUserDTO{
+		ID:    id,
 		Email: &newEmail,
 	}
 
@@ -146,8 +146,8 @@ func TestAdminUpdateUser_SystemIDTaken(t *testing.T) {
 	newSystemID := "user-test-1-updated"
 	createdAt := time.Now()
 
-	request := user.AdminUpdateUserSchema{
-		ID:       &id,
+	request := user.AdminUpdateUserDTO{
+		ID:       id,
 		SystemID: &newSystemID,
 	}
 
