@@ -66,12 +66,10 @@ func TestUpdateUser_RecordNotFound(t *testing.T) {
 	mockRepo := user_mocks.NewMockIRepository(t)
 
 	id := uuid.New()
-	existingAccount := user_factory.NewUser(id)
-
 	newPassword := "password321"
 
 	requestData := user.UpdateUserSchema{
-		ID:       existingAccount.ID,
+		ID:       id,
 		Password: &newPassword,
 	}
 
