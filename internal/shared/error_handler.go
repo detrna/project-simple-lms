@@ -40,6 +40,14 @@ func HandleError(c *gin.Context, logger pkg.Logger, err error) {
 		c.JSON(http.StatusBadRequest, error)
 		return
 
+	case errors.Is(err, ErrForbidden):
+		c.AbortWithStatusJSON(http.StatusForbidden, error)
+		return
+
+	case errors.Is(err, ErrUnauthorized):
+		c.AbortWithStatusJSON(http.StatusUnauthorized, error)
+		return
+
 	default:
 		c.JSON(http.StatusInternalServerError, error)
 		return
@@ -53,4 +61,6 @@ var (
 	ErrBadRequest           = errors.New("bad request")
 	ErrRecordNotFound       = errors.New("couldn't find any record of requested data")
 	ErrIncorrectOTP         = errors.New("incorrect otp code")
+	ErrUnauthorized         = errors.New("request unauthorized")
+	ErrForbidden            = errors.New("request forbidden")
 )
