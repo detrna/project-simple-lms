@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"main/internal/modules/user"
 	user_mocks "main/internal/modules/user/mocks"
+	user_factory "main/internal/modules/user/tests"
 	pkg_mocks "main/internal/pkg/mocks"
 	"main/internal/shared"
+	shared_testing "main/internal/shared/testing_helper"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -23,7 +25,7 @@ func TestGetUserByID_Success(t *testing.T) {
 	ctrl := user.NewController(mockUsecase, &pkg_mocks.MockLogger{})
 
 	id := uuid.New()
-	userSample := *NewUserSample(id)
+	userSample := *user_factory.NewUserSample(id)
 
 	mockResult := user.UserResponse{
 		ID:       userSample.ID,
@@ -66,7 +68,7 @@ func TestGetUserByID_Success(t *testing.T) {
 
 func TestGetUserByID_RecordNotFound(t *testing.T) {
 	mockUsecase := user_mocks.NewMockIUseCase(t)
-	MockLogger := NewMockLogger(t)
+	MockLogger := shared_testing.NewMockLogger(t)
 	ctrl := user.NewController(mockUsecase, MockLogger)
 
 	id := uuid.New()

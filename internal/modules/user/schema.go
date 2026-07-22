@@ -39,3 +39,8 @@ type AdminUpdateUserSchema struct {
 	Role     *string    `json:"role"`
 	Password *string    `json:"password"`
 }
+
+type UpdateUserSchema struct {
+	ID       uuid.UUID `json:"id"`
+	Password *string   `json:"password"`
+}

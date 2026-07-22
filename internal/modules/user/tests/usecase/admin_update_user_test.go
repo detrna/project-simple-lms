@@ -73,7 +73,7 @@ func TestAdminUpdateUser_Success(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
-func TestUpdateUser_RecordNotFound(t *testing.T) {
+func TestAdminUpdateUser_RecordNotFound(t *testing.T) {
 	mockRepo := &user_mocks.MockIRepository{}
 	mockBcrypt := &pkg_mocks.MockBcryptHasher{}
 	u := user.NewUseCase(mockRepo, mockBcrypt, &pkg_mocks.MockLogger{})
