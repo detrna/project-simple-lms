@@ -5,6 +5,7 @@ import (
 	"main/internal/middleware"
 	pkg_mocks "main/internal/pkg/mocks"
 	"main/internal/shared"
+	shared_testing "main/internal/shared/testing_helper"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,6 +16,8 @@ import (
 )
 
 func TestAuthenticate_MissingAuthorizationHeader(t *testing.T) {
+	mockLogger := shared_testing.NewMockLogger(t)
+
 	c, w := shared.SetupTestContext(
 		http.MethodGet,
 		"/",
@@ -22,7 +25,7 @@ func TestAuthenticate_MissingAuthorizationHeader(t *testing.T) {
 		nil,
 	)
 
-	handler := middleware.Authenticate(nil)
+	handler := middleware.Authenticate(nil, mockLogger)
 
 	handler(c)
 
@@ -31,6 +34,8 @@ func TestAuthenticate_MissingAuthorizationHeader(t *testing.T) {
 }
 
 func TestAuthenticate_InvalidToken(t *testing.T) {
+	mockLogger := shared_testing.NewMockLogger(t)
+
 	header := http.Header{
 		"Authorization": []string{"Invalid"},
 	}
@@ -42,7 +47,7 @@ func TestAuthenticate_InvalidToken(t *testing.T) {
 		header,
 	)
 
-	handler := middleware.Authenticate(nil)
+	handler := middleware.Authenticate(nil, mockLogger)
 
 	handler(c)
 
@@ -52,6 +57,7 @@ func TestAuthenticate_InvalidToken(t *testing.T) {
 
 func TestAuthenticate_Success(t *testing.T) {
 	mockJWT := new(pkg_mocks.MockJWTProvider)
+	mockLogger := shared_testing.NewMockLogger(t)
 
 	expectedPayload := &domain.JWTPayload{
 		UserID:   uuid.New(),
@@ -66,7 +72,7 @@ func TestAuthenticate_Success(t *testing.T) {
 
 	router := gin.New()
 
-	router.Use(middleware.Authenticate(mockJWT))
+	router.Use(middleware.Authenticate(mockJWT, mockLogger))
 
 	router.GET("/", func(c *gin.Context) {
 		user, exists := c.Get("user")

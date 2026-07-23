@@ -8,13 +8,11 @@ import (
 )
 
 func NewUseCasePkgs(t *testing.T) *auth.UseCasePackages {
-	pkg := auth.UseCasePackages{
-		Bcrypt:        pkg_mocks.NewMockBcryptHasher(t),
-		Mailer:        pkg_mocks.NewMockResendClient(t),
+	return &auth.UseCasePackages{
+		Bcrypt: pkg_mocks.NewMockBcryptHasher(t),
+		// Mailer:        pkg_mocks.NewMockResendClient(t),
 		TokenProvider: pkg_mocks.NewMockJWTProvider(t),
 		Redis:         pkg_mocks.NewMockRedisClient(t),
 		Logger:        shared_testing.NewMockLogger(t),
 	}
-
-	return &pkg
 }

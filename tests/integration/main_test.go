@@ -24,7 +24,7 @@ func TestMain(m *testing.M) {
 		log.Fatal("couldn't load config")
 	}
 
-	infra, db, repo, err := infrastructure.Initialize(*cfg)
+	infra, db, repo, err := infrastructure.Initialize(cfg)
 
 	if err != nil {
 		log.Fatal(err)

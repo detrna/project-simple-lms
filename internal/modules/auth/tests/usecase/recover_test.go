@@ -2,6 +2,7 @@ package auth_usecase_test
 
 import (
 	"context"
+	"main/internal/config"
 	"main/internal/modules/auth"
 	auth_mocks "main/internal/modules/auth/mocks"
 	user_mocks "main/internal/modules/user/mocks"
@@ -14,8 +15,6 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
-
-// (usecase UseCase) Recover(ctx context.Context, data RecoverSchema) error
 
 func TestRecover_Success(t *testing.T) {
 	ctx := context.Background()
@@ -31,14 +30,14 @@ func TestRecover_Success(t *testing.T) {
 	redis.EXPECT().Set(ctx, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 	mailer := pkg_mocks.NewMockResendClient(t)
-	mailer.EXPECT().SendRecoveryOTP(ctx, mock.Anything).Return(nil)
+	mailer.EXPECT().SendRecoveryOTP(ctx, mock.Anything, mock.AnythingOfType("string")).Return(nil)
 
 	pkg := auth.UseCasePackages{
 		Redis:  redis,
 		Mailer: mailer,
 	}
 
-	u := auth.NewUseCase(repo, userRepo, &pkg)
+	u := auth.NewUseCase(repo, userRepo, &pkg, &config.MailConfig{})
 
 	requestData := auth.RecoverSchema{
 		Email: "valid email",
@@ -58,7 +57,7 @@ func TestRecover_EmailNotFound(t *testing.T) {
 
 	pkg := auth.UseCasePackages{}
 
-	u := auth.NewUseCase(repo, userRepo, &pkg)
+	u := auth.NewUseCase(repo, userRepo, &pkg, &config.MailConfig{})
 
 	requestData := auth.RecoverSchema{
 		Email: "invalid email",

@@ -1,8 +1,10 @@
 package infrastructure
 
 import (
+	"errors"
 	"main/internal/config"
 	"main/internal/pkg"
+	"main/internal/shared"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -16,8 +18,12 @@ func NewBcryptHasher(cfg config.BcryptConfig) pkg.BcryptHasher {
 	return &BcryptHasher{salt: cfg.Salt, cost: cfg.Cost}
 }
 
-func (b BcryptHasher) CompareHashAndPassword(hashed string, literal string) error {
+func (b BcryptHasher) Compare(hashed string, literal string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hashed), []byte(literal))
+
+	if errors.Is(bcrypt.ErrMismatchedHashAndPassword, err) {
+		return shared.ErrCredentialsIncorrect
+	}
 
 	return err
 }

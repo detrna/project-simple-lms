@@ -28,7 +28,7 @@ func NewAuthContainer(cfg *config.Config, infra *pkg.Packages, repo *repository.
 		Logger:        infra.Logger,
 	}
 
-	usecase := auth.NewUseCase(authRepo, userRepo, &useCasePacakges)
+	usecase := auth.NewUseCase(authRepo, userRepo, &useCasePacakges, cfg.Mail)
 	controller := auth.NewController(usecase, infra.Logger, infra.JWTProvider, cfg.App.Mode == "PRODUCTION")
 	routes := auth.NewRoutes(controller, infra.JWTProvider, infra.Logger)
 

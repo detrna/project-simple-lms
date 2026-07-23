@@ -483,16 +483,16 @@ func (_c *MockIUseCase_Login_Call) RunAndReturn(run func(ctx context.Context, da
 }
 
 // Logout provides a mock function for the type MockIUseCase
-func (_mock *MockIUseCase) Logout(ctx context.Context, id uuid.UUID) error {
-	ret := _mock.Called(ctx, id)
+func (_mock *MockIUseCase) Logout(ctx context.Context, refreshToken string) error {
+	ret := _mock.Called(ctx, refreshToken)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Logout")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
-		r0 = returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = returnFunc(ctx, refreshToken)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -506,20 +506,20 @@ type MockIUseCase_Logout_Call struct {
 
 // Logout is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id uuid.UUID
-func (_e *MockIUseCase_Expecter) Logout(ctx any, id any) *MockIUseCase_Logout_Call {
-	return &MockIUseCase_Logout_Call{Call: _e.mock.On("Logout", ctx, id)}
+//   - refreshToken string
+func (_e *MockIUseCase_Expecter) Logout(ctx any, refreshToken any) *MockIUseCase_Logout_Call {
+	return &MockIUseCase_Logout_Call{Call: _e.mock.On("Logout", ctx, refreshToken)}
 }
 
-func (_c *MockIUseCase_Logout_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockIUseCase_Logout_Call {
+func (_c *MockIUseCase_Logout_Call) Run(run func(ctx context.Context, refreshToken string)) *MockIUseCase_Logout_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uuid.UUID
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
@@ -534,7 +534,7 @@ func (_c *MockIUseCase_Logout_Call) Return(err error) *MockIUseCase_Logout_Call 
 	return _c
 }
 
-func (_c *MockIUseCase_Logout_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) error) *MockIUseCase_Logout_Call {
+func (_c *MockIUseCase_Logout_Call) RunAndReturn(run func(ctx context.Context, refreshToken string) error) *MockIUseCase_Logout_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -597,8 +597,8 @@ func (_c *MockIUseCase_Recover_Call) RunAndReturn(run func(ctx context.Context, 
 }
 
 // Refresh provides a mock function for the type MockIUseCase
-func (_mock *MockIUseCase) Refresh(ctx context.Context, JWTPayload *domain.JWTPayload) (*auth.Tokens, error) {
-	ret := _mock.Called(ctx, JWTPayload)
+func (_mock *MockIUseCase) Refresh(ctx context.Context, refreshToken string) (*auth.Tokens, error) {
+	ret := _mock.Called(ctx, refreshToken)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Refresh")
@@ -606,18 +606,18 @@ func (_mock *MockIUseCase) Refresh(ctx context.Context, JWTPayload *domain.JWTPa
 
 	var r0 *auth.Tokens
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.JWTPayload) (*auth.Tokens, error)); ok {
-		return returnFunc(ctx, JWTPayload)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*auth.Tokens, error)); ok {
+		return returnFunc(ctx, refreshToken)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.JWTPayload) *auth.Tokens); ok {
-		r0 = returnFunc(ctx, JWTPayload)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *auth.Tokens); ok {
+		r0 = returnFunc(ctx, refreshToken)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*auth.Tokens)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *domain.JWTPayload) error); ok {
-		r1 = returnFunc(ctx, JWTPayload)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, refreshToken)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -631,20 +631,20 @@ type MockIUseCase_Refresh_Call struct {
 
 // Refresh is a helper method to define mock.On call
 //   - ctx context.Context
-//   - JWTPayload *domain.JWTPayload
-func (_e *MockIUseCase_Expecter) Refresh(ctx any, JWTPayload any) *MockIUseCase_Refresh_Call {
-	return &MockIUseCase_Refresh_Call{Call: _e.mock.On("Refresh", ctx, JWTPayload)}
+//   - refreshToken string
+func (_e *MockIUseCase_Expecter) Refresh(ctx any, refreshToken any) *MockIUseCase_Refresh_Call {
+	return &MockIUseCase_Refresh_Call{Call: _e.mock.On("Refresh", ctx, refreshToken)}
 }
 
-func (_c *MockIUseCase_Refresh_Call) Run(run func(ctx context.Context, JWTPayload *domain.JWTPayload)) *MockIUseCase_Refresh_Call {
+func (_c *MockIUseCase_Refresh_Call) Run(run func(ctx context.Context, refreshToken string)) *MockIUseCase_Refresh_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *domain.JWTPayload
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(*domain.JWTPayload)
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
@@ -659,37 +659,26 @@ func (_c *MockIUseCase_Refresh_Call) Return(tokens *auth.Tokens, err error) *Moc
 	return _c
 }
 
-func (_c *MockIUseCase_Refresh_Call) RunAndReturn(run func(ctx context.Context, JWTPayload *domain.JWTPayload) (*auth.Tokens, error)) *MockIUseCase_Refresh_Call {
+func (_c *MockIUseCase_Refresh_Call) RunAndReturn(run func(ctx context.Context, refreshToken string) (*auth.Tokens, error)) *MockIUseCase_Refresh_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // VerifyRecovery provides a mock function for the type MockIUseCase
-func (_mock *MockIUseCase) VerifyRecovery(ctx context.Context, data *auth.VerifyRecoverSchema) (*domain.User, error) {
+func (_mock *MockIUseCase) VerifyRecovery(ctx context.Context, data *auth.VerifyRecoverSchema) error {
 	ret := _mock.Called(ctx, data)
 
 	if len(ret) == 0 {
 		panic("no return value specified for VerifyRecovery")
 	}
 
-	var r0 *domain.User
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *auth.VerifyRecoverSchema) (*domain.User, error)); ok {
-		return returnFunc(ctx, data)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *auth.VerifyRecoverSchema) *domain.User); ok {
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *auth.VerifyRecoverSchema) error); ok {
 		r0 = returnFunc(ctx, data)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*domain.User)
-		}
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *auth.VerifyRecoverSchema) error); ok {
-		r1 = returnFunc(ctx, data)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
 // MockIUseCase_VerifyRecovery_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VerifyRecovery'
@@ -722,12 +711,12 @@ func (_c *MockIUseCase_VerifyRecovery_Call) Run(run func(ctx context.Context, da
 	return _c
 }
 
-func (_c *MockIUseCase_VerifyRecovery_Call) Return(user *domain.User, err error) *MockIUseCase_VerifyRecovery_Call {
-	_c.Call.Return(user, err)
+func (_c *MockIUseCase_VerifyRecovery_Call) Return(err error) *MockIUseCase_VerifyRecovery_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockIUseCase_VerifyRecovery_Call) RunAndReturn(run func(ctx context.Context, data *auth.VerifyRecoverSchema) (*domain.User, error)) *MockIUseCase_VerifyRecovery_Call {
+func (_c *MockIUseCase_VerifyRecovery_Call) RunAndReturn(run func(ctx context.Context, data *auth.VerifyRecoverSchema) error) *MockIUseCase_VerifyRecovery_Call {
 	_c.Call.Return(run)
 	return _c
 }

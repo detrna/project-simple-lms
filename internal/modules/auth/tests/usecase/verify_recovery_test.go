@@ -2,6 +2,7 @@ package auth_usecase_test
 
 import (
 	"context"
+	"main/internal/config"
 	"main/internal/modules/auth"
 	auth_mocks "main/internal/modules/auth/mocks"
 	user_mocks "main/internal/modules/user/mocks"
@@ -48,7 +49,7 @@ func TestVerifyRecovery_Success(t *testing.T) {
 		OTP:         requestOTP,
 	}
 
-	u := auth.NewUseCase(repo, userRepo, &pkg)
+	u := auth.NewUseCase(repo, userRepo, &pkg, &config.MailConfig{})
 
 	err := u.VerifyRecovery(ctx, &requestData)
 
@@ -74,7 +75,7 @@ func TestVerifyRecovery_EmailNotFound(t *testing.T) {
 		OTP:         requestOTP,
 	}
 
-	u := auth.NewUseCase(repo, userRepo, &pkg)
+	u := auth.NewUseCase(repo, userRepo, &pkg, &config.MailConfig{})
 
 	err := u.VerifyRecovery(ctx, &requestData)
 
@@ -90,14 +91,10 @@ func TestVerifyRecovery_IncorrectOTP(t *testing.T) {
 	requestOTP := "incorrect-otp-code"
 	dbOTP := "correct-otp-code"
 
-	updatedAccount := *existingAccount
-	updatedAccount.Password = newPassword
-
 	repo := auth_mocks.NewMockIRepository(t)
 
 	userRepo := user_mocks.NewMockIRepository(t)
 	userRepo.EXPECT().FindByEmail(ctx, mock.AnythingOfType("string")).Return(existingAccount, nil)
-	userRepo.EXPECT().Update(ctx, mock.AnythingOfType("*domain.User")).Return(&updatedAccount, nil)
 
 	redis := pkg_mocks.NewMockRedisClient(t)
 	redis.EXPECT().Get(ctx, mock.Anything).Return(dbOTP, nil)
@@ -112,7 +109,7 @@ func TestVerifyRecovery_IncorrectOTP(t *testing.T) {
 		OTP:         requestOTP,
 	}
 
-	u := auth.NewUseCase(repo, userRepo, &pkg)
+	u := auth.NewUseCase(repo, userRepo, &pkg, &config.MailConfig{})
 
 	err := u.VerifyRecovery(ctx, &requestData)
 	require.ErrorIs(t, shared.ErrIncorrectOTP, err)
@@ -126,14 +123,10 @@ func TestVerifyRecovery_OTPNotFound(t *testing.T) {
 	newPassword := "new-password"
 	requestOTP := "correct-otp-code"
 
-	updatedAccount := *existingAccount
-	updatedAccount.Password = newPassword
-
 	repo := auth_mocks.NewMockIRepository(t)
 
 	userRepo := user_mocks.NewMockIRepository(t)
 	userRepo.EXPECT().FindByEmail(ctx, mock.AnythingOfType("string")).Return(existingAccount, nil)
-	userRepo.EXPECT().Update(ctx, mock.AnythingOfType("*domain.User")).Return(&updatedAccount, nil)
 
 	redis := pkg_mocks.NewMockRedisClient(t)
 	redis.EXPECT().Get(ctx, mock.Anything).Return("", shared.ErrRedisRecordNotFound)
@@ -148,7 +141,7 @@ func TestVerifyRecovery_OTPNotFound(t *testing.T) {
 		OTP:         requestOTP,
 	}
 
-	u := auth.NewUseCase(repo, userRepo, &pkg)
+	u := auth.NewUseCase(repo, userRepo, &pkg, &config.MailConfig{})
 
 	err := u.VerifyRecovery(ctx, &requestData)
 

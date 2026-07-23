@@ -1,44 +1,41 @@
 package middleware
 
 import (
+	"main/internal/domain"
 	"main/internal/pkg"
-	"net/http"
+	"main/internal/shared"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-func Authenticate(jwtProvider pkg.JWTProvider) gin.HandlerFunc {
+func Authenticate(jwtProvider pkg.JWTProvider, logger pkg.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-
-		if authHeader == "" {
-			c.AbortWithStatusJSON(
-				http.StatusUnauthorized,
-				gin.H{"error": "Token didn't exist"},
-			)
-			return
-		}
-
-		token := strings.TrimPrefix(authHeader, "Bearer ")
-
-		if token == authHeader {
-			c.AbortWithStatusJSON(
-				http.StatusUnauthorized,
-				gin.H{"error": "Invalid authorization format"},
-			)
-			return
-		}
-
-		jwtPayload, err := jwtProvider.ParseAccessToken(string(token))
+		accessTokenPayload, err := parseAccessToken(c, jwtProvider)
 
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token invalid"})
+			shared.HandleError(c, logger, err)
 			return
 		}
 
-		c.Set("user", jwtPayload)
+		c.Set("user", accessTokenPayload)
 
 		c.Next()
 	}
+}
+
+func parseAccessToken(c *gin.Context, tokenService pkg.JWTProvider) (*domain.JWTPayload, error) {
+	authHeader := c.GetHeader("Authorization")
+
+	if authHeader == "" {
+		return nil, shared.ErrUnauthorized
+	}
+
+	accessToken := strings.TrimPrefix(authHeader, "Bearer ")
+
+	if accessToken == authHeader {
+		return nil, shared.ErrUnauthorized
+	}
+
+	return tokenService.ParseAccessToken(string(accessToken))
 }

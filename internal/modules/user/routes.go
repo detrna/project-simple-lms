@@ -23,29 +23,29 @@ func (routes Routes) RegisterRoutes(rg *gin.RouterGroup) {
 	router.GET("/:id", routes.controller.GetUserByID)
 	router.GET(
 		"/me",
-		middleware.Authenticate(routes.tokenProvider),
+		middleware.Authenticate(routes.tokenProvider, routes.logger),
 		routes.controller.GetMyAccount,
 	)
 	router.POST(
 		"",
-		middleware.Authenticate(routes.tokenProvider),
+		middleware.Authenticate(routes.tokenProvider, routes.logger),
 		middleware.RequiredRole("admin", routes.logger),
 		routes.controller.CreateUser,
 	)
 	router.PATCH(
 		"/:id/admin",
-		middleware.Authenticate(routes.tokenProvider),
+		middleware.Authenticate(routes.tokenProvider, routes.logger),
 		middleware.RequiredRole("admin", routes.logger),
 		routes.controller.AdminUpdateUser,
 	)
 	router.PATCH(
 		"/me",
-		middleware.Authenticate(routes.tokenProvider),
+		middleware.Authenticate(routes.tokenProvider, routes.logger),
 		routes.controller.UpdateUser,
 	)
 	router.DELETE(
 		"/:id",
-		middleware.Authenticate(routes.tokenProvider),
+		middleware.Authenticate(routes.tokenProvider, routes.logger),
 		middleware.RequiredRole("admin", routes.logger),
 		routes.controller.DeleteUser,
 	)

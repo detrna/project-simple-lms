@@ -39,12 +39,12 @@ func (_m *MockBcryptHasher) EXPECT() *MockBcryptHasher_Expecter {
 	return &MockBcryptHasher_Expecter{mock: &_m.Mock}
 }
 
-// CompareHashAndPassword provides a mock function for the type MockBcryptHasher
-func (_mock *MockBcryptHasher) CompareHashAndPassword(hashed string, literal string) error {
+// Compare provides a mock function for the type MockBcryptHasher
+func (_mock *MockBcryptHasher) Compare(hashed string, literal string) error {
 	ret := _mock.Called(hashed, literal)
 
 	if len(ret) == 0 {
-		panic("no return value specified for CompareHashAndPassword")
+		panic("no return value specified for Compare")
 	}
 
 	var r0 error
@@ -56,19 +56,19 @@ func (_mock *MockBcryptHasher) CompareHashAndPassword(hashed string, literal str
 	return r0
 }
 
-// MockBcryptHasher_CompareHashAndPassword_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CompareHashAndPassword'
-type MockBcryptHasher_CompareHashAndPassword_Call struct {
+// MockBcryptHasher_Compare_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Compare'
+type MockBcryptHasher_Compare_Call struct {
 	*mock.Call
 }
 
-// CompareHashAndPassword is a helper method to define mock.On call
+// Compare is a helper method to define mock.On call
 //   - hashed string
 //   - literal string
-func (_e *MockBcryptHasher_Expecter) CompareHashAndPassword(hashed any, literal any) *MockBcryptHasher_CompareHashAndPassword_Call {
-	return &MockBcryptHasher_CompareHashAndPassword_Call{Call: _e.mock.On("CompareHashAndPassword", hashed, literal)}
+func (_e *MockBcryptHasher_Expecter) Compare(hashed any, literal any) *MockBcryptHasher_Compare_Call {
+	return &MockBcryptHasher_Compare_Call{Call: _e.mock.On("Compare", hashed, literal)}
 }
 
-func (_c *MockBcryptHasher_CompareHashAndPassword_Call) Run(run func(hashed string, literal string)) *MockBcryptHasher_CompareHashAndPassword_Call {
+func (_c *MockBcryptHasher_Compare_Call) Run(run func(hashed string, literal string)) *MockBcryptHasher_Compare_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
@@ -86,12 +86,12 @@ func (_c *MockBcryptHasher_CompareHashAndPassword_Call) Run(run func(hashed stri
 	return _c
 }
 
-func (_c *MockBcryptHasher_CompareHashAndPassword_Call) Return(err error) *MockBcryptHasher_CompareHashAndPassword_Call {
+func (_c *MockBcryptHasher_Compare_Call) Return(err error) *MockBcryptHasher_Compare_Call {
 	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockBcryptHasher_CompareHashAndPassword_Call) RunAndReturn(run func(hashed string, literal string) error) *MockBcryptHasher_CompareHashAndPassword_Call {
+func (_c *MockBcryptHasher_Compare_Call) RunAndReturn(run func(hashed string, literal string) error) *MockBcryptHasher_Compare_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -991,16 +991,16 @@ func (_m *MockResendClient) EXPECT() *MockResendClient_Expecter {
 }
 
 // SendRecoveryOTP provides a mock function for the type MockResendClient
-func (_mock *MockResendClient) SendRecoveryOTP(ctx context.Context, account domain.User) error {
-	ret := _mock.Called(ctx, account)
+func (_mock *MockResendClient) SendRecoveryOTP(ctx context.Context, account *domain.User, otp string) error {
+	ret := _mock.Called(ctx, account, otp)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SendRecoveryOTP")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.User) error); ok {
-		r0 = returnFunc(ctx, account)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.User, string) error); ok {
+		r0 = returnFunc(ctx, account, otp)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -1014,24 +1014,30 @@ type MockResendClient_SendRecoveryOTP_Call struct {
 
 // SendRecoveryOTP is a helper method to define mock.On call
 //   - ctx context.Context
-//   - account domain.User
-func (_e *MockResendClient_Expecter) SendRecoveryOTP(ctx any, account any) *MockResendClient_SendRecoveryOTP_Call {
-	return &MockResendClient_SendRecoveryOTP_Call{Call: _e.mock.On("SendRecoveryOTP", ctx, account)}
+//   - account *domain.User
+//   - otp string
+func (_e *MockResendClient_Expecter) SendRecoveryOTP(ctx any, account any, otp any) *MockResendClient_SendRecoveryOTP_Call {
+	return &MockResendClient_SendRecoveryOTP_Call{Call: _e.mock.On("SendRecoveryOTP", ctx, account, otp)}
 }
 
-func (_c *MockResendClient_SendRecoveryOTP_Call) Run(run func(ctx context.Context, account domain.User)) *MockResendClient_SendRecoveryOTP_Call {
+func (_c *MockResendClient_SendRecoveryOTP_Call) Run(run func(ctx context.Context, account *domain.User, otp string)) *MockResendClient_SendRecoveryOTP_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 domain.User
+		var arg1 *domain.User
 		if args[1] != nil {
-			arg1 = args[1].(domain.User)
+			arg1 = args[1].(*domain.User)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
 		}
 		run(
 			arg0,
 			arg1,
+			arg2,
 		)
 	})
 	return _c
@@ -1042,7 +1048,7 @@ func (_c *MockResendClient_SendRecoveryOTP_Call) Return(err error) *MockResendCl
 	return _c
 }
 
-func (_c *MockResendClient_SendRecoveryOTP_Call) RunAndReturn(run func(ctx context.Context, account domain.User) error) *MockResendClient_SendRecoveryOTP_Call {
+func (_c *MockResendClient_SendRecoveryOTP_Call) RunAndReturn(run func(ctx context.Context, account *domain.User, otp string) error) *MockResendClient_SendRecoveryOTP_Call {
 	_c.Call.Return(run)
 	return _c
 }

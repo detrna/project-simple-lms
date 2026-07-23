@@ -2,14 +2,17 @@ package auth
 
 import (
 	"context"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
+	"main/internal/config"
 	"main/internal/domain"
 	"main/internal/modules/user"
 	"main/internal/pkg"
 	"main/internal/shared"
-
-	"github.com/google/uuid"
+	"math/big"
+	"time"
 )
 
 type UseCasePackages struct {
@@ -21,21 +24,22 @@ type UseCasePackages struct {
 }
 
 type UseCase struct {
-	repo     IRepository
-	userRepo user.IRepository
-	packages UseCasePackages
+	repo       IRepository
+	userRepo   user.IRepository
+	packages   UseCasePackages
+	mailConfig *config.MailConfig
 }
 
 type IUseCase interface {
 	Login(ctx context.Context, data *LoginSchema) (*Tokens, error)
 	Recover(ctx context.Context, data *RecoverSchema) error
 	VerifyRecovery(ctx context.Context, data *VerifyRecoverSchema) error
-	Logout(ctx context.Context, id uuid.UUID) error
-	Refresh(ctx context.Context, JWTPayload *domain.JWTPayload) (*Tokens, error)
+	Logout(ctx context.Context, refreshToken string) error
+	Refresh(ctx context.Context, refreshToken string) (*Tokens, error)
 }
 
-func NewUseCase(repo IRepository, userRepo user.IRepository, pkg *UseCasePackages) *UseCase {
-	return (&UseCase{repo: repo, userRepo: userRepo, packages: *pkg})
+func NewUseCase(repo IRepository, userRepo user.IRepository, pkg *UseCasePackages, mailCfg *config.MailConfig) *UseCase {
+	return (&UseCase{repo: repo, userRepo: userRepo, packages: *pkg, mailConfig: mailCfg})
 }
 
 func (usecase *UseCase) Login(ctx context.Context, data *LoginSchema) (*Tokens, error) {
@@ -45,7 +49,7 @@ func (usecase *UseCase) Login(ctx context.Context, data *LoginSchema) (*Tokens, 
 		return nil, err
 	}
 
-	err = usecase.packages.Bcrypt.CompareHashAndPassword(dbAccount.Password, data.Password)
+	err = usecase.packages.Bcrypt.Compare(dbAccount.Password, data.Password)
 
 	if err != nil {
 		return nil, shared.ErrCredentialsIncorrect
@@ -70,47 +74,85 @@ func (usecase *UseCase) Login(ctx context.Context, data *LoginSchema) (*Tokens, 
 	return &Tokens{AccessToken: accessToken.Value, RefreshToken: refreshToken.Value}, nil
 }
 
-func (usecase *UseCase) Logout(ctx context.Context, ID uuid.UUID) error {
-	err := usecase.repo.DeleteJWT(ctx, ID)
+func (usecase *UseCase) Logout(ctx context.Context, refreshToken string) error {
+	tokenPayload, err := usecase.packages.TokenProvider.ParseRefreshToken(refreshToken)
+
+	if err != nil {
+		return shared.ErrUnauthorized
+	}
+
+	dbToken, err := usecase.repo.FindJWT(ctx, tokenPayload.JTI)
 
 	if err != nil {
 		return err
 	}
 
-	return nil
+	err = usecase.packages.Bcrypt.Compare(*dbToken, refreshToken)
+
+	if errors.Is(err, shared.ErrCredentialsIncorrect) {
+		return shared.ErrUnauthorized
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return usecase.repo.DeleteJWT(ctx, tokenPayload.JTI)
 }
 
-func (usecase *UseCase) Refresh(ctx context.Context, JWTPayload *domain.JWTPayload) (*Tokens, error) {
-	_, err := usecase.repo.FindJWT(ctx, JWTPayload.JTI)
+func (usecase *UseCase) Refresh(ctx context.Context, refreshToken string) (*Tokens, error) {
+	tokenPayload, err := usecase.packages.TokenProvider.ParseRefreshToken(refreshToken)
+
+	if err != nil {
+		return nil, shared.ErrUnauthorized
+	}
+
+	dbToken, err := usecase.repo.FindJWT(ctx, tokenPayload.JTI)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = usecase.packages.Bcrypt.Compare(*dbToken, refreshToken)
+
+	if errors.Is(err, shared.ErrCredentialsIncorrect) {
+		return nil, shared.ErrUnauthorized
+	}
 
 	if err != nil {
 		return nil, err
 	}
 
 	user := domain.User{
-		ID:       JWTPayload.UserID,
-		Role:     JWTPayload.Role,
-		Name:     JWTPayload.Name,
-		SystemID: JWTPayload.SystemID,
+		ID:       tokenPayload.UserID,
+		Role:     tokenPayload.Role,
+		Name:     tokenPayload.Name,
+		SystemID: tokenPayload.SystemID,
 	}
 
-	accessToken, err := usecase.packages.TokenProvider.GenerateAccessToken(&user)
-	refreshToken, err := usecase.packages.TokenProvider.GenerateRefreshToken(&user)
+	newAccessToken, err := usecase.packages.TokenProvider.GenerateAccessToken(&user)
+	newRefreshToken, err := usecase.packages.TokenProvider.GenerateRefreshToken(&user)
 
 	if err != nil {
 		return nil, err
 	}
 
-	sum := sha256.Sum256([]byte(refreshToken.Value))
+	sum := sha256.Sum256([]byte(newRefreshToken.Value))
 	hashedToken := hex.EncodeToString(sum[:])
 
-	result, err := usecase.repo.CreateJWT(ctx, JWTPayload, hashedToken)
+	_, err = usecase.repo.CreateJWT(ctx, &newRefreshToken.Payload, hashedToken)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &Tokens{AccessToken: accessToken.Value, RefreshToken: *result}, nil
+	err = usecase.repo.DeleteJWT(ctx, tokenPayload.JTI)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &Tokens{AccessToken: newAccessToken.Value, RefreshToken: newRefreshToken.Value}, nil
 }
 
 func (usecase UseCase) Recover(ctx context.Context, data *RecoverSchema) error {
@@ -120,7 +162,16 @@ func (usecase UseCase) Recover(ctx context.Context, data *RecoverSchema) error {
 		return err
 	}
 
-	err = usecase.packages.Mailer.SendRecoveryOTP(ctx, *dbAccount)
+	otp, _ := rand.Int(rand.Reader, big.NewInt(1000000))
+
+	err = usecase.packages.Mailer.SendRecoveryOTP(ctx, dbAccount, otp.String())
+
+	usecase.packages.Redis.Set(
+		ctx,
+		"otp:"+dbAccount.Email,
+		otp.String(),
+		time.Duration(usecase.mailConfig.OTPExpiryMin)*time.Minute,
+	)
 
 	if err != nil {
 		return err
@@ -130,6 +181,12 @@ func (usecase UseCase) Recover(ctx context.Context, data *RecoverSchema) error {
 }
 
 func (usecase UseCase) VerifyRecovery(ctx context.Context, data *VerifyRecoverSchema) error {
+	existingAccount, err := usecase.userRepo.FindByEmail(ctx, data.Email)
+
+	if err != nil {
+		return err
+	}
+
 	code, err := usecase.packages.Redis.Get(ctx, data.Email)
 
 	if err != nil {
@@ -140,11 +197,9 @@ func (usecase UseCase) VerifyRecovery(ctx context.Context, data *VerifyRecoverSc
 		return shared.ErrIncorrectOTP
 	}
 
-	dbAccount, _ := usecase.userRepo.FindByEmail(ctx, data.Email)
+	existingAccount.Password = data.NewPassword
 
-	dbAccount.Password = data.NewPassword
-
-	_, err = usecase.userRepo.Update(ctx, dbAccount)
+	_, err = usecase.userRepo.Update(ctx, existingAccount)
 
 	return nil
 }

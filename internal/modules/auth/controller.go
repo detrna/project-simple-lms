@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"main/internal/domain"
 	"main/internal/pkg"
 	"main/internal/shared"
 	"net/http"
@@ -60,11 +59,16 @@ func (controller *Controller) Login(c *gin.Context) {
 }
 
 func (controller *Controller) Logout(c *gin.Context) {
-	value, _ := c.Get("user")
-	JWTPayload, _ := value.(*domain.JWTPayload)
+	httpToken, err := c.Request.Cookie("refresh_token")
+	token := httpToken.Value
+
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, "token did not exist")
+		return
+	}
 
 	ctx := c.Request.Context()
-	err := controller.usecase.Logout(ctx, JWTPayload.JTI)
+	err = controller.usecase.Logout(ctx, token)
 
 	if err != nil {
 		shared.HandleError(c, controller.logger, err)
@@ -92,15 +96,8 @@ func (controller *Controller) Refresh(c *gin.Context) {
 		return
 	}
 
-	jwtPayload, err := controller.tokenProvider.ParseRefreshToken(token)
-
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, "token expired")
-		return
-	}
-
 	ctx := c.Request.Context()
-	result, err := controller.usecase.Refresh(ctx, jwtPayload)
+	result, err := controller.usecase.Refresh(ctx, token)
 
 	c.SetCookie(
 		"access_token",          // name

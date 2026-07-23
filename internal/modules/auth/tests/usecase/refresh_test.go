@@ -2,6 +2,7 @@ package auth_usecase_test
 
 import (
 	"context"
+	"main/internal/config"
 	"main/internal/modules/auth"
 	auth_mocks "main/internal/modules/auth/mocks"
 	user_mocks "main/internal/modules/user/mocks"
@@ -21,6 +22,8 @@ import (
 func TestRefresh_Success(t *testing.T) {
 	existingUser := user_factory.NewUser(uuid.New())
 	jwtPayload := user_factory.NewJWTPayload(existingUser)
+	refreshToken := user_factory.NewJWT("refresh-token", jwtPayload)
+
 	dbToken := "hashed-refresh-token"
 	newDbToken := "new-hashed-refresh-token"
 
@@ -31,7 +34,7 @@ func TestRefresh_Success(t *testing.T) {
 	repo.EXPECT().CreateJWT(ctx, mock.Anything, mock.Anything).Return(&newDbToken, nil)
 
 	bcryptHasher := pkg_mocks.NewMockBcryptHasher(t)
-	bcryptHasher.EXPECT().CompareHashAndPassword(mock.Anything, mock.Anything).Return(nil)
+	bcryptHasher.EXPECT().Compare(mock.Anything, mock.Anything).Return(nil)
 
 	jwt := pkg_mocks.NewMockJWTProvider(t)
 	jwt.
@@ -42,21 +45,23 @@ func TestRefresh_Success(t *testing.T) {
 		EXPECT().
 		GenerateRefreshToken(mock.Anything).
 		Return(user_factory.NewJWT("new-refresh-token", jwtPayload), nil)
+	jwt.EXPECT().
+		ParseRefreshToken(mock.AnythingOfType("string")).
+		Return(jwtPayload, nil)
 
 	pkg := auth.UseCasePackages{
 		Bcrypt:        bcryptHasher,
 		TokenProvider: jwt,
 	}
 
-	u := auth.NewUseCase(repo, user_mocks.NewMockIRepository(t), &pkg)
+	u := auth.NewUseCase(repo, user_mocks.NewMockIRepository(t), &pkg, &config.MailConfig{})
 
-	requestData := *jwtPayload
 	expected := auth.Tokens{
 		AccessToken:  "new-access-token",
 		RefreshToken: "new-refresh-token",
 	}
 
-	result, err := u.Refresh(ctx, &requestData)
+	result, err := u.Refresh(ctx, refreshToken.Value)
 
 	require.NoError(t, err)
 	assert.Equal(t, expected, *result)
@@ -65,18 +70,25 @@ func TestRefresh_Success(t *testing.T) {
 func TestRefresh_RevokedToken(t *testing.T) {
 	existingUser := user_factory.NewUser(uuid.New())
 	jwtPayload := user_factory.NewJWTPayload(existingUser)
+	refreshToken := user_factory.NewJWT("refresh_token", jwtPayload)
 
 	ctx := context.Background()
 	repo := auth_mocks.NewMockIRepository(t)
 	repo.EXPECT().FindJWT(ctx, mock.Anything).Return(nil, shared.ErrRecordNotFound)
 
-	pkg := auth.UseCasePackages{}
+	tokenProvider := pkg_mocks.NewMockJWTProvider(t)
+	tokenProvider.
+		EXPECT().
+		ParseRefreshToken(mock.AnythingOfType("string")).
+		Return(jwtPayload, nil)
 
-	u := auth.NewUseCase(repo, user_mocks.NewMockIRepository(t), &pkg)
+	pkg := auth.UseCasePackages{
+		TokenProvider: tokenProvider,
+	}
 
-	requestData := *jwtPayload
+	u := auth.NewUseCase(repo, user_mocks.NewMockIRepository(t), &pkg, &config.MailConfig{})
 
-	result, err := u.Refresh(ctx, &requestData)
+	result, err := u.Refresh(ctx, refreshToken.Value)
 
 	require.ErrorIs(t, shared.ErrRecordNotFound, err)
 	assert.Nil(t, result)
@@ -85,6 +97,8 @@ func TestRefresh_RevokedToken(t *testing.T) {
 func TestRefresh_InvalidToken(t *testing.T) {
 	existingUser := user_factory.NewUser(uuid.New())
 	jwtPayload := user_factory.NewJWTPayload(existingUser)
+	refreshToken := user_factory.NewJWT("refresh-token", jwtPayload)
+
 	dbToken := "hashed-refresh-token"
 
 	ctx := context.Background()
@@ -92,18 +106,23 @@ func TestRefresh_InvalidToken(t *testing.T) {
 	repo.EXPECT().FindJWT(ctx, mock.Anything).Return(&dbToken, nil)
 
 	bcryptHasher := pkg_mocks.NewMockBcryptHasher(t)
-	bcryptHasher.EXPECT().CompareHashAndPassword(mock.Anything, mock.Anything).Return(shared.ErrCredentialsIncorrect)
+	bcryptHasher.EXPECT().Compare(mock.Anything, mock.Anything).Return(shared.ErrCredentialsIncorrect)
+
+	tokenProvider := pkg_mocks.NewMockJWTProvider(t)
+	tokenProvider.
+		EXPECT().
+		ParseRefreshToken(mock.AnythingOfType("string")).
+		Return(jwtPayload, nil)
 
 	pkg := auth.UseCasePackages{
-		Bcrypt: bcryptHasher,
+		Bcrypt:        bcryptHasher,
+		TokenProvider: tokenProvider,
 	}
 
-	u := auth.NewUseCase(repo, user_mocks.NewMockIRepository(t), &pkg)
+	u := auth.NewUseCase(repo, user_mocks.NewMockIRepository(t), &pkg, &config.MailConfig{})
 
-	requestData := *jwtPayload
+	result, err := u.Refresh(ctx, refreshToken.Value)
 
-	result, err := u.Refresh(ctx, &requestData)
-
-	require.ErrorIs(t, shared.ErrUnauthorized, err)
+	require.ErrorIs(t, err, shared.ErrUnauthorized)
 	assert.Nil(t, result)
 }

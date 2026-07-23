@@ -22,7 +22,7 @@ func main() {
 		log.Fatal("couldn't load config")
 	}
 
-	packages, db, repository, err := infrastructure.Initialize(*cfg)
+	packages, db, repository, err := infrastructure.Initialize(cfg)
 
 	if err != nil {
 		log.Fatalf("Bootstrap failed: %v", err)

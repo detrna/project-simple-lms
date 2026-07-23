@@ -21,6 +21,10 @@ func (routes Routes) RegisterRoutes(rg *gin.RouterGroup) {
 	router := rg.Group("/auth")
 
 	router.POST("/login", routes.controller.Login)
-	router.DELETE("/logout", middleware.Authenticate(routes.tokenProvider), routes.controller.Logout)
+	router.DELETE(
+		"/logout",
+		middleware.Authenticate(routes.tokenProvider, routes.logger),
+		routes.controller.Logout,
+	)
 	router.POST("/refresh", routes.controller.Refresh)
 }

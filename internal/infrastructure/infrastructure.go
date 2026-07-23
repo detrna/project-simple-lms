@@ -9,13 +9,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func Initialize(cfg config.Config) (*pkg.Packages, *gorm.DB, *repository.Repository, error) {
-	db := database.Load(cfg.Database)
-	logger := NewLogger(cfg.Logger)
-	redis := RedisSetup(cfg.Redis)
-	resend := NewResendClient(redis)
-	jwtProvider := NewTokenProvider(cfg.JWT)
-	bcrypt := NewBcryptHasher(cfg.Bcrypt)
+func Initialize(cfg *config.Config) (*pkg.Packages, *gorm.DB, *repository.Repository, error) {
+	db := database.Load(*cfg.Database)
+	logger := NewLogger(*cfg.Logger)
+	redis := RedisSetup(*cfg.Redis)
+	resend := ResendClient{}
+	jwtProvider := NewTokenProvider(*cfg.JWT)
+	bcrypt := NewBcryptHasher(*cfg.Bcrypt)
 	repository := repository.NewRepository(db, logger)
 
 	return &pkg.Packages{

@@ -6,5 +6,5 @@ import (
 )
 
 type ResendClient interface {
-	SendRecoveryOTP(ctx context.Context, account domain.User) error
+	SendRecoveryOTP(ctx context.Context, account *domain.User, otp string) error
 }

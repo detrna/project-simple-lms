@@ -2,11 +2,8 @@ package infrastructure
 
 import (
 	"context"
-	"crypto/rand"
 	"main/internal/domain"
 	"main/internal/pkg"
-	"math/big"
-	"time"
 
 	"github.com/resend/resend-go/v3"
 )
@@ -15,15 +12,10 @@ type ResendClient struct {
 	redis pkg.RedisClient
 }
 
-func NewResendClient(redis pkg.RedisClient) pkg.ResendClient {
-	return &ResendClient{redis: redis}
-}
-
-func (r ResendClient) SendRecoveryOTP(ctx context.Context, account domain.User) error {
+func (r ResendClient) SendRecoveryOTP(ctx context.Context, account *domain.User, otp string) error {
 	client := resend.NewClient("apiKey")
 
-	otp, _ := rand.Int(rand.Reader, big.NewInt(1000000))
-	otpHtml := "<strong>Your OTP code: " + otp.String() + "</strong>"
+	otpHtml := "<strong>Your OTP code: " + otp + "</strong>"
 
 	params := &resend.SendEmailRequest{
 		From:    "Acme <project-simple-lms>",
@@ -36,8 +28,6 @@ func (r ResendClient) SendRecoveryOTP(ctx context.Context, account domain.User) 
 	if err != nil {
 		return err
 	}
-
-	r.redis.Set(ctx, "otp:"+account.Email, otp.String(), 15*time.Minute)
 
 	return nil
 }

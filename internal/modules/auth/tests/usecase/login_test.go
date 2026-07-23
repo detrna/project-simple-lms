@@ -56,7 +56,7 @@ func TestLogin_Success(t *testing.T) {
 	bcrypt := pkg_mocks.NewMockBcryptHasher(t)
 	bcrypt.
 		EXPECT().
-		CompareHashAndPassword(mock.Anything, mock.Anything).
+		Compare(mock.Anything, mock.Anything).
 		Return(nil)
 
 	jwt := pkg_mocks.NewMockJWTProvider(t)
@@ -74,7 +74,7 @@ func TestLogin_Success(t *testing.T) {
 		TokenProvider: jwt,
 	}
 
-	u := auth.NewUseCase(repo, userRepo, &pkg)
+	u := auth.NewUseCase(repo, userRepo, &pkg, nil)
 
 	result, err := u.Login(ctx, &requestData)
 
@@ -99,7 +99,7 @@ func TestLogin_IncorrectEmail(t *testing.T) {
 		FindByEmail(ctx, mock.AnythingOfType("string")).
 		Return(nil, shared.ErrRecordNotFound)
 
-	u := auth.NewUseCase(auth_mocks.NewMockIRepository(t), userRepo, &auth.UseCasePackages{})
+	u := auth.NewUseCase(auth_mocks.NewMockIRepository(t), userRepo, &auth.UseCasePackages{}, nil)
 
 	result, err := u.Login(ctx, &requestData)
 
@@ -131,14 +131,14 @@ func TestLogin_IncorrectPassword(t *testing.T) {
 	bcryptHasher := pkg_mocks.NewMockBcryptHasher(t)
 	bcryptHasher.
 		EXPECT().
-		CompareHashAndPassword(mock.Anything, mock.Anything).
+		Compare(mock.Anything, mock.Anything).
 		Return(shared.ErrCredentialsIncorrect)
 
 	pkg := auth.UseCasePackages{
 		Bcrypt: bcryptHasher,
 	}
 
-	u := auth.NewUseCase(repo, userRepo, &pkg)
+	u := auth.NewUseCase(repo, userRepo, &pkg, nil)
 
 	result, err := u.Login(ctx, &requestData)
 
