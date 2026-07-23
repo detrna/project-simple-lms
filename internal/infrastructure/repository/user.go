@@ -34,9 +34,9 @@ func (repo UserRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.
 		return nil, err
 	}
 
-	user := mapper.ToDomainUser(rows)
+	user := mapper.ToDomainUser(&rows)
 
-	return &user, nil
+	return user, nil
 }
 
 func (repo UserRepository) FindBySystemID(ctx context.Context, id string) (*domain.User, error) {
@@ -52,33 +52,33 @@ func (repo UserRepository) FindBySystemID(ctx context.Context, id string) (*doma
 		return nil, err
 	}
 
-	user := mapper.ToDomainUser(rows)
+	user := mapper.ToDomainUser(&rows)
 
-	return &user, nil
+	return user, nil
 }
 
 func (repo UserRepository) Create(ctx context.Context, data *domain.User) (*domain.User, error) {
-	dbUser := mapper.ToDatabaseUser(*data)
+	dbUser := mapper.ToDatabaseUser(data)
 
-	err := gorm.G[database.User](repo.db).Create(ctx, &dbUser)
+	err := gorm.G[database.User](repo.db).Create(ctx, dbUser)
 	if err != nil {
 		return nil, err
 	}
 
 	createdUser := mapper.ToDomainUser(dbUser)
 
-	return &createdUser, nil
+	return createdUser, nil
 }
 
 func (repo UserRepository) Update(ctx context.Context, data *domain.User) (*domain.User, error) {
-	dbUser := mapper.ToDatabaseUser(*data)
+	dbUser := mapper.ToDatabaseUser(data)
 
 	var result database.User
 
 	if err := repo.db.Transaction(func(tx *gorm.DB) error {
 		_, err := gorm.G[database.User](tx).
 			Where("id = ?", data.ID).
-			Updates(ctx, dbUser)
+			Updates(ctx, *dbUser)
 		if err != nil {
 			return err
 		}
@@ -97,9 +97,9 @@ func (repo UserRepository) Update(ctx context.Context, data *domain.User) (*doma
 		return nil, err
 	}
 
-	updatedUser := mapper.ToDomainUser(result)
+	updatedUser := mapper.ToDomainUser(&result)
 
-	return &updatedUser, nil
+	return updatedUser, nil
 }
 
 func (repo UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
@@ -131,7 +131,7 @@ func (repo UserRepository) FindByEmail(ctx context.Context, email string) (*doma
 		return nil, err
 	}
 
-	user := mapper.ToDomainUser(rows)
+	user := mapper.ToDomainUser(&rows)
 
-	return &user, nil
+	return user, nil
 }

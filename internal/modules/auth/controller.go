@@ -39,7 +39,7 @@ func (controller *Controller) Login(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	Tokens, err := controller.usecase.Login(ctx, dto)
+	Tokens, err := controller.usecase.Login(ctx, &dto)
 
 	if err != nil {
 		shared.HandleError(c, controller.logger, err)
@@ -100,7 +100,7 @@ func (controller *Controller) Refresh(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	result, err := controller.usecase.Refresh(ctx, *jwtPayload)
+	result, err := controller.usecase.Refresh(ctx, jwtPayload)
 
 	c.SetCookie(
 		"access_token",          // name

@@ -12,15 +12,15 @@ type UseCase struct {
 }
 
 type IUseCase interface {
-	GetStudents(ctx context.Context, classID uuid.UUID) ([]domain.User, error)
-	GetMyClasses(ctx context.Context, userID uuid.UUID) ([]Class, error)
+	GetStudents(ctx context.Context, classID uuid.UUID) ([]*domain.User, error)
+	GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*Class, error)
 }
 
 func NewUseCase(repo IRepository) *UseCase {
 	return (&UseCase{repo: repo})
 }
 
-func (usecase UseCase) GetStudents(ctx context.Context, classID uuid.UUID) ([]domain.User, error) {
+func (usecase UseCase) GetStudents(ctx context.Context, classID uuid.UUID) ([]*domain.User, error) {
 	result, err := usecase.repo.GetStudents(ctx, classID)
 
 	if err != nil {
@@ -30,7 +30,7 @@ func (usecase UseCase) GetStudents(ctx context.Context, classID uuid.UUID) ([]do
 	return result, nil
 }
 
-func (usecase UseCase) GetMyClasses(ctx context.Context, userID uuid.UUID) ([]Class, error) {
+func (usecase UseCase) GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*Class, error) {
 	result, err := usecase.repo.GetMyClasses(ctx, userID)
 
 	if err != nil {

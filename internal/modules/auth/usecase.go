@@ -27,18 +27,18 @@ type UseCase struct {
 }
 
 type IUseCase interface {
-	Login(ctx context.Context, data LoginSchema) (*Tokens, error)
-	Recover(ctx context.Context, data RecoverSchema) error
-	VerifyRecovery(ctx context.Context, data VerifyRecoverSchema) (*domain.User, error)
+	Login(ctx context.Context, data *LoginSchema) (*Tokens, error)
+	Recover(ctx context.Context, data *RecoverSchema) error
+	VerifyRecovery(ctx context.Context, data *VerifyRecoverSchema) error
 	Logout(ctx context.Context, id uuid.UUID) error
-	Refresh(ctx context.Context, JWTPayload domain.JWTPayload) (*Tokens, error)
+	Refresh(ctx context.Context, JWTPayload *domain.JWTPayload) (*Tokens, error)
 }
 
-func NewUseCase(repo IRepository, userRepo user.IRepository, pkg UseCasePackages) *UseCase {
-	return (&UseCase{repo: repo, userRepo: userRepo, packages: pkg})
+func NewUseCase(repo IRepository, userRepo user.IRepository, pkg *UseCasePackages) *UseCase {
+	return (&UseCase{repo: repo, userRepo: userRepo, packages: *pkg})
 }
 
-func (usecase *UseCase) Login(ctx context.Context, data LoginSchema) (*Tokens, error) {
+func (usecase *UseCase) Login(ctx context.Context, data *LoginSchema) (*Tokens, error) {
 	dbAccount, err := usecase.userRepo.FindByEmail(ctx, data.Email)
 
 	if err != nil {
@@ -61,13 +61,13 @@ func (usecase *UseCase) Login(ctx context.Context, data LoginSchema) (*Tokens, e
 	sum := sha256.Sum256([]byte(refreshToken.Value))
 	hashedToken := hex.EncodeToString(sum[:])
 
-	result, err := usecase.repo.CreateJWT(ctx, accessToken.Payload, hashedToken)
+	_, err = usecase.repo.CreateJWT(ctx, &accessToken.Payload, hashedToken)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &Tokens{AccessToken: accessToken.Value, RefreshToken: *result}, nil
+	return &Tokens{AccessToken: accessToken.Value, RefreshToken: refreshToken.Value}, nil
 }
 
 func (usecase *UseCase) Logout(ctx context.Context, ID uuid.UUID) error {
@@ -80,8 +80,8 @@ func (usecase *UseCase) Logout(ctx context.Context, ID uuid.UUID) error {
 	return nil
 }
 
-func (usecase *UseCase) Refresh(ctx context.Context, JWTPayload domain.JWTPayload) (*Tokens, error) {
-	err := usecase.repo.CheckJWT(ctx, JWTPayload.JTI)
+func (usecase *UseCase) Refresh(ctx context.Context, JWTPayload *domain.JWTPayload) (*Tokens, error) {
+	_, err := usecase.repo.FindJWT(ctx, JWTPayload.JTI)
 
 	if err != nil {
 		return nil, err
@@ -113,7 +113,7 @@ func (usecase *UseCase) Refresh(ctx context.Context, JWTPayload domain.JWTPayloa
 	return &Tokens{AccessToken: accessToken.Value, RefreshToken: *result}, nil
 }
 
-func (usecase UseCase) Recover(ctx context.Context, data RecoverSchema) error {
+func (usecase UseCase) Recover(ctx context.Context, data *RecoverSchema) error {
 	dbAccount, err := usecase.userRepo.FindByEmail(ctx, data.Email)
 
 	if err != nil {
@@ -129,22 +129,22 @@ func (usecase UseCase) Recover(ctx context.Context, data RecoverSchema) error {
 	return nil
 }
 
-func (usecase UseCase) VerifyRecovery(ctx context.Context, data VerifyRecoverSchema) (*domain.User, error) {
+func (usecase UseCase) VerifyRecovery(ctx context.Context, data *VerifyRecoverSchema) error {
 	code, err := usecase.packages.Redis.Get(ctx, data.Email)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if code != data.OTP {
-		return nil, shared.ErrIncorrectOTP
+		return shared.ErrIncorrectOTP
 	}
 
 	dbAccount, _ := usecase.userRepo.FindByEmail(ctx, data.Email)
 
-	dbAccount.Password = data.Password
+	dbAccount.Password = data.NewPassword
 
-	newAccount, err := usecase.userRepo.Update(ctx, dbAccount)
+	_, err = usecase.userRepo.Update(ctx, dbAccount)
 
-	return newAccount, nil
+	return nil
 }

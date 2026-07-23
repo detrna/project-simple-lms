@@ -16,9 +16,9 @@ type RecoverSchema struct {
 }
 
 type VerifyRecoverSchema struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	OTP      string `json:"otp"`
+	Email       string `json:"email"`
+	NewPassword string `json:"newPassword"`
+	OTP         string `json:"otp"`
 }
 
 type Tokens struct {

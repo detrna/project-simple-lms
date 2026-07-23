@@ -32,7 +32,7 @@ func TestMain(m *testing.M) {
 
 	Factory = factory.NewFactory(infra, db, cfg)
 
-	Router = app.SetupRouter(cfg, *infra, *repo)
+	Router = app.SetupRouter(cfg, infra, repo)
 
 	TruncateDatabase()
 	defer TruncateDatabase()

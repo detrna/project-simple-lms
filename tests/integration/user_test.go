@@ -39,8 +39,8 @@ func TestGetUserByID(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	admin := mapper.ToDomainUser(*Factory.CreateAdmin(t))
-	token := Factory.CreateJWT(t, &admin)
+	admin := mapper.ToDomainUser(Factory.CreateAdmin(t))
+	token := Factory.CreateJWT(t, admin)
 
 	requestData := user.CreateUserSchema{
 		SystemID: "student1",
@@ -73,8 +73,8 @@ func TestCreate(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
-	admin := mapper.ToDomainUser(*Factory.CreateAdmin(t))
-	token := Factory.CreateJWT(t, &admin)
+	admin := mapper.ToDomainUser(Factory.CreateAdmin(t))
+	token := Factory.CreateJWT(t, admin)
 
 	indexedUser := Factory.CreateUser(t, "Student1")
 
@@ -107,8 +107,8 @@ func TestUpdateUser(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
-	admin := mapper.ToDomainUser(*Factory.CreateAdmin(t))
-	token := Factory.CreateJWT(t, &admin)
+	admin := mapper.ToDomainUser(Factory.CreateAdmin(t))
+	token := Factory.CreateJWT(t, admin)
 
 	indexedUser := Factory.CreateUser(t, "student1")
 

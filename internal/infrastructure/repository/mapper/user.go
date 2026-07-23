@@ -5,8 +5,8 @@ import (
 	"main/internal/infrastructure/database"
 )
 
-func ToDomainUser(u database.User) domain.User {
-	return domain.User{
+func ToDomainUser(u *database.User) *domain.User {
+	return &domain.User{
 		ID:        u.ID,
 		SystemID:  u.SystemID,
 		Name:      u.Name,
@@ -17,8 +17,8 @@ func ToDomainUser(u database.User) domain.User {
 	}
 }
 
-func ToDatabaseUser(u domain.User) database.User {
-	return database.User{
+func ToDatabaseUser(u *domain.User) *database.User {
+	return &database.User{
 		ID:        u.ID,
 		SystemID:  u.SystemID,
 		Name:      u.Name,
@@ -29,7 +29,7 @@ func ToDatabaseUser(u domain.User) database.User {
 	}
 }
 
-func ToDatabaseJWT(JWT domain.JWTPayload, token string) *database.JWT {
+func ToDatabaseJWT(JWT *domain.JWTPayload, token string) *database.JWT {
 	return &database.JWT{
 		ID:     JWT.JTI,
 		UserID: JWT.UserID,

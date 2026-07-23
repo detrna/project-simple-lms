@@ -11,8 +11,8 @@ import (
 )
 
 type IRepository interface {
-	GetStudents(ctx context.Context, classID uuid.UUID) ([]domain.User, error)
-	GetMyClasses(ctx context.Context, userID uuid.UUID) ([]Class, error)
+	GetStudents(ctx context.Context, classID uuid.UUID) ([]*domain.User, error)
+	GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*Class, error)
 }
 
 type Repository struct {
@@ -23,7 +23,7 @@ func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{db: db}
 }
 
-func (repo Repository) GetStudents(ctx context.Context, classID uuid.UUID) ([]domain.User, error) {
+func (repo Repository) GetStudents(ctx context.Context, classID uuid.UUID) ([]*domain.User, error) {
 	rows, err := gorm.G[database.Takes](repo.db).
 		Preload("User", nil).
 		Where("class_id = ?", classID).
@@ -33,16 +33,16 @@ func (repo Repository) GetStudents(ctx context.Context, classID uuid.UUID) ([]do
 		return nil, err
 	}
 
-	var students []domain.User
+	var students []*domain.User
 
 	for _, take := range rows {
-		students = append(students, mapper.ToDomainUser(take.User))
+		students = append(students, mapper.ToDomainUser(&take.User))
 	}
 
 	return students, nil
 }
 
-func (repo Repository) GetMyClasses(ctx context.Context, userID uuid.UUID) ([]Class, error) {
+func (repo Repository) GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*Class, error) {
 	rows, err := gorm.G[database.Takes](repo.db).
 		Preload("Class", nil).
 		Where("user_id = ?", userID).
@@ -52,17 +52,17 @@ func (repo Repository) GetMyClasses(ctx context.Context, userID uuid.UUID) ([]Cl
 		return nil, err
 	}
 
-	var classes []Class
+	var classes []*Class
 
 	for _, take := range rows {
-		classes = append(classes, ToDomainClass(take.Class))
+		classes = append(classes, ToDomainClass(&take.Class))
 	}
 
 	return classes, nil
 }
 
-func ToDomainClass(c database.Class) Class {
-	return Class{
+func ToDomainClass(c *database.Class) *Class {
+	return &Class{
 		ID:        c.ID,
 		Name:      c.Name,
 		CourseID:  c.CourseID,

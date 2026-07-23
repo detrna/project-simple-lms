@@ -16,7 +16,7 @@ type AuthContainer struct {
 	UserRepo   user.IRepository
 }
 
-func NewAuthContainer(cfg *config.Config, infra pkg.Packages, repo repository.Repository) *AuthContainer {
+func NewAuthContainer(cfg *config.Config, infra *pkg.Packages, repo *repository.Repository) *AuthContainer {
 	authRepo := repo.AuthRepository
 	userRepo := repo.UserRepository
 
@@ -28,7 +28,7 @@ func NewAuthContainer(cfg *config.Config, infra pkg.Packages, repo repository.Re
 		Logger:        infra.Logger,
 	}
 
-	usecase := auth.NewUseCase(authRepo, userRepo, useCasePacakges)
+	usecase := auth.NewUseCase(authRepo, userRepo, &useCasePacakges)
 	controller := auth.NewController(usecase, infra.Logger, infra.JWTProvider, cfg.App.Mode == "PRODUCTION")
 	routes := auth.NewRoutes(controller, infra.JWTProvider, infra.Logger)
 

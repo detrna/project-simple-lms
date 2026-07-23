@@ -37,7 +37,7 @@ func main() {
 
 	port := cfg.Server.Port
 
-	router := app.SetupRouter(cfg, *packages, *repository)
+	router := app.SetupRouter(cfg, packages, repository)
 	router.Run(":" + port)
 
 	logger.Info("http server listening on port ", slog.String("port", port))

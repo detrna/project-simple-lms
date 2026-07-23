@@ -32,3 +32,12 @@ func NewJWTPayload(data *domain.User) *domain.JWTPayload {
 
 	return &jwt
 }
+
+func NewJWT(token string, payload *domain.JWTPayload) *domain.JWT {
+	jwt := domain.JWT{
+		Payload: *payload,
+		Value:   token,
+	}
+
+	return &jwt
+}

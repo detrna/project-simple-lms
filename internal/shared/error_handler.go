@@ -60,6 +60,7 @@ var (
 	ErrCredentialsIncorrect = errors.New("incorrect email or password")
 	ErrBadRequest           = errors.New("bad request")
 	ErrRecordNotFound       = errors.New("couldn't find any record of requested data")
+	ErrRedisRecordNotFound  = errors.New("couldn't find any record of requested redis data")
 	ErrIncorrectOTP         = errors.New("incorrect otp code")
 	ErrUnauthorized         = errors.New("request unauthorized")
 	ErrForbidden            = errors.New("request forbidden")

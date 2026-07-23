@@ -14,7 +14,7 @@ type UserContainer struct {
 	Routes     *user.Routes
 }
 
-func NewUserContainer(infra pkg.Packages, repo repository.Repository) *UserContainer {
+func NewUserContainer(infra *pkg.Packages, repo *repository.Repository) *UserContainer {
 	userRepo := repo.UserRepository
 	usecase := user.NewUseCase(userRepo, infra.BcryptHasher, infra.Logger)
 	controller := user.NewController(usecase, infra.Logger)

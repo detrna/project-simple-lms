@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(cfg *config.Config, infra pkg.Packages, repo repository.Repository) *gin.Engine {
+func SetupRouter(cfg *config.Config, infra *pkg.Packages, repo *repository.Repository) *gin.Engine {
 	router := gin.Default()
 
 	router.Use(
