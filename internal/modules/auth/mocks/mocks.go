@@ -121,6 +121,46 @@ func (_c *MockIController_Logout_Call) RunAndReturn(run func(c *gin.Context)) *M
 	return _c
 }
 
+// Recover provides a mock function for the type MockIController
+func (_mock *MockIController) Recover(c *gin.Context) {
+	_mock.Called(c)
+	return
+}
+
+// MockIController_Recover_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Recover'
+type MockIController_Recover_Call struct {
+	*mock.Call
+}
+
+// Recover is a helper method to define mock.On call
+//   - c *gin.Context
+func (_e *MockIController_Expecter) Recover(c any) *MockIController_Recover_Call {
+	return &MockIController_Recover_Call{Call: _e.mock.On("Recover", c)}
+}
+
+func (_c *MockIController_Recover_Call) Run(run func(c *gin.Context)) *MockIController_Recover_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *gin.Context
+		if args[0] != nil {
+			arg0 = args[0].(*gin.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockIController_Recover_Call) Return() *MockIController_Recover_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockIController_Recover_Call) RunAndReturn(run func(c *gin.Context)) *MockIController_Recover_Call {
+	_c.Run(run)
+	return _c
+}
+
 // Refresh provides a mock function for the type MockIController
 func (_mock *MockIController) Refresh(c *gin.Context) {
 	_mock.Called(c)
@@ -157,6 +197,46 @@ func (_c *MockIController_Refresh_Call) Return() *MockIController_Refresh_Call {
 }
 
 func (_c *MockIController_Refresh_Call) RunAndReturn(run func(c *gin.Context)) *MockIController_Refresh_Call {
+	_c.Run(run)
+	return _c
+}
+
+// VerifyRecovery provides a mock function for the type MockIController
+func (_mock *MockIController) VerifyRecovery(c *gin.Context) {
+	_mock.Called(c)
+	return
+}
+
+// MockIController_VerifyRecovery_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VerifyRecovery'
+type MockIController_VerifyRecovery_Call struct {
+	*mock.Call
+}
+
+// VerifyRecovery is a helper method to define mock.On call
+//   - c *gin.Context
+func (_e *MockIController_Expecter) VerifyRecovery(c any) *MockIController_VerifyRecovery_Call {
+	return &MockIController_VerifyRecovery_Call{Call: _e.mock.On("VerifyRecovery", c)}
+}
+
+func (_c *MockIController_VerifyRecovery_Call) Run(run func(c *gin.Context)) *MockIController_VerifyRecovery_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *gin.Context
+		if args[0] != nil {
+			arg0 = args[0].(*gin.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockIController_VerifyRecovery_Call) Return() *MockIController_VerifyRecovery_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockIController_VerifyRecovery_Call) RunAndReturn(run func(c *gin.Context)) *MockIController_VerifyRecovery_Call {
 	_c.Run(run)
 	return _c
 }
@@ -665,7 +745,7 @@ func (_c *MockIUseCase_Refresh_Call) RunAndReturn(run func(ctx context.Context, 
 }
 
 // VerifyRecovery provides a mock function for the type MockIUseCase
-func (_mock *MockIUseCase) VerifyRecovery(ctx context.Context, data *auth.VerifyRecoverSchema) error {
+func (_mock *MockIUseCase) VerifyRecovery(ctx context.Context, data *auth.VerifyRecoverySchema) error {
 	ret := _mock.Called(ctx, data)
 
 	if len(ret) == 0 {
@@ -673,7 +753,7 @@ func (_mock *MockIUseCase) VerifyRecovery(ctx context.Context, data *auth.Verify
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *auth.VerifyRecoverSchema) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *auth.VerifyRecoverySchema) error); ok {
 		r0 = returnFunc(ctx, data)
 	} else {
 		r0 = ret.Error(0)
@@ -688,20 +768,20 @@ type MockIUseCase_VerifyRecovery_Call struct {
 
 // VerifyRecovery is a helper method to define mock.On call
 //   - ctx context.Context
-//   - data *auth.VerifyRecoverSchema
+//   - data *auth.VerifyRecoverySchema
 func (_e *MockIUseCase_Expecter) VerifyRecovery(ctx any, data any) *MockIUseCase_VerifyRecovery_Call {
 	return &MockIUseCase_VerifyRecovery_Call{Call: _e.mock.On("VerifyRecovery", ctx, data)}
 }
 
-func (_c *MockIUseCase_VerifyRecovery_Call) Run(run func(ctx context.Context, data *auth.VerifyRecoverSchema)) *MockIUseCase_VerifyRecovery_Call {
+func (_c *MockIUseCase_VerifyRecovery_Call) Run(run func(ctx context.Context, data *auth.VerifyRecoverySchema)) *MockIUseCase_VerifyRecovery_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *auth.VerifyRecoverSchema
+		var arg1 *auth.VerifyRecoverySchema
 		if args[1] != nil {
-			arg1 = args[1].(*auth.VerifyRecoverSchema)
+			arg1 = args[1].(*auth.VerifyRecoverySchema)
 		}
 		run(
 			arg0,
@@ -716,7 +796,7 @@ func (_c *MockIUseCase_VerifyRecovery_Call) Return(err error) *MockIUseCase_Veri
 	return _c
 }
 
-func (_c *MockIUseCase_VerifyRecovery_Call) RunAndReturn(run func(ctx context.Context, data *auth.VerifyRecoverSchema) error) *MockIUseCase_VerifyRecovery_Call {
+func (_c *MockIUseCase_VerifyRecovery_Call) RunAndReturn(run func(ctx context.Context, data *auth.VerifyRecoverySchema) error) *MockIUseCase_VerifyRecovery_Call {
 	_c.Call.Return(run)
 	return _c
 }

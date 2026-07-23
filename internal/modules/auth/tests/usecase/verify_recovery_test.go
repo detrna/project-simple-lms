@@ -43,7 +43,7 @@ func TestVerifyRecovery_Success(t *testing.T) {
 		Redis: redis,
 	}
 
-	requestData := auth.VerifyRecoverSchema{
+	requestData := auth.VerifyRecoverySchema{
 		Email:       "previous-valid-email",
 		NewPassword: newPassword,
 		OTP:         requestOTP,
@@ -69,7 +69,7 @@ func TestVerifyRecovery_EmailNotFound(t *testing.T) {
 
 	pkg := auth.UseCasePackages{}
 
-	requestData := auth.VerifyRecoverSchema{
+	requestData := auth.VerifyRecoverySchema{
 		Email:       "invalid-email",
 		NewPassword: newPassword,
 		OTP:         requestOTP,
@@ -103,7 +103,7 @@ func TestVerifyRecovery_IncorrectOTP(t *testing.T) {
 		Redis: redis,
 	}
 
-	requestData := auth.VerifyRecoverSchema{
+	requestData := auth.VerifyRecoverySchema{
 		Email:       "previous-valid-email",
 		NewPassword: newPassword,
 		OTP:         requestOTP,
@@ -135,7 +135,7 @@ func TestVerifyRecovery_OTPNotFound(t *testing.T) {
 		Redis: redis,
 	}
 
-	requestData := auth.VerifyRecoverSchema{
+	requestData := auth.VerifyRecoverySchema{
 		Email:       "previous-valid-email",
 		NewPassword: newPassword,
 		OTP:         requestOTP,

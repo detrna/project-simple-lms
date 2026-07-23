@@ -11,11 +11,15 @@ type LoginSchema struct {
 	Password string `json:"password"`
 }
 
+type TokenResponse struct {
+	AccessToken string `json:"accessToken"`
+}
+
 type RecoverSchema struct {
 	Email string `json:"email"`
 }
 
-type VerifyRecoverSchema struct {
+type VerifyRecoverySchema struct {
 	Email       string `json:"email"`
 	NewPassword string `json:"newPassword"`
 	OTP         string `json:"otp"`

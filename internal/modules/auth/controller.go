@@ -9,21 +9,21 @@ import (
 )
 
 type Controller struct {
-	isProduction  bool
-	usecase       *UseCase
-	logger        pkg.Logger
-	tokenProvider pkg.JWTProvider
+	isProduction bool
+	usecase      IUseCase
+	logger       pkg.Logger
 }
 
-func NewController(usecase *UseCase, logger pkg.Logger, jwt pkg.JWTProvider, isProduction bool) *Controller {
-	return &Controller{usecase: usecase, logger: logger, isProduction: isProduction, tokenProvider: jwt}
+func NewController(usecase IUseCase, logger pkg.Logger, isProduction bool) *Controller {
+	return &Controller{usecase: usecase, logger: logger, isProduction: isProduction}
 }
 
 type IController interface {
 	Login(c *gin.Context)
-	// Recover(c *gin.Context)
 	Logout(c *gin.Context)
 	Refresh(c *gin.Context)
+	Recover(c *gin.Context)
+	VerifyRecovery(c *gin.Context)
 }
 
 func (controller *Controller) Login(c *gin.Context) {
@@ -55,7 +55,13 @@ func (controller *Controller) Login(c *gin.Context) {
 		true,                    // httpOnly
 	)
 
-	c.JSON(http.StatusOK, Tokens.AccessToken)
+	payload := shared.ResponseDTO[TokenResponse]{
+		Data: &TokenResponse{
+			AccessToken: Tokens.AccessToken,
+		},
+	}
+
+	shared.HandleResponse(c, payload)
 }
 
 func (controller *Controller) Logout(c *gin.Context) {
@@ -110,4 +116,12 @@ func (controller *Controller) Refresh(c *gin.Context) {
 	)
 
 	c.JSON(http.StatusOK, result.AccessToken)
+}
+
+func (controller *Controller) Recover(c *gin.Context) {
+
+}
+
+func (controller *Controller) VerifyRecovery(c *gin.Context) {
+
 }

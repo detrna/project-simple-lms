@@ -33,7 +33,7 @@ func HandleError(c *gin.Context, logger pkg.Logger, err error) {
 		return
 
 	case errors.Is(err, ErrRecordNotFound):
-		c.JSON(http.StatusBadRequest, error)
+		c.JSON(http.StatusNotFound, error)
 		return
 
 	case errors.Is(err, ErrIncorrectOTP):

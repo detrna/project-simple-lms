@@ -33,7 +33,7 @@ type UseCase struct {
 type IUseCase interface {
 	Login(ctx context.Context, data *LoginSchema) (*Tokens, error)
 	Recover(ctx context.Context, data *RecoverSchema) error
-	VerifyRecovery(ctx context.Context, data *VerifyRecoverSchema) error
+	VerifyRecovery(ctx context.Context, data *VerifyRecoverySchema) error
 	Logout(ctx context.Context, refreshToken string) error
 	Refresh(ctx context.Context, refreshToken string) (*Tokens, error)
 }
@@ -180,7 +180,7 @@ func (usecase UseCase) Recover(ctx context.Context, data *RecoverSchema) error {
 	return nil
 }
 
-func (usecase UseCase) VerifyRecovery(ctx context.Context, data *VerifyRecoverSchema) error {
+func (usecase UseCase) VerifyRecovery(ctx context.Context, data *VerifyRecoverySchema) error {
 	existingAccount, err := usecase.userRepo.FindByEmail(ctx, data.Email)
 
 	if err != nil {

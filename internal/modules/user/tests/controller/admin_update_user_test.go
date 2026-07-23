@@ -119,7 +119,7 @@ func TestAdminUpdateUser_RecordNotFound(t *testing.T) {
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	require.NoError(t, err)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusNotFound, w.Code)
 	assert.Equal(t, shared.ErrRecordNotFound.Error(), response.Error)
 
 	mockUsecase.AssertExpectations(t)
