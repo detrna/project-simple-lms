@@ -14,7 +14,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 )
 
 func TestLogout_Success(t *testing.T) {
@@ -37,28 +36,17 @@ func TestLogout_Success(t *testing.T) {
 		nil,
 	)
 
+	req.AddCookie(&http.Cookie{
+		Name:  "refresh_token",
+		Value: refreshToken.Value,
+	})
+
 	router := gin.New()
 	c := auth.NewController(mockUsecase, mockLogger, false)
 
-	router.DELETE(
-		"/logout",
-		func(ctx *gin.Context) {
-			ctx.SetCookie(
-				"refresh_token",    // name
-				refreshToken.Value, // value
-				3600,               // maxAge (seconds)
-				"/",                // path
-				"",                 // domain
-				false,              // secure
-				true,               // httpOnly
-			)
-		},
-		func(ctx *gin.Context) {
-			c.Login(ctx)
-
-			_, err := ctx.Cookie("refresh_token")
-			require.Error(t, err)
-		})
+	router.DELETE("/logout", func(ctx *gin.Context) {
+		c.Logout(ctx)
+	})
 
 	router.ServeHTTP(w, req)
 

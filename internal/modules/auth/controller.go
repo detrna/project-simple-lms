@@ -65,11 +65,10 @@ func (controller *Controller) Login(c *gin.Context) {
 }
 
 func (controller *Controller) Logout(c *gin.Context) {
-	httpToken, err := c.Request.Cookie("refresh_token")
-	token := httpToken.Value
+	token, err := c.Cookie("refresh_token")
 
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, "token did not exist")
+		shared.HandleError(c, controller.logger, shared.ErrUnauthorized)
 		return
 	}
 
@@ -90,12 +89,11 @@ func (controller *Controller) Logout(c *gin.Context) {
 		true,                    // httpOnly
 	)
 
-	c.JSON(http.StatusOK, gin.H{"message": "successfully logged out"})
+	c.JSON(http.StatusNoContent, nil)
 }
 
 func (controller *Controller) Refresh(c *gin.Context) {
-	httpToken, err := c.Request.Cookie("refresh_token")
-	token := httpToken.Value
+	token, err := c.Cookie("refresh_token")
 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "token did not exist")
@@ -105,9 +103,14 @@ func (controller *Controller) Refresh(c *gin.Context) {
 	ctx := c.Request.Context()
 	result, err := controller.usecase.Refresh(ctx, token)
 
+	if err != nil {
+		shared.HandleError(c, controller.logger, err)
+		return
+	}
+
 	c.SetCookie(
-		"access_token",          // name
-		result.AccessToken,      // value
+		"refresh_token",         // name
+		result.RefreshToken,     // value
 		3600,                    // maxAge (seconds)
 		"/",                     // path
 		"",                      // domain
@@ -115,13 +118,49 @@ func (controller *Controller) Refresh(c *gin.Context) {
 		true,                    // httpOnly
 	)
 
-	c.JSON(http.StatusOK, result.AccessToken)
+	payload := shared.ResponseDTO[TokenResponse]{
+		Data: &TokenResponse{AccessToken: result.AccessToken},
+	}
+
+	shared.HandleResponse(c, payload)
 }
 
 func (controller *Controller) Recover(c *gin.Context) {
+	var body RecoverSchema
+	err := c.ShouldBindBodyWithJSON(&body)
 
+	if err != nil {
+		shared.HandleError(c, controller.logger, err)
+		return
+	}
+
+	ctx := c.Request.Context()
+	err = controller.usecase.Recover(ctx, &body)
+
+	if err != nil {
+		shared.HandleError(c, controller.logger, err)
+		return
+	}
+
+	c.JSON(http.StatusNoContent, nil)
 }
 
 func (controller *Controller) VerifyRecovery(c *gin.Context) {
+	var body VerifyRecoverySchema
+	err := c.ShouldBindBodyWithJSON(&body)
 
+	if err != nil {
+		shared.HandleError(c, controller.logger, err)
+		return
+	}
+
+	ctx := c.Request.Context()
+	err = controller.usecase.VerifyRecovery(ctx, &body)
+
+	if err != nil {
+		shared.HandleError(c, controller.logger, err)
+		return
+	}
+
+	c.JSON(http.StatusNoContent, nil)
 }

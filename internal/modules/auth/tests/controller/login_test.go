@@ -67,22 +67,27 @@ func TestLogin_Success(t *testing.T) {
 
 	router.POST("/login", func(ctx *gin.Context) {
 		c.Login(ctx)
-
-		cookie, err := ctx.Cookie("refresh_token")
-		require.NoError(t, err)
-
-		assert.Equal(t, expectedCookie, cookie)
 	})
 
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
+	cookies := w.Result().Cookies()
+
+	require.Len(t, cookies, 1)
+
+	assert.Equal(t, "refresh_token", cookies[0].Name)
+	assert.Equal(t, expectedCookie, cookies[0].Value)
+	assert.Equal(t, "/", cookies[0].Path)
+	assert.True(t, cookies[0].HttpOnly)
+	assert.False(t, cookies[0].Secure)
+
 	var response shared.ResponseSuccess[auth.TokenResponse]
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	require.NoError(t, err)
 
-	assert.Equal(t, expectedResult, response.Data)
+	assert.Equal(t, &expectedResult, response.Data)
 }
 
 func TestLogin_IncorrectEmail(t *testing.T) {
@@ -121,9 +126,6 @@ func TestLogin_IncorrectEmail(t *testing.T) {
 
 	router.POST("/login", func(ctx *gin.Context) {
 		c.Login(ctx)
-
-		_, err := ctx.Cookie("refresh_token")
-		require.Error(t, err)
 	})
 
 	router.ServeHTTP(w, req)

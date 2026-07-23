@@ -2,6 +2,7 @@ package shared
 
 import (
 	"errors"
+	"fmt"
 	"main/internal/pkg"
 	"net/http"
 
@@ -14,6 +15,7 @@ type ResponseError struct {
 
 func HandleError(c *gin.Context, logger pkg.Logger, err error) {
 	logger.Warn(err.Error())
+	fmt.Print(err.Error())
 
 	error := ResponseError{
 		Error: err.Error(),
@@ -25,7 +27,7 @@ func HandleError(c *gin.Context, logger pkg.Logger, err error) {
 		return
 
 	case errors.Is(err, ErrCredentialsIncorrect):
-		c.JSON(http.StatusConflict, error)
+		c.JSON(http.StatusUnauthorized, error)
 		return
 
 	case errors.Is(err, ErrBadRequest):
@@ -36,8 +38,12 @@ func HandleError(c *gin.Context, logger pkg.Logger, err error) {
 		c.JSON(http.StatusNotFound, error)
 		return
 
+	case errors.Is(err, ErrRedisRecordNotFound):
+		c.JSON(http.StatusNotFound, error)
+		return
+
 	case errors.Is(err, ErrIncorrectOTP):
-		c.JSON(http.StatusBadRequest, error)
+		c.JSON(http.StatusUnauthorized, error)
 		return
 
 	case errors.Is(err, ErrForbidden):

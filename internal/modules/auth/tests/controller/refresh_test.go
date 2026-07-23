@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"main/internal/modules/auth"
 	auth_mocks "main/internal/modules/auth/mocks"
-	auth_test_helper "main/internal/modules/auth/tests"
 	user_factory "main/internal/modules/user/tests"
 	"main/internal/shared"
 	shared_testing "main/internal/shared/testing_helper"
@@ -36,7 +35,7 @@ func TestRefresh_Success(t *testing.T) {
 
 	usecaseResult := auth.Tokens{
 		AccessToken:  accessToken.Value,
-		RefreshToken: refreshToken.Value,
+		RefreshToken: newRefreshToken.Value,
 	}
 
 	expectedResult := auth.TokenResponse{
@@ -54,31 +53,32 @@ func TestRefresh_Success(t *testing.T) {
 		nil,
 	)
 
+	req.AddCookie(&http.Cookie{
+		Name:  "refresh_token",
+		Value: refreshToken.Value,
+	})
+
 	router := gin.New()
 	c := auth.NewController(mockUsecase, mockLogger, false)
 
-	router.POST("/refresh",
-		func(ctx *gin.Context) {
-			auth_test_helper.SetRefreshTokenCookie(ctx, refreshToken.Value)
-		},
-		func(ctx *gin.Context) {
-			c.Login(ctx)
-
-			cookie, err := ctx.Cookie("refresh_token")
-			require.NoError(t, err)
-
-			assert.Equal(t, expectedCookie, cookie)
-		})
+	router.POST("/refresh", func(ctx *gin.Context) {
+		c.Refresh(ctx)
+	})
 
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
+	cookies := w.Result().Cookies()
+
+	assert.Equal(t, 1, len(cookies))
+	assert.Equal(t, expectedCookie, cookies[0].Value)
+
 	var response shared.ResponseSuccess[auth.TokenResponse]
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	require.NoError(t, err)
 
-	assert.Equal(t, expectedResult, response.Data)
+	assert.Equal(t, expectedResult, *response.Data)
 }
 
 func TestRefresh_ExpiredToken(t *testing.T) {
@@ -92,7 +92,10 @@ func TestRefresh_ExpiredToken(t *testing.T) {
 	mockUsecase := auth_mocks.NewMockIUseCase(t)
 	mockLogger := shared_testing.NewMockLogger(t)
 
-	mockUsecase.EXPECT().Refresh(ctx, mock.AnythingOfType("string")).Return(nil, shared.ErrUnauthorized)
+	mockUsecase.
+		EXPECT().
+		Refresh(ctx, mock.AnythingOfType("string")).
+		Return(nil, shared.ErrUnauthorized)
 
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(
@@ -101,18 +104,17 @@ func TestRefresh_ExpiredToken(t *testing.T) {
 		nil,
 	)
 
+	req.AddCookie(&http.Cookie{
+		Name:  "refresh_token",
+		Value: refreshToken.Value,
+	})
+
 	router := gin.New()
 	c := auth.NewController(mockUsecase, mockLogger, false)
 
 	router.POST("/refresh",
 		func(ctx *gin.Context) {
-			auth_test_helper.SetRefreshTokenCookie(ctx, refreshToken.Value)
-		},
-		func(ctx *gin.Context) {
-			c.Login(ctx)
-
-			_, err := ctx.Cookie("refresh_token")
-			require.Error(t, err)
+			c.Refresh(ctx)
 		})
 
 	router.ServeHTTP(w, req)
@@ -146,19 +148,17 @@ func TestRefresh_RevokedToken(t *testing.T) {
 		nil,
 	)
 
+	req.AddCookie(&http.Cookie{
+		Name:  "refresh_token",
+		Value: refreshToken.Value,
+	})
+
 	router := gin.New()
 	c := auth.NewController(mockUsecase, mockLogger, false)
 
-	router.POST("/refresh",
-		func(ctx *gin.Context) {
-			auth_test_helper.SetRefreshTokenCookie(ctx, refreshToken.Value)
-		},
-		func(ctx *gin.Context) {
-			c.Login(ctx)
-
-			_, err := ctx.Cookie("refresh_token")
-			require.Error(t, err)
-		})
+	router.POST("/refresh", func(ctx *gin.Context) {
+		c.Refresh(ctx)
+	})
 
 	router.ServeHTTP(w, req)
 
