@@ -10,6 +10,7 @@ import (
 func NewMockLogger(t *testing.T) *pkg_mocks.MockLogger {
 	mockLogger := pkg_mocks.NewMockLogger(t)
 	mockLogger.On("Warn", mock.Anything).Return().Maybe()
+	mockLogger.On("WarnSkip", mock.Anything, mock.Anything).Return().Maybe()
 
 	return mockLogger
 }

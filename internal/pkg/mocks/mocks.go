@@ -744,6 +744,66 @@ func (_c *MockLogger_Warn_Call) RunAndReturn(run func(msg string, args ...any)) 
 	return _c
 }
 
+// WarnSkip provides a mock function for the type MockLogger
+func (_mock *MockLogger) WarnSkip(skip int, msg string, args ...any) {
+	if len(args) > 0 {
+		_mock.Called(skip, msg, args)
+	} else {
+		_mock.Called(skip, msg)
+	}
+
+	return
+}
+
+// MockLogger_WarnSkip_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'WarnSkip'
+type MockLogger_WarnSkip_Call struct {
+	*mock.Call
+}
+
+// WarnSkip is a helper method to define mock.On call
+//   - skip int
+//   - msg string
+//   - args ...any
+func (_e *MockLogger_Expecter) WarnSkip(skip any, msg any, args ...any) *MockLogger_WarnSkip_Call {
+	return &MockLogger_WarnSkip_Call{Call: _e.mock.On("WarnSkip",
+		append([]any{skip, msg}, args...)...)}
+}
+
+func (_c *MockLogger_WarnSkip_Call) Run(run func(skip int, msg string, args ...any)) *MockLogger_WarnSkip_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 int
+		if args[0] != nil {
+			arg0 = args[0].(int)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []any
+		var variadicArgs []any
+		if len(args) > 2 {
+			variadicArgs = args[2].([]any)
+		}
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockLogger_WarnSkip_Call) Return() *MockLogger_WarnSkip_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockLogger_WarnSkip_Call) RunAndReturn(run func(skip int, msg string, args ...any)) *MockLogger_WarnSkip_Call {
+	_c.Run(run)
+	return _c
+}
+
 // NewMockRedisClient creates a new instance of MockRedisClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockRedisClient(t interface {

@@ -2,7 +2,6 @@ package shared
 
 import (
 	"errors"
-	"fmt"
 	"main/internal/pkg"
 	"net/http"
 
@@ -14,8 +13,7 @@ type ResponseError struct {
 }
 
 func HandleError(c *gin.Context, logger pkg.Logger, err error) {
-	logger.Warn(err.Error())
-	fmt.Print(err.Error())
+	logger.WarnSkip(1, err.Error())
 
 	error := ResponseError{
 		Error: err.Error(),

@@ -1,11 +1,13 @@
 package infrastructure
 
 import (
+	"context"
 	"io"
 	"log/slog"
 	"main/internal/config"
 	"main/internal/pkg"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
@@ -63,7 +65,6 @@ func (logger SLogger) RequestLog(requestID string, method string, path string, s
 		"request completed",
 		slog.String("request_id", requestID),
 		slog.String("method", method),
-		slog.String("path", path),
 		slog.Int("status", statusCode),
 		slog.Duration("duration", time.Since(start)),
 	)
@@ -73,8 +74,27 @@ func (logger SLogger) ErrorLog(method string, path string, statusCode int, err e
 	logger.Error(
 		"request failed",
 		slog.String("method", method),
-		slog.String("path", path),
 		slog.Int("status", statusCode),
 		slog.Any("error", err),
 	)
+}
+
+func (l *SLogger) WarnSkip(skip int, msg string, args ...any) {
+	pc, _, _, ok := runtime.Caller(skip + 1)
+
+	if !ok {
+		l.Warn(msg, args...)
+		return
+	}
+
+	record := slog.NewRecord(
+		time.Now(),
+		slog.LevelWarn,
+		msg,
+		pc,
+	)
+
+	record.Add(args...)
+
+	_ = l.Handler().Handle(context.Background(), record)
 }

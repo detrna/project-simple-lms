@@ -8,4 +8,5 @@ type Logger interface {
 	Error(msg string, args ...any)
 	RequestLog(requestID string, method string, path string, statusCode int, start time.Time)
 	ErrorLog(method string, path string, statusCode int, err error)
+	WarnSkip(skip int, msg string, args ...any)
 }

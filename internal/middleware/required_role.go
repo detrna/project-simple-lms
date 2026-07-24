@@ -17,7 +17,7 @@ func RequiredRole(role string, logger pkg.Logger) gin.HandlerFunc {
 			return
 		}
 
-		user, ok := value.(domain.JWTPayload)
+		user, ok := value.(*domain.JWTPayload)
 
 		if !ok {
 			shared.HandleError(c, logger, shared.ErrUnauthorized)
