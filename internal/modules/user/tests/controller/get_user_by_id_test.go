@@ -61,7 +61,7 @@ func TestGetUserByID_Success(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, *expected, response.Data)
+	assert.Equal(t, expected, response.Data)
 
 	mockUsecase.AssertExpectations(t)
 }

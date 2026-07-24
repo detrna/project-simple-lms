@@ -184,7 +184,7 @@ func (usecase UseCase) VerifyRecovery(ctx context.Context, data *VerifyRecoveryS
 	existingAccount, err := usecase.userRepo.FindByEmail(ctx, data.Email)
 
 	if existingAccount == nil {
-		return shared.ErrCredentialsIncorrect
+		return shared.ErrRecordNotFound
 	}
 
 	if err != nil {
