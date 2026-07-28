@@ -52,8 +52,16 @@ func HandleError(c *gin.Context, logger pkg.Logger, err error) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, error)
 		return
 
+	case errors.Is(err, ErrTokenMissing):
+		c.AbortWithStatusJSON(http.StatusUnauthorized, error)
+		return
+
+	case errors.Is(err, ErrInvalidToken):
+		c.AbortWithStatusJSON(http.StatusUnauthorized, error)
+		return
+
 	default:
-		c.JSON(http.StatusInternalServerError, error)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, error)
 		return
 	}
 }
@@ -68,4 +76,6 @@ var (
 	ErrIncorrectOTP         = errors.New("incorrect otp code")
 	ErrUnauthorized         = errors.New("request unauthorized")
 	ErrForbidden            = errors.New("request forbidden")
+	ErrTokenMissing         = errors.New("authorization header did not exist")
+	ErrInvalidToken         = errors.New("invalid token")
 )

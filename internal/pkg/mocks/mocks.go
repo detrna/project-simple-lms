@@ -185,6 +185,63 @@ func (_m *MockJWTProvider) EXPECT() *MockJWTProvider_Expecter {
 	return &MockJWTProvider_Expecter{mock: &_m.Mock}
 }
 
+// Compare provides a mock function for the type MockJWTProvider
+func (_mock *MockJWTProvider) Compare(hashed string, literal string) bool {
+	ret := _mock.Called(hashed, literal)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Compare")
+	}
+
+	var r0 bool
+	if returnFunc, ok := ret.Get(0).(func(string, string) bool); ok {
+		r0 = returnFunc(hashed, literal)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	return r0
+}
+
+// MockJWTProvider_Compare_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Compare'
+type MockJWTProvider_Compare_Call struct {
+	*mock.Call
+}
+
+// Compare is a helper method to define mock.On call
+//   - hashed string
+//   - literal string
+func (_e *MockJWTProvider_Expecter) Compare(hashed any, literal any) *MockJWTProvider_Compare_Call {
+	return &MockJWTProvider_Compare_Call{Call: _e.mock.On("Compare", hashed, literal)}
+}
+
+func (_c *MockJWTProvider_Compare_Call) Run(run func(hashed string, literal string)) *MockJWTProvider_Compare_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockJWTProvider_Compare_Call) Return(b bool) *MockJWTProvider_Compare_Call {
+	_c.Call.Return(b)
+	return _c
+}
+
+func (_c *MockJWTProvider_Compare_Call) RunAndReturn(run func(hashed string, literal string) bool) *MockJWTProvider_Compare_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GenerateAccessToken provides a mock function for the type MockJWTProvider
 func (_mock *MockJWTProvider) GenerateAccessToken(data *domain.User) (*domain.JWT, error) {
 	ret := _mock.Called(data)
@@ -305,6 +362,57 @@ func (_c *MockJWTProvider_GenerateRefreshToken_Call) Return(jWT *domain.JWT, err
 }
 
 func (_c *MockJWTProvider_GenerateRefreshToken_Call) RunAndReturn(run func(data *domain.User) (*domain.JWT, error)) *MockJWTProvider_GenerateRefreshToken_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// HashToken provides a mock function for the type MockJWTProvider
+func (_mock *MockJWTProvider) HashToken(tokenString string) string {
+	ret := _mock.Called(tokenString)
+
+	if len(ret) == 0 {
+		panic("no return value specified for HashToken")
+	}
+
+	var r0 string
+	if returnFunc, ok := ret.Get(0).(func(string) string); ok {
+		r0 = returnFunc(tokenString)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	return r0
+}
+
+// MockJWTProvider_HashToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'HashToken'
+type MockJWTProvider_HashToken_Call struct {
+	*mock.Call
+}
+
+// HashToken is a helper method to define mock.On call
+//   - tokenString string
+func (_e *MockJWTProvider_Expecter) HashToken(tokenString any) *MockJWTProvider_HashToken_Call {
+	return &MockJWTProvider_HashToken_Call{Call: _e.mock.On("HashToken", tokenString)}
+}
+
+func (_c *MockJWTProvider_HashToken_Call) Run(run func(tokenString string)) *MockJWTProvider_HashToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockJWTProvider_HashToken_Call) Return(s string) *MockJWTProvider_HashToken_Call {
+	_c.Call.Return(s)
+	return _c
+}
+
+func (_c *MockJWTProvider_HashToken_Call) RunAndReturn(run func(tokenString string) string) *MockJWTProvider_HashToken_Call {
 	_c.Call.Return(run)
 	return _c
 }

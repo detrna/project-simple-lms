@@ -2,31 +2,28 @@ package factory
 
 import (
 	"context"
+	"main/internal/domain"
 	"main/internal/infrastructure/database"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
-func (f Factory) CreateClass(
+func (f Factory) EnrollStudent(
 	t *testing.T,
-	course *database.Course,
-) *database.Class {
-
+	class *domain.Class,
+	user *domain.User,
+) {
 	t.Helper()
 
-	class := &database.Class{
-		ID:       uuid.New(),
-		CourseID: course.ID,
-		Name:     "Physics",
+	take := database.Takes{
+		ClassID: class.ID,
+		UserID:  user.ID,
 	}
 
 	err := f.DB.
 		WithContext(context.Background()).
-		Create(class).Error
+		Create(&take).Error
 
 	require.NoError(t, err)
-
-	return class
 }

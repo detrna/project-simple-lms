@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"main/internal/domain"
 	"main/internal/pkg"
 	"main/internal/shared"
@@ -11,7 +12,7 @@ import (
 
 func Authenticate(jwtProvider pkg.JWTProvider, logger pkg.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		accessTokenPayload, err := parseAccessToken(c, jwtProvider)
+		accessTokenPayload, err := parseHeader(c, jwtProvider)
 
 		if err != nil {
 			shared.HandleError(c, logger, err)
@@ -24,18 +25,16 @@ func Authenticate(jwtProvider pkg.JWTProvider, logger pkg.Logger) gin.HandlerFun
 	}
 }
 
-func parseAccessToken(c *gin.Context, tokenService pkg.JWTProvider) (*domain.JWTPayload, error) {
+func parseHeader(c *gin.Context, tokenService pkg.JWTProvider) (*domain.JWTPayload, error) {
 	authHeader := c.GetHeader("Authorization")
 
 	if authHeader == "" {
-		return nil, shared.ErrUnauthorized
+		return nil, shared.ErrTokenMissing
 	}
 
 	accessToken := strings.TrimPrefix(authHeader, "Bearer ")
 
-	if accessToken == authHeader {
-		return nil, shared.ErrUnauthorized
-	}
+	fmt.Print("TOKENIZER " + accessToken)
 
 	return tokenService.ParseAccessToken(string(accessToken))
 }

@@ -26,5 +26,17 @@ func (routes Routes) RegisterRoutes(rg *gin.RouterGroup) {
 		middleware.Authenticate(routes.tokenProvider, routes.logger),
 		routes.controller.Logout,
 	)
-	router.POST("/refresh", routes.controller.Refresh)
+	router.POST(
+		"/refresh",
+		middleware.Authenticate(routes.tokenProvider, routes.logger),
+		routes.controller.Refresh,
+	)
+	router.POST(
+		"/recover",
+		routes.controller.Recover,
+	)
+	router.POST(
+		"/verify-recovery",
+		routes.controller.VerifyRecovery,
+	)
 }

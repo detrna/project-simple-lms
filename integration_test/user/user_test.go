@@ -1,12 +1,13 @@
-package integration_test
+package user_integration_test
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"main/internal/infrastructure/repository/mapper"
+	test_suite "main/integration_test"
 	"main/internal/modules/user"
 	"main/internal/shared"
+
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -18,7 +19,9 @@ import (
 )
 
 func TestGetUserByID(t *testing.T) {
-	exisingUser := Factory.CreateUser(t, "Student1")
+	router, factory := test_suite.SetupSuite()
+
+	exisingUser := factory.CreateUser(t, "Student1")
 	expected := user.UserResponse{
 		ID:        exisingUser.ID,
 		SystemID:  exisingUser.SystemID,
@@ -35,7 +38,7 @@ func TestGetUserByID(t *testing.T) {
 		nil,
 	)
 
-	Router.ServeHTTP(w, req)
+	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
@@ -47,8 +50,10 @@ func TestGetUserByID(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	admin := mapper.ToDomainUser(Factory.CreateAdmin(t))
-	token := Factory.CreateJWT(t, admin)
+	router, factory := test_suite.SetupSuite()
+
+	admin := factory.CreateAdmin(t)
+	token := factory.CreateJWT(t, admin)
 
 	requestData := user.CreateUserSchema{
 		SystemID: "student1",
@@ -76,7 +81,7 @@ func TestCreate(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token.Value)
 	req.Header.Set("Content-Type", "application/json")
 
-	Router.ServeHTTP(w, req)
+	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 
@@ -90,10 +95,12 @@ func TestCreate(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
-	admin := mapper.ToDomainUser(Factory.CreateAdmin(t))
-	token := Factory.CreateJWT(t, admin)
+	router, factory := test_suite.SetupSuite()
 
-	existingUser := Factory.CreateUser(t, "Student1")
+	admin := factory.CreateAdmin(t)
+	token := factory.CreateJWT(t, admin)
+
+	existingUser := factory.CreateUser(t, "Student1")
 
 	newName := "Student2"
 
@@ -121,7 +128,7 @@ func TestUpdateUser(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token.Value)
 
-	Router.ServeHTTP(w, req)
+	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
@@ -133,10 +140,12 @@ func TestUpdateUser(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
-	admin := mapper.ToDomainUser(Factory.CreateAdmin(t))
-	token := Factory.CreateJWT(t, admin)
+	router, factory := test_suite.SetupSuite()
 
-	existingUser := Factory.CreateUser(t, "student1")
+	admin := factory.CreateAdmin(t)
+	token := factory.CreateJWT(t, admin)
+
+	existingUser := factory.CreateUser(t, "student1")
 
 	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/users/%s", existingUser.ID), nil)
 
@@ -144,7 +153,7 @@ func TestDeleteUser(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	Router.ServeHTTP(w, req)
+	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }

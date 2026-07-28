@@ -1,10 +1,12 @@
-package integration_test
+package class_integration_test
 
 import (
 	"encoding/json"
 	"fmt"
 
+	test_suite "main/integration_test"
 	"main/internal/infrastructure/database"
+
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,13 +16,15 @@ import (
 )
 
 func TestGetStudentsByClassID(t *testing.T) {
-	course := Factory.CreateCourse(t)
+	router, factory := test_suite.SetupSuite()
 
-	class := Factory.CreateClass(t, course)
+	course := factory.CreateCourse(t)
 
-	student := Factory.CreateUser(t, "Student1")
+	class := factory.CreateClass(t, course)
 
-	Factory.EnrollStudent(t, class, student)
+	student := factory.CreateUser(t, "Student1")
+
+	factory.EnrollStudent(t, class, student)
 
 	req := httptest.NewRequest(
 		http.MethodGet,
@@ -30,7 +34,7 @@ func TestGetStudentsByClassID(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	Router.ServeHTTP(w, req)
+	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 

@@ -55,17 +55,8 @@ func (repo Repository) GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*C
 	var classes []*Class
 
 	for _, take := range rows {
-		classes = append(classes, ToDomainClass(&take.Class))
+		classes = append(classes, mapper.ToDomainClass(&take.Class))
 	}
 
 	return classes, nil
-}
-
-func ToDomainClass(c *database.Class) *Class {
-	return &Class{
-		ID:        c.ID,
-		Name:      c.Name,
-		CourseID:  c.CourseID,
-		CreatedAt: c.CreatedAt,
-	}
 }

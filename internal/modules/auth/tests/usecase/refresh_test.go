@@ -29,14 +29,15 @@ func TestRefresh_Success(t *testing.T) {
 
 	ctx := context.Background()
 	repo := auth_mocks.NewMockIRepository(t)
+	bcryptHasher := pkg_mocks.NewMockBcryptHasher(t)
+	jwt := pkg_mocks.NewMockJWTProvider(t)
+
 	repo.EXPECT().FindJWT(ctx, mock.Anything).Return(&dbToken, nil)
 	repo.EXPECT().DeleteJWT(ctx, mock.Anything).Return(nil)
 	repo.EXPECT().CreateJWT(ctx, mock.Anything, mock.Anything).Return(&newDbToken, nil)
 
-	bcryptHasher := pkg_mocks.NewMockBcryptHasher(t)
 	bcryptHasher.EXPECT().Compare(mock.Anything, mock.Anything).Return(nil)
 
-	jwt := pkg_mocks.NewMockJWTProvider(t)
 	jwt.
 		EXPECT().
 		GenerateAccessToken(mock.Anything).
@@ -48,6 +49,7 @@ func TestRefresh_Success(t *testing.T) {
 	jwt.EXPECT().
 		ParseRefreshToken(mock.AnythingOfType("string")).
 		Return(jwtPayload, nil)
+	jwt.EXPECT().HashToken(mock.AnythingOfType("string")).Return("hashed-refresh-token")
 
 	pkg := auth.UseCasePackages{
 		Bcrypt:        bcryptHasher,

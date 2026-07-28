@@ -123,7 +123,7 @@ func (repo UserRepository) FindByEmail(ctx context.Context, email string) (*doma
 		Where("email = ?", email).
 		First(ctx)
 
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, shared.ErrRecordNotFound
 	}
 

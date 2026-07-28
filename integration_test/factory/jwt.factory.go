@@ -9,19 +9,20 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func (f Factory) CreateJWT(t *testing.T, user *domain.User) domain.JWT {
+func (f Factory) CreateJWT(t *testing.T, user *domain.User) *domain.JWT {
 	t.Helper()
 
-	jwt, err := f.Infra.JWTProvider.GenerateAccessToken(user)
-
+	jwt, err := f.Infra.JWTProvider.GenerateRefreshToken(user)
 	require.NoError(t, err)
 
-	dbJWT := database.JWT{ID: jwt.Payload.JTI, UserID: jwt.Payload.UserID, Token: jwt.Value}
+	hashed := f.Infra.JWTProvider.HashToken(jwt.Value)
+
+	dbJWT := database.JWT{ID: jwt.Payload.JTI, UserID: jwt.Payload.UserID, Token: hashed}
 
 	err = f.DB.WithContext(context.Background()).
 		Create(&dbJWT).Error
 
 	require.NoError(t, err)
 
-	return *jwt
+	return jwt
 }

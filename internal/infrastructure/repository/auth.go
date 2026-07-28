@@ -35,7 +35,7 @@ func (repo AuthRepository) CreateJWT(ctx context.Context, JWTPayload *domain.JWT
 }
 
 func (repo AuthRepository) DeleteJWT(ctx context.Context, ID uuid.UUID) error {
-	_, err := gorm.G[database.JWT](repo.db).Where("jti = ?", ID).Delete(ctx)
+	_, err := gorm.G[database.JWT](repo.db).Where("id = ?", ID).Delete(ctx)
 
 	if err != nil {
 		return err
@@ -45,7 +45,7 @@ func (repo AuthRepository) DeleteJWT(ctx context.Context, ID uuid.UUID) error {
 }
 
 func (repo AuthRepository) FindJWT(ctx context.Context, JTI uuid.UUID) (*string, error) {
-	rows, err := gorm.G[database.JWT](repo.db).Where("jti = ?", JTI).First(ctx)
+	rows, err := gorm.G[database.JWT](repo.db).Where("id = ?", JTI).First(ctx)
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, shared.ErrRecordNotFound

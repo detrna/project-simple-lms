@@ -3,8 +3,6 @@ package auth
 import (
 	"context"
 	"crypto/rand"
-	"crypto/sha256"
-	"encoding/hex"
 	"errors"
 	"main/internal/config"
 	"main/internal/domain"
@@ -45,7 +43,11 @@ func NewUseCase(repo IRepository, userRepo user.IRepository, pkg *UseCasePackage
 func (usecase *UseCase) Login(ctx context.Context, data *LoginSchema) (*Tokens, error) {
 	dbAccount, err := usecase.userRepo.FindByEmail(ctx, data.Email)
 
-	if err != nil {
+	if dbAccount == nil {
+		return nil, shared.ErrCredentialsIncorrect
+	}
+
+	if !errors.Is(err, shared.ErrRecordNotFound) && err != nil {
 		return nil, err
 	}
 
@@ -62,8 +64,7 @@ func (usecase *UseCase) Login(ctx context.Context, data *LoginSchema) (*Tokens, 
 		return nil, err
 	}
 
-	sum := sha256.Sum256([]byte(refreshToken.Value))
-	hashedToken := hex.EncodeToString(sum[:])
+	hashedToken := usecase.packages.TokenProvider.HashToken(refreshToken.Value)
 
 	_, err = usecase.repo.CreateJWT(ctx, &accessToken.Payload, hashedToken)
 
@@ -87,14 +88,8 @@ func (usecase *UseCase) Logout(ctx context.Context, refreshToken string) error {
 		return err
 	}
 
-	err = usecase.packages.Bcrypt.Compare(*dbToken, refreshToken)
-
-	if errors.Is(err, shared.ErrCredentialsIncorrect) {
+	if !usecase.packages.TokenProvider.Compare(*dbToken, refreshToken) {
 		return shared.ErrUnauthorized
-	}
-
-	if err != nil {
-		return err
 	}
 
 	return usecase.repo.DeleteJWT(ctx, tokenPayload.JTI)
@@ -113,14 +108,8 @@ func (usecase *UseCase) Refresh(ctx context.Context, refreshToken string) (*Toke
 		return nil, err
 	}
 
-	err = usecase.packages.Bcrypt.Compare(*dbToken, refreshToken)
-
-	if errors.Is(err, shared.ErrCredentialsIncorrect) {
+	if !usecase.packages.TokenProvider.Compare(*dbToken, refreshToken) {
 		return nil, shared.ErrUnauthorized
-	}
-
-	if err != nil {
-		return nil, err
 	}
 
 	user := domain.User{
@@ -137,8 +126,7 @@ func (usecase *UseCase) Refresh(ctx context.Context, refreshToken string) (*Toke
 		return nil, err
 	}
 
-	sum := sha256.Sum256([]byte(newRefreshToken.Value))
-	hashedToken := hex.EncodeToString(sum[:])
+	hashedToken := usecase.packages.TokenProvider.HashToken(newRefreshToken.Value)
 
 	_, err = usecase.repo.CreateJWT(ctx, &newRefreshToken.Payload, hashedToken)
 
@@ -159,21 +147,24 @@ func (usecase UseCase) Recover(ctx context.Context, data *RecoverSchema) error {
 	dbAccount, err := usecase.userRepo.FindByEmail(ctx, data.Email)
 
 	if err != nil {
+		usecase.packages.Logger.Info(err.Error())
 		return err
 	}
 
 	otp, _ := rand.Int(rand.Reader, big.NewInt(1000000))
 
-	err = usecase.packages.Mailer.SendRecoveryOTP(ctx, dbAccount, otp.String())
+	if err = usecase.packages.Mailer.SendRecoveryOTP(ctx, dbAccount, otp.String()); err != nil {
+		usecase.packages.Logger.Info(err.Error())
+		return err
+	}
 
-	usecase.packages.Redis.Set(
+	if err = usecase.packages.Redis.Set(
 		ctx,
 		"otp:"+dbAccount.Email,
 		otp.String(),
 		time.Duration(usecase.mailConfig.OTPExpiryMin)*time.Minute,
-	)
-
-	if err != nil {
+	); err != nil {
+		usecase.packages.Logger.Info(err.Error())
 		return err
 	}
 

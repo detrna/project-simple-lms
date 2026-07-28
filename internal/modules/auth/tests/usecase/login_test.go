@@ -18,8 +18,14 @@ import (
 )
 
 func TestLogin_Success(t *testing.T) {
+	ctx := context.Background()
 	id := uuid.New()
 	existingUser := user_factory.NewUser(id)
+
+	jwtPayload := user_factory.NewJWTPayload(existingUser)
+	accessToken := user_factory.NewJWT("access-token", jwtPayload)
+	refreshToken := user_factory.NewJWT("refresh-token", jwtPayload)
+	hashedRefreshToken := "hashed-refresh-token"
 
 	dbUser := *existingUser
 	dbUser.Password = "hashed-password"
@@ -34,32 +40,26 @@ func TestLogin_Success(t *testing.T) {
 		RefreshToken: "refresh-token",
 	}
 
-	ctx := context.Background()
-	hashedRefreshToken := "hashed-refresh-token"
-
 	repo := auth_mocks.NewMockIRepository(t)
+	userRepo := user_mocks.NewMockIRepository(t)
+	jwt := pkg_mocks.NewMockJWTProvider(t)
+	bcrypt := pkg_mocks.NewMockBcryptHasher(t)
+
 	repo.
 		EXPECT().
 		CreateJWT(ctx, mock.AnythingOfType("*domain.JWTPayload"), mock.AnythingOfType("string")).
 		Return(&hashedRefreshToken, nil)
 
-	userRepo := user_mocks.NewMockIRepository(t)
 	userRepo.
 		EXPECT().
 		FindByEmail(ctx, mock.AnythingOfType("string")).
 		Return(&dbUser, nil)
 
-	jwtPayload := user_factory.NewJWTPayload(existingUser)
-	accessToken := user_factory.NewJWT("access-token", jwtPayload)
-	refreshToken := user_factory.NewJWT("refresh-token", jwtPayload)
-
-	bcrypt := pkg_mocks.NewMockBcryptHasher(t)
 	bcrypt.
 		EXPECT().
 		Compare(mock.Anything, mock.Anything).
 		Return(nil)
 
-	jwt := pkg_mocks.NewMockJWTProvider(t)
 	jwt.
 		EXPECT().
 		GenerateAccessToken(mock.Anything).
@@ -68,6 +68,7 @@ func TestLogin_Success(t *testing.T) {
 		EXPECT().
 		GenerateRefreshToken(mock.Anything).
 		Return(refreshToken, nil)
+	jwt.EXPECT().HashToken(mock.AnythingOfType("string")).Return(hashedRefreshToken)
 
 	pkg := auth.UseCasePackages{
 		Bcrypt:        bcrypt,

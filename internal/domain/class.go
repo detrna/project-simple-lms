@@ -8,7 +8,7 @@ import (
 
 type Class struct {
 	ID        uuid.UUID
-	CourseID  uuid.UUID
+	Course    Course
 	Name      string
 	CreatedAt time.Time
 }

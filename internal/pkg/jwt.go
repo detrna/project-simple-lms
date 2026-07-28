@@ -7,4 +7,6 @@ type JWTProvider interface {
 	GenerateRefreshToken(data *domain.User) (*domain.JWT, error)
 	ParseAccessToken(tokenString string) (*domain.JWTPayload, error)
 	ParseRefreshToken(tokenString string) (*domain.JWTPayload, error)
+	HashToken(tokenString string) string
+	Compare(hashed string, literal string) bool
 }

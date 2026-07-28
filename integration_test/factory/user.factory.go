@@ -2,7 +2,9 @@ package factory
 
 import (
 	"context"
+	"main/internal/domain"
 	"main/internal/infrastructure/database"
+	"main/internal/infrastructure/repository/mapper"
 	"testing"
 
 	"github.com/google/uuid"
@@ -12,7 +14,7 @@ import (
 func (f Factory) CreateUser(
 	t *testing.T,
 	name string,
-) *database.User {
+) *domain.User {
 
 	t.Helper()
 
@@ -30,16 +32,18 @@ func (f Factory) CreateUser(
 		Role:     "user",
 	}
 
+	user.Email = "dzakiy1801@student.ub.ac.id"
+
 	err = f.DB.
 		WithContext(context.Background()).
 		Create(user).Error
 
 	require.NoError(t, err)
 
-	return user
+	return mapper.ToDomainUser(user)
 }
 
-func (f Factory) CreateAdmin(t *testing.T) *database.User {
+func (f Factory) CreateAdmin(t *testing.T) *domain.User {
 	t.Helper()
 
 	password := "password123"
@@ -62,5 +66,5 @@ func (f Factory) CreateAdmin(t *testing.T) *database.User {
 
 	require.NoError(t, err)
 
-	return user
+	return mapper.ToDomainUser(user)
 }

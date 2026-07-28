@@ -1,23 +1,20 @@
-package integration_test
+package test_suite
 
 import (
+	"fmt"
 	"log"
-	"os"
-	"testing"
 
+	"main/integration_test/factory"
 	"main/internal/app"
 	"main/internal/config"
 	"main/internal/infrastructure"
-	"main/internal/infrastructure/database"
-	"main/tests/factory"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-var Router *gin.Engine
-var Factory *factory.Factory
-
-func TestMain(m *testing.M) {
+func SetupSuite() (*gin.Engine, *factory.Factory) {
+	fmt.Print("TEST")
 	cfg, err := config.Load()
 
 	if err != nil {
@@ -30,20 +27,18 @@ func TestMain(m *testing.M) {
 		log.Fatal(err)
 	}
 
-	Factory = factory.NewFactory(infra, db, cfg)
+	if err = TruncateDatabase(db); err != nil {
+		log.Fatal("database error")
+	}
 
-	Router = app.SetupRouter(cfg, infra, repo)
+	router := app.SetupRouter(cfg, infra, repo)
+	factories := factory.NewFactory(infra, db, cfg)
 
-	TruncateDatabase()
-	defer TruncateDatabase()
-
-	code := m.Run()
-
-	os.Exit(code)
+	return router, factories
 }
 
-func TruncateDatabase() error {
-	return database.DB.Exec(`
+func TruncateDatabase(db *gorm.DB) error {
+	return db.Exec(`
         TRUNCATE TABLE
             takes,
             classes,

@@ -1,9 +1,13 @@
 package infrastructure
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"errors"
 	"main/internal/config"
 	"main/internal/domain"
 	"main/internal/pkg"
+	"main/internal/shared"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -101,6 +105,10 @@ func (provider *JWTProvider) ParseAccessToken(tokenString string) (*domain.JWTPa
 		},
 	)
 
+	if errors.Is(err, jwt.ErrInvalidKey) {
+		return nil, shared.ErrInvalidToken
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -130,4 +138,15 @@ func (provider *JWTProvider) ParseRefreshToken(tokenString string) (*domain.JWTP
 	payload := claims.Payload
 
 	return &payload, nil
+}
+
+func (provider *JWTProvider) HashToken(tokenString string) string {
+	sum := sha256.Sum256([]byte(tokenString))
+
+	return hex.EncodeToString(sum[:])
+}
+
+func (provider *JWTProvider) Compare(hashed string, literal string) bool {
+	hashedLiteral := provider.HashToken(literal)
+	return hashed == hashedLiteral
 }
