@@ -6,16 +6,16 @@ import (
 	"text/template"
 )
 
-type VerifyOTPData struct {
+type ResetPasswordDTO struct {
 	Name   string
 	OTP    string
 	Expiry string
 }
 
-//go:embed verify_otp.html
+//go:embed reset_password.html
 var templateFS embed.FS
 
-func VerifyOTP(data VerifyOTPData) (string, error) {
+func VerifyOTP(data ResetPasswordDTO) (string, error) {
 	tmpl, err := template.ParseFS(templateFS, "verify_otp.html")
 	if err != nil {
 		return "", err

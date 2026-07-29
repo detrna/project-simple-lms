@@ -154,7 +154,7 @@ func (usecase UseCase) Recover(ctx context.Context, data *RecoverSchema) error {
 	}
 
 	otp, _ := rand.Int(rand.Reader, big.NewInt(1000000))
-	htmlBody, err := templates.VerifyOTP(templates.VerifyOTPData{
+	htmlBody, err := templates.VerifyOTP(templates.ResetPasswordDTO{
 		Name:   dbAccount.Name,
 		OTP:    otp.String(),
 		Expiry: strconv.Itoa(usecase.mailConfig.OTPExpiryMin),
