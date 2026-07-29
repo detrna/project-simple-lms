@@ -152,8 +152,6 @@ func (usecase UseCase) Recover(ctx context.Context, data *RecoverSchema) error {
 		return err
 	}
 
-	usecase.packages.Logger.Info(usecase.mailConfig.Host)
-
 	otp, _ := rand.Int(rand.Reader, big.NewInt(1000000))
 	htmlBody, err := templates.ResetPassword(templates.ResetPasswordDTO{
 		Name:   dbAccount.Name,
@@ -180,7 +178,6 @@ func (usecase UseCase) Recover(ctx context.Context, data *RecoverSchema) error {
 		otp.String(),
 		time.Duration(usecase.mailConfig.OTPExpiryMin)*time.Minute,
 	); err != nil {
-		usecase.packages.Logger.Info(err.Error())
 		return err
 	}
 

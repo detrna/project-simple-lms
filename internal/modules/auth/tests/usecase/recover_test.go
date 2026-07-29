@@ -30,7 +30,15 @@ func TestRecover_Success(t *testing.T) {
 	redis.EXPECT().Set(ctx, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 	mailer := pkg_mocks.NewMockMailer(t)
-	// mailer.EXPECT().SendRecoveryOTP(ctx, mock.Anything, mock.AnythingOfType("string")).Return(nil)
+	mailer.
+		EXPECT().
+		Send(
+			ctx,
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+		).
+		Return(nil)
 
 	pkg := auth.UseCasePackages{
 		Redis:  redis,
@@ -60,7 +68,7 @@ func TestRecover_EmailNotFound(t *testing.T) {
 	u := auth.NewUseCase(repo, userRepo, &pkg, &config.MailConfig{})
 
 	requestData := auth.RecoverSchema{
-		Email: "invalid email",
+		Email: "nonexistent-email",
 	}
 
 	err := u.Recover(ctx, &requestData)

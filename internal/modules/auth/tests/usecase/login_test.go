@@ -104,7 +104,7 @@ func TestLogin_IncorrectEmail(t *testing.T) {
 
 	result, err := u.Login(ctx, &requestData)
 
-	require.ErrorIs(t, shared.ErrRecordNotFound, err)
+	require.ErrorIs(t, shared.ErrCredentialsIncorrect, err)
 	assert.Nil(t, result)
 }
 

@@ -16,8 +16,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// (usecase UseCase) VerifyRecovery(ctx context.Context, data *VerifyRecoverSchema) (*domain.User, error)
-
 func TestVerifyRecovery_Success(t *testing.T) {
 	ctx := context.Background()
 	id := uuid.New()

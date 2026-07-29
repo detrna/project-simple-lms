@@ -29,14 +29,11 @@ func TestRefresh_Success(t *testing.T) {
 
 	ctx := context.Background()
 	repo := auth_mocks.NewMockIRepository(t)
-	bcryptHasher := pkg_mocks.NewMockHasher(t)
 	jwt := pkg_mocks.NewMockTokenService(t)
 
 	repo.EXPECT().FindJWT(ctx, mock.Anything).Return(&dbToken, nil)
 	repo.EXPECT().DeleteJWT(ctx, mock.Anything).Return(nil)
 	repo.EXPECT().CreateJWT(ctx, mock.Anything, mock.Anything).Return(&newDbToken, nil)
-
-	bcryptHasher.EXPECT().Compare(mock.Anything, mock.Anything).Return(nil)
 
 	jwt.
 		EXPECT().
@@ -49,10 +46,16 @@ func TestRefresh_Success(t *testing.T) {
 	jwt.EXPECT().
 		ParseRefreshToken(mock.AnythingOfType("string")).
 		Return(jwtPayload, nil)
-	jwt.EXPECT().HashToken(mock.AnythingOfType("string")).Return("hashed-refresh-token")
+	jwt.
+		EXPECT().
+		HashToken(mock.AnythingOfType("string")).
+		Return("hashed-refresh-token")
+	jwt.
+		EXPECT().
+		Compare(mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+		Return(true)
 
 	pkg := auth.UseCasePackages{
-		Hasher:       bcryptHasher,
 		TokenService: jwt,
 	}
 
@@ -76,9 +79,10 @@ func TestRefresh_RevokedToken(t *testing.T) {
 
 	ctx := context.Background()
 	repo := auth_mocks.NewMockIRepository(t)
+	tokenService := pkg_mocks.NewMockTokenService(t)
+
 	repo.EXPECT().FindJWT(ctx, mock.Anything).Return(nil, shared.ErrRecordNotFound)
 
-	tokenService := pkg_mocks.NewMockTokenService(t)
 	tokenService.
 		EXPECT().
 		ParseRefreshToken(mock.AnythingOfType("string")).
@@ -105,16 +109,19 @@ func TestRefresh_InvalidToken(t *testing.T) {
 
 	ctx := context.Background()
 	repo := auth_mocks.NewMockIRepository(t)
+	bcryptHasher := pkg_mocks.NewMockHasher(t)
+	tokenService := pkg_mocks.NewMockTokenService(t)
+
 	repo.EXPECT().FindJWT(ctx, mock.Anything).Return(&dbToken, nil)
 
-	bcryptHasher := pkg_mocks.NewMockHasher(t)
-	bcryptHasher.EXPECT().Compare(mock.Anything, mock.Anything).Return(shared.ErrCredentialsIncorrect)
-
-	tokenService := pkg_mocks.NewMockTokenService(t)
 	tokenService.
 		EXPECT().
 		ParseRefreshToken(mock.AnythingOfType("string")).
 		Return(jwtPayload, nil)
+	tokenService.
+		EXPECT().
+		Compare(mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+		Return(false)
 
 	pkg := auth.UseCasePackages{
 		Hasher:       bcryptHasher,
