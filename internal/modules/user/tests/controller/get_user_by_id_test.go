@@ -75,7 +75,6 @@ func TestGetUserByID_RecordNotFound(t *testing.T) {
 
 	ctx := context.Background()
 	mockUsecase.On("GetUserByID", ctx, mock.AnythingOfType("uuid.UUID")).Return(nil, shared.ErrRecordNotFound)
-	MockLogger.On("Warn", mock.Anything).Return()
 
 	router := gin.New()
 	router.GET("/:id", func(c *gin.Context) {
