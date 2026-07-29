@@ -149,7 +149,6 @@ func (usecase UseCase) Recover(ctx context.Context, data *RecoverSchema) error {
 	dbAccount, err := usecase.userRepo.FindByEmail(ctx, data.Email)
 
 	if err != nil {
-		usecase.packages.Logger.Info(err.Error())
 		return err
 	}
 
@@ -172,7 +171,6 @@ func (usecase UseCase) Recover(ctx context.Context, data *RecoverSchema) error {
 		"Reset your Password",
 		htmlBody,
 	); err != nil {
-		usecase.packages.Logger.Info(err.Error())
 		return err
 	}
 
@@ -200,7 +198,7 @@ func (usecase UseCase) VerifyRecovery(ctx context.Context, data *VerifyRecoveryS
 		return err
 	}
 
-	code, err := usecase.packages.Redis.Get(ctx, data.Email)
+	code, err := usecase.packages.Redis.Get(ctx, "otp:"+data.Email)
 
 	if err != nil {
 		return err

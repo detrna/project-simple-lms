@@ -2,10 +2,13 @@ package factory
 
 import (
 	"context"
+	"crypto/rand"
 	"main/internal/domain"
 	"main/internal/infrastructure/database"
 	"main/internal/infrastructure/repository/mapper"
+	"math/big"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
@@ -67,4 +70,22 @@ func (f Factory) CreateAdmin(t *testing.T) *domain.User {
 	require.NoError(t, err)
 
 	return mapper.ToDomainUser(user)
+}
+
+func (f Factory) CreateOTP(t *testing.T, user *domain.User) (string, error) {
+	t.Helper()
+
+	rng, _ := rand.Int(rand.Reader, big.NewInt(1000000))
+	otp := rng.String()
+
+	if err := f.Infra.RedisClient.Set(
+		context.Background(),
+		"otp:"+user.Email,
+		otp,
+		time.Duration(f.Config.Mail.OTPExpiryMin)*time.Minute,
+	); err != nil {
+		return "", err
+	}
+
+	return otp, nil
 }
