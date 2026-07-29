@@ -24,7 +24,7 @@ type IUseCase interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (*UserResponse, error)
 	GetUserBySystemID(ctx context.Context, id string) (*UserResponse, error)
 	CreateUser(ctx context.Context, data *CreateUserSchema) (*UserResponse, error)
-	AdminUpdateUser(ctx context.Context, data *AdminUpdateUserDTO) (*UserResponse, error)
+	AdminUpdateUser(ctx context.Context, data *AdminUpdateUserSchema) (*UserResponse, error)
 	UpdateUser(ctx context.Context, data *UpdateUserDTO) (*UserResponse, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 }
@@ -101,7 +101,7 @@ func (usecase UseCase) CreateUser(ctx context.Context, data *CreateUserSchema) (
 	return &dto, nil
 }
 
-func (usecase UseCase) AdminUpdateUser(ctx context.Context, data *AdminUpdateUserDTO) (*UserResponse, error) {
+func (usecase UseCase) AdminUpdateUser(ctx context.Context, data *AdminUpdateUserSchema) (*UserResponse, error) {
 	var user *domain.User
 
 	user, err := usecase.repo.FindByID(ctx, data.ID)
@@ -176,11 +176,11 @@ func (usecase UseCase) UpdateUser(ctx context.Context, data *UpdateUserDTO) (*Us
 		return nil, err
 	}
 
-	if data.Password == &existingAccount.Password {
+	if data.Password == existingAccount.Password {
 		return nil, shared.ErrBadRequest
 	}
 
-	existingAccount.Password = *data.Password
+	existingAccount.Password = data.Password
 
 	result, err := usecase.repo.Update(ctx, existingAccount)
 

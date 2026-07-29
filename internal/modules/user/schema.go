@@ -16,36 +16,41 @@ type UserResponse struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
+type GetUserByIDSchema struct {
+	ID uuid.UUID `uri:"id" binding:"required,uuid"`
+}
+
+type GetUserBySystemIDSchema struct {
+	SystemID string `uri:"systemId" binding:"required"`
+}
+
+type DeleteUserSchema struct {
+	ID uuid.UUID `uri:"id" binding:"required,uuid"`
+}
+
 type CreateUserSchema struct {
-	SystemID string `json:"systemId"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Role     string `json:"role"`
-	Password string `json:"password"`
+	ID       uuid.UUID `uri:"id" binding:"required,uuid"`
+	SystemID string    `json:"systemId" binding:"required"`
+	Name     string    `json:"name" binding:"required"`
+	Email    string    `json:"email" binding:"required,email"`
+	Password string    `json:"password" binding:"required,min=8,max=32"`
+	Role     string    `json:"role" binding:"required"`
 }
 
 type AdminUpdateUserSchema struct {
-	SystemID *string `json:"systemId"`
-	Name     *string `json:"name"`
-	Email    *string `json:"email"`
-	Role     *string `json:"role"`
-	Password *string `json:"password"`
-}
-
-type AdminUpdateUserDTO struct {
-	ID       uuid.UUID
-	SystemID *string
-	Name     *string
-	Email    *string
-	Role     *string
-	Password *string
+	ID       uuid.UUID `uri:"id" binding:"required,uuid"`
+	SystemID *string   `json:"systemId"`
+	Name     *string   `json:"name"`
+	Email    *string   `json:"email" binding:"email"`
+	Password *string   `json:"password" binding:"min=8,max=32"`
+	Role     *string   `json:"role"`
 }
 
 type UpdateUserSchema struct {
-	Password *string `json:"password"`
+	Password string `json:"password" binding:"required,min=8,max=32"`
 }
 
 type UpdateUserDTO struct {
 	User     *domain.JWTPayload
-	Password *string
+	Password string
 }

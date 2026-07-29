@@ -26,7 +26,7 @@ func TestUpdateUser_Success(t *testing.T) {
 
 	requestData := user.UpdateUserDTO{
 		User:     jwtPayload,
-		Password: &newPassword,
+		Password: newPassword,
 	}
 
 	repoRequest := domain.User{

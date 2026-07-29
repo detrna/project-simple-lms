@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type Controller struct {
@@ -30,15 +29,10 @@ type IController interface {
 }
 
 func (controller *Controller) GetUserByID(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("id"))
-
-	if err != nil {
-		shared.HandleError(c, controller.logger, shared.ErrBadRequest)
-		return
-	}
+	params := shared.ParseParams[GetUserByIDSchema](c, controller.logger)
 
 	ctx := c.Request.Context()
-	result, err := controller.usecase.GetUserByID(ctx, id)
+	result, err := controller.usecase.GetUserByID(ctx, params.ID)
 
 	if err != nil {
 		shared.HandleError(c, controller.logger, err)
@@ -53,15 +47,10 @@ func (controller *Controller) GetUserByID(c *gin.Context) {
 }
 
 func (controller *Controller) GetUserBySystemID(c *gin.Context) {
-	id := c.Param("systemId")
-
-	if id == "" {
-		shared.HandleError(c, controller.logger, shared.ErrBadRequest)
-		return
-	}
+	params := shared.ParseParams[GetUserBySystemIDSchema](c, controller.logger)
 
 	ctx := c.Request.Context()
-	result, err := controller.usecase.GetUserBySystemID(ctx, id)
+	result, err := controller.usecase.GetUserBySystemID(ctx, params.SystemID)
 
 	if err != nil {
 		fmt.Print("OALAH")
@@ -100,16 +89,10 @@ func (controller *Controller) GetMyAccount(c *gin.Context) {
 }
 
 func (controller *Controller) CreateUser(c *gin.Context) {
-	var body CreateUserSchema
-	err := c.ShouldBindBodyWithJSON(&body)
-
-	if err != nil {
-		shared.HandleError(c, controller.logger, err)
-		return
-	}
+	body := shared.ParseJSON[CreateUserSchema](c, controller.logger)
 
 	ctx := c.Request.Context()
-	result, err := controller.usecase.CreateUser(ctx, &body)
+	result, err := controller.usecase.CreateUser(ctx, body)
 
 	if err != nil {
 		shared.HandleError(c, controller.logger, err)
@@ -126,23 +109,11 @@ func (controller *Controller) CreateUser(c *gin.Context) {
 }
 
 func (controller *Controller) AdminUpdateUser(c *gin.Context) {
-	var body AdminUpdateUserSchema
-	err := c.ShouldBindBodyWithJSON(&body)
+	body := shared.ParseJSON[AdminUpdateUserSchema](c, controller.logger)
+	params := shared.ParseParams[AdminUpdateUserSchema](c, controller.logger)
 
-	if err != nil {
-		shared.HandleError(c, controller.logger, err)
-		return
-	}
-
-	id, err := uuid.Parse(c.Param("id"))
-
-	if err != nil {
-		shared.HandleError(c, controller.logger, err)
-		return
-	}
-
-	dto := AdminUpdateUserDTO{
-		ID:       id,
+	dto := AdminUpdateUserSchema{
+		ID:       params.ID,
 		Name:     body.Name,
 		Email:    body.Email,
 		SystemID: body.SystemID,
@@ -152,7 +123,7 @@ func (controller *Controller) AdminUpdateUser(c *gin.Context) {
 	result, err := controller.usecase.AdminUpdateUser(ctx, &dto)
 
 	if err != nil {
-		shared.HandleError(c, controller.logger, err)
+		shared.HandleValidationError(c, controller.logger, err)
 		return
 	}
 
@@ -164,15 +135,10 @@ func (controller *Controller) AdminUpdateUser(c *gin.Context) {
 }
 
 func (controller *Controller) DeleteUser(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("id"))
-
-	if err != nil {
-		shared.HandleError(c, controller.logger, err)
-		return
-	}
+	params := shared.ParseParams[DeleteUserSchema](c, controller.logger)
 
 	ctx := c.Request.Context()
-	if err := controller.usecase.DeleteUser(ctx, id); err != nil {
+	if err := controller.usecase.DeleteUser(ctx, params.ID); err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
@@ -187,11 +153,7 @@ func (controller Controller) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	var body UpdateUserSchema
-	if err := c.ShouldBindBodyWithJSON(&body); err != nil {
-		shared.HandleError(c, controller.logger, err)
-		return
-	}
+	body := shared.ParseJSON[UpdateUserSchema](c, controller.logger)
 
 	dto := UpdateUserDTO{
 		User:     user,

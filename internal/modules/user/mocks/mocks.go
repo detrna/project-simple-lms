@@ -773,7 +773,7 @@ func (_m *MockIUseCase) EXPECT() *MockIUseCase_Expecter {
 }
 
 // AdminUpdateUser provides a mock function for the type MockIUseCase
-func (_mock *MockIUseCase) AdminUpdateUser(ctx context.Context, data *user.AdminUpdateUserDTO) (*user.UserResponse, error) {
+func (_mock *MockIUseCase) AdminUpdateUser(ctx context.Context, data *user.AdminUpdateUserSchema) (*user.UserResponse, error) {
 	ret := _mock.Called(ctx, data)
 
 	if len(ret) == 0 {
@@ -782,17 +782,17 @@ func (_mock *MockIUseCase) AdminUpdateUser(ctx context.Context, data *user.Admin
 
 	var r0 *user.UserResponse
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *user.AdminUpdateUserDTO) (*user.UserResponse, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *user.AdminUpdateUserSchema) (*user.UserResponse, error)); ok {
 		return returnFunc(ctx, data)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *user.AdminUpdateUserDTO) *user.UserResponse); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *user.AdminUpdateUserSchema) *user.UserResponse); ok {
 		r0 = returnFunc(ctx, data)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*user.UserResponse)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *user.AdminUpdateUserDTO) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *user.AdminUpdateUserSchema) error); ok {
 		r1 = returnFunc(ctx, data)
 	} else {
 		r1 = ret.Error(1)
@@ -807,20 +807,20 @@ type MockIUseCase_AdminUpdateUser_Call struct {
 
 // AdminUpdateUser is a helper method to define mock.On call
 //   - ctx context.Context
-//   - data *user.AdminUpdateUserDTO
+//   - data *user.AdminUpdateUserSchema
 func (_e *MockIUseCase_Expecter) AdminUpdateUser(ctx any, data any) *MockIUseCase_AdminUpdateUser_Call {
 	return &MockIUseCase_AdminUpdateUser_Call{Call: _e.mock.On("AdminUpdateUser", ctx, data)}
 }
 
-func (_c *MockIUseCase_AdminUpdateUser_Call) Run(run func(ctx context.Context, data *user.AdminUpdateUserDTO)) *MockIUseCase_AdminUpdateUser_Call {
+func (_c *MockIUseCase_AdminUpdateUser_Call) Run(run func(ctx context.Context, data *user.AdminUpdateUserSchema)) *MockIUseCase_AdminUpdateUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *user.AdminUpdateUserDTO
+		var arg1 *user.AdminUpdateUserSchema
 		if args[1] != nil {
-			arg1 = args[1].(*user.AdminUpdateUserDTO)
+			arg1 = args[1].(*user.AdminUpdateUserSchema)
 		}
 		run(
 			arg0,
@@ -835,7 +835,7 @@ func (_c *MockIUseCase_AdminUpdateUser_Call) Return(userResponse *user.UserRespo
 	return _c
 }
 
-func (_c *MockIUseCase_AdminUpdateUser_Call) RunAndReturn(run func(ctx context.Context, data *user.AdminUpdateUserDTO) (*user.UserResponse, error)) *MockIUseCase_AdminUpdateUser_Call {
+func (_c *MockIUseCase_AdminUpdateUser_Call) RunAndReturn(run func(ctx context.Context, data *user.AdminUpdateUserSchema) (*user.UserResponse, error)) *MockIUseCase_AdminUpdateUser_Call {
 	_c.Call.Return(run)
 	return _c
 }

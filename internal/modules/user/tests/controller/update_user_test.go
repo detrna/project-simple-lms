@@ -30,7 +30,7 @@ func TestUpdateUser_Success(t *testing.T) {
 
 	newPassword := "password321"
 	requestData := user.UpdateUserSchema{
-		Password: &newPassword,
+		Password: newPassword,
 	}
 
 	usecaseResult := user.UserResponse{

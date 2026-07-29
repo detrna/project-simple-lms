@@ -27,18 +27,10 @@ type IController interface {
 }
 
 func (controller *Controller) Login(c *gin.Context) {
-	var dto LoginSchema
-
-	err := c.ShouldBindBodyWithJSON(&dto)
-
-	if err != nil {
-		shared.HandleError(c, controller.logger, shared.ErrBadRequest)
-		return
-	}
+	body := shared.ParseJSON[LoginSchema](c, controller.logger)
 
 	ctx := c.Request.Context()
-
-	Tokens, err := controller.usecase.Login(ctx, &dto)
+	Tokens, err := controller.usecase.Login(ctx, body)
 
 	if err != nil {
 		shared.HandleError(c, controller.logger, err)
@@ -126,16 +118,10 @@ func (controller *Controller) Refresh(c *gin.Context) {
 }
 
 func (controller *Controller) Recover(c *gin.Context) {
-	var body RecoverSchema
-	err := c.ShouldBindBodyWithJSON(&body)
-
-	if err != nil {
-		shared.HandleError(c, controller.logger, err)
-		return
-	}
+	body := shared.ParseJSON[RecoverSchema](c, controller.logger)
 
 	ctx := c.Request.Context()
-	err = controller.usecase.Recover(ctx, &body)
+	err := controller.usecase.Recover(ctx, body)
 
 	if err != nil {
 		shared.HandleError(c, controller.logger, err)
@@ -146,16 +132,10 @@ func (controller *Controller) Recover(c *gin.Context) {
 }
 
 func (controller *Controller) VerifyRecovery(c *gin.Context) {
-	var body VerifyRecoverySchema
-	err := c.ShouldBindBodyWithJSON(&body)
-
-	if err != nil {
-		shared.HandleError(c, controller.logger, err)
-		return
-	}
+	body := shared.ParseJSON[VerifyRecoverySchema](c, controller.logger)
 
 	ctx := c.Request.Context()
-	err = controller.usecase.VerifyRecovery(ctx, &body)
+	err := controller.usecase.VerifyRecovery(ctx, body)
 
 	if err != nil {
 		shared.HandleError(c, controller.logger, err)
