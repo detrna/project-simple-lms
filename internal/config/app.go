@@ -5,7 +5,7 @@ type AppConfig struct {
 }
 
 func LoadAppConfig() *AppConfig {
-	mode := GetEnv("APP_MODE", "DEVELOPMENT")
+	mode := GetEnv("APP_MODE", "DEV")
 
 	return &AppConfig{Mode: mode}
 }

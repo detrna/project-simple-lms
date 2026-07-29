@@ -1,2 +1,6 @@
 .env
+.env.local
+.env.demo
+.env.prod
+
 logs/

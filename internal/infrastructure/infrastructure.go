@@ -13,7 +13,7 @@ func Initialize(cfg *config.Config) (*pkg.Packages, *gorm.DB, *repository.Reposi
 	db := database.Load(cfg.Database)
 	logger := NewLogger(cfg.Logger)
 	redis := RedisSetup(cfg.Redis)
-	gomail, _ := NewGoMailer(cfg.Mail)
+	gomail, _ := NewGoMailer(cfg.Mail, cfg.App)
 	jwtService := NewTokenService(cfg.JWT)
 	bcrypt := NewBcryptHasher(cfg.Bcrypt)
 	repository := repository.NewRepository(db, logger)

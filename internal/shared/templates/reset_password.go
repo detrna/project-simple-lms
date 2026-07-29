@@ -15,8 +15,8 @@ type ResetPasswordDTO struct {
 //go:embed reset_password.html
 var templateFS embed.FS
 
-func VerifyOTP(data ResetPasswordDTO) (string, error) {
-	tmpl, err := template.ParseFS(templateFS, "verify_otp.html")
+func ResetPassword(data ResetPasswordDTO) (string, error) {
+	tmpl, err := template.ParseFS(templateFS, "reset_password.html")
 	if err != nil {
 		return "", err
 	}

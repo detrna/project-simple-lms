@@ -13,14 +13,28 @@ type GoMailer struct {
 	from   string
 }
 
-func NewGoMailer(cfg *config.MailConfig) (pkg.Mailer, error) {
+func NewGoMailer(cfg *config.MailConfig, appCfg *config.AppConfig) (pkg.Mailer, error) {
+	var auth gomail.SMTPAuthType
+	var tls gomail.TLSPolicy
+
+	switch appCfg.Mode {
+	case "DEV":
+		auth = gomail.SMTPAuthNoAuth
+		tls = gomail.NoTLS
+
+	case "DEMO":
+		auth = gomail.SMTPAuthPlain
+		tls = gomail.DefaultTLSPolicy
+
+	}
+
 	client, err := gomail.NewClient(
 		cfg.Host,
 		gomail.WithPort(cfg.Port),
-		gomail.WithSMTPAuth(gomail.SMTPAuthPlain),
 		gomail.WithUsername(cfg.Username),
 		gomail.WithPassword(cfg.Password),
-		gomail.WithTLSPolicy(gomail.TLSMandatory),
+		gomail.WithSMTPAuth(auth),
+		gomail.WithTLSPolicy(tls),
 	)
 
 	if err != nil {

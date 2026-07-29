@@ -17,7 +17,7 @@ func LoadMailConfig() *MailConfig {
 	host := GetEnv("SMTP_HOST", "mailpit")
 	username := GetEnv("SMTP_USERNAME", "")
 	password := GetEnv("SMTP_PASSWORD", "")
-	from := GetEnv("SMTP_FROM", "noreply@simple-lms.com")
+	from := GetEnv("SMTP_FROM", "noreply@simple-lms.local")
 
 	return &MailConfig{
 		OTPExpiryMin: otpExpiry,
