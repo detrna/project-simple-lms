@@ -2,7 +2,7 @@ package pkg
 
 import "main/internal/domain"
 
-type JWTProvider interface {
+type TokenService interface {
 	GenerateAccessToken(data *domain.User) (*domain.JWT, error)
 	GenerateRefreshToken(data *domain.User) (*domain.JWT, error)
 	ParseAccessToken(tokenString string) (*domain.JWTPayload, error)

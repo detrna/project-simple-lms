@@ -18,7 +18,7 @@ type SLogger struct {
 	*slog.Logger
 }
 
-func NewLogger(cfg config.LoggerConfig) pkg.Logger {
+func NewLogger(cfg *config.LoggerConfig) pkg.Logger {
 	var level slog.Level
 
 	switch strings.ToLower(cfg.Level) {

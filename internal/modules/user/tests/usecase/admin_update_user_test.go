@@ -18,7 +18,7 @@ import (
 
 func TestAdminUpdateUser_Success(t *testing.T) {
 	mockRepo := &user_mocks.MockIRepository{}
-	mockBcrypt := &pkg_mocks.MockBcryptHasher{}
+	mockBcrypt := &pkg_mocks.MockHasher{}
 	u := user.NewUseCase(mockRepo, mockBcrypt, &pkg_mocks.MockLogger{})
 
 	id := uuid.New()
@@ -75,7 +75,7 @@ func TestAdminUpdateUser_Success(t *testing.T) {
 
 func TestAdminUpdateUser_RecordNotFound(t *testing.T) {
 	mockRepo := &user_mocks.MockIRepository{}
-	mockBcrypt := &pkg_mocks.MockBcryptHasher{}
+	mockBcrypt := &pkg_mocks.MockHasher{}
 	u := user.NewUseCase(mockRepo, mockBcrypt, &pkg_mocks.MockLogger{})
 
 	id := uuid.New()
@@ -99,7 +99,7 @@ func TestAdminUpdateUser_RecordNotFound(t *testing.T) {
 
 func TestUpdateUser_EmailTaken(t *testing.T) {
 	mockRepo := &user_mocks.MockIRepository{}
-	mockBcrypt := &pkg_mocks.MockBcryptHasher{}
+	mockBcrypt := &pkg_mocks.MockHasher{}
 	u := user.NewUseCase(mockRepo, mockBcrypt, &pkg_mocks.MockLogger{})
 
 	id := uuid.New()
@@ -137,7 +137,7 @@ func TestUpdateUser_EmailTaken(t *testing.T) {
 func TestAdminUpdateUser_SystemIDTaken(t *testing.T) {
 
 	mockRepo := &user_mocks.MockIRepository{}
-	mockBcrypt := &pkg_mocks.MockBcryptHasher{}
+	mockBcrypt := &pkg_mocks.MockHasher{}
 	u := user.NewUseCase(mockRepo, mockBcrypt, &pkg_mocks.MockLogger{})
 
 	id := uuid.New()

@@ -28,7 +28,7 @@ func TestGetUserBySystemID_Success(t *testing.T) {
 		systemID,
 	).Return(expectedPayload, nil)
 
-	useCase := user.NewUseCase(mockRepo, &pkg_mocks.MockBcryptHasher{}, &pkg_mocks.MockLogger{})
+	useCase := user.NewUseCase(mockRepo, &pkg_mocks.MockHasher{}, &pkg_mocks.MockLogger{})
 
 	result, err := useCase.GetUserBySystemID(ctx, systemID)
 	require.NoError(t, err)
@@ -50,7 +50,7 @@ func TestGetUserBySystemID_RecordNotFound(t *testing.T) {
 		systemID,
 	).Return(&domain.User{}, shared.ErrRecordNotFound)
 
-	useCase := user.NewUseCase(mockRepo, &pkg_mocks.MockBcryptHasher{}, &pkg_mocks.MockLogger{})
+	useCase := user.NewUseCase(mockRepo, &pkg_mocks.MockHasher{}, &pkg_mocks.MockLogger{})
 
 	result, err := useCase.GetUserBySystemID(ctx, systemID)
 

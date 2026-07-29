@@ -31,21 +31,21 @@ func TestLogout_Success(t *testing.T) {
 		DeleteJWT(ctx, mock.AnythingOfType("uuid.UUID")).
 		Return(nil)
 
-	bcryptHasher := pkg_mocks.NewMockBcryptHasher(t)
+	bcryptHasher := pkg_mocks.NewMockHasher(t)
 	bcryptHasher.
 		EXPECT().
 		Compare(mock.Anything, mock.Anything).
 		Return(nil)
 
-	tokenProvider := pkg_mocks.NewMockJWTProvider(t)
-	tokenProvider.
+	tokenService := pkg_mocks.NewMockTokenService(t)
+	tokenService.
 		EXPECT().
 		ParseRefreshToken(mock.AnythingOfType("string")).
 		Return(jwtPayload, nil)
 
 	pkg := auth.UseCasePackages{
-		Bcrypt:        bcryptHasher,
-		TokenProvider: tokenProvider,
+		Hasher:       bcryptHasher,
+		TokenService: tokenService,
 	}
 
 	u := auth.NewUseCase(repo, user_mocks.NewMockIRepository(t), &pkg, nil)

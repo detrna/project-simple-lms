@@ -13,7 +13,7 @@ type redisClient struct {
 	client *redis.Client
 }
 
-func RedisSetup(cfg config.RedisConfig) pkg.RedisClient {
+func RedisSetup(cfg *config.RedisConfig) pkg.RedisClient {
 	return &redisClient{
 		client: redis.NewClient(&redis.Options{
 			Addr:     cfg.Address,

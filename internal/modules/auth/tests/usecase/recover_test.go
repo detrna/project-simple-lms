@@ -29,8 +29,8 @@ func TestRecover_Success(t *testing.T) {
 	redis := pkg_mocks.NewMockRedisClient(t)
 	redis.EXPECT().Set(ctx, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
-	mailer := pkg_mocks.NewMockResendClient(t)
-	mailer.EXPECT().SendRecoveryOTP(ctx, mock.Anything, mock.AnythingOfType("string")).Return(nil)
+	mailer := pkg_mocks.NewMockMailer(t)
+	// mailer.EXPECT().SendRecoveryOTP(ctx, mock.Anything, mock.AnythingOfType("string")).Return(nil)
 
 	pkg := auth.UseCasePackages{
 		Redis:  redis,

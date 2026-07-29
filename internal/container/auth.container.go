@@ -21,16 +21,16 @@ func NewAuthContainer(cfg *config.Config, infra *pkg.Packages, repo *repository.
 	userRepo := repo.UserRepository
 
 	useCasePacakges := auth.UseCasePackages{
-		Bcrypt:        infra.BcryptHasher,
-		Mailer:        infra.ResendClient,
-		TokenProvider: infra.JWTProvider,
-		Redis:         infra.RedisClient,
-		Logger:        infra.Logger,
+		Hasher:       infra.Hasher,
+		Mailer:       infra.Mailer,
+		TokenService: infra.TokenService,
+		Redis:        infra.RedisClient,
+		Logger:       infra.Logger,
 	}
 
 	usecase := auth.NewUseCase(authRepo, userRepo, &useCasePacakges, cfg.Mail)
 	controller := auth.NewController(usecase, infra.Logger, cfg.App.Mode == "PRODUCTION")
-	routes := auth.NewRoutes(controller, infra.JWTProvider, infra.Logger)
+	routes := auth.NewRoutes(controller, infra.TokenService, infra.Logger)
 
 	return &AuthContainer{
 		UseCase:    usecase,

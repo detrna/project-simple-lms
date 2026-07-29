@@ -29,8 +29,8 @@ func TestRefresh_Success(t *testing.T) {
 
 	ctx := context.Background()
 	repo := auth_mocks.NewMockIRepository(t)
-	bcryptHasher := pkg_mocks.NewMockBcryptHasher(t)
-	jwt := pkg_mocks.NewMockJWTProvider(t)
+	bcryptHasher := pkg_mocks.NewMockHasher(t)
+	jwt := pkg_mocks.NewMockTokenService(t)
 
 	repo.EXPECT().FindJWT(ctx, mock.Anything).Return(&dbToken, nil)
 	repo.EXPECT().DeleteJWT(ctx, mock.Anything).Return(nil)
@@ -52,8 +52,8 @@ func TestRefresh_Success(t *testing.T) {
 	jwt.EXPECT().HashToken(mock.AnythingOfType("string")).Return("hashed-refresh-token")
 
 	pkg := auth.UseCasePackages{
-		Bcrypt:        bcryptHasher,
-		TokenProvider: jwt,
+		Hasher:       bcryptHasher,
+		TokenService: jwt,
 	}
 
 	u := auth.NewUseCase(repo, user_mocks.NewMockIRepository(t), &pkg, &config.MailConfig{})
@@ -78,14 +78,14 @@ func TestRefresh_RevokedToken(t *testing.T) {
 	repo := auth_mocks.NewMockIRepository(t)
 	repo.EXPECT().FindJWT(ctx, mock.Anything).Return(nil, shared.ErrRecordNotFound)
 
-	tokenProvider := pkg_mocks.NewMockJWTProvider(t)
-	tokenProvider.
+	tokenService := pkg_mocks.NewMockTokenService(t)
+	tokenService.
 		EXPECT().
 		ParseRefreshToken(mock.AnythingOfType("string")).
 		Return(jwtPayload, nil)
 
 	pkg := auth.UseCasePackages{
-		TokenProvider: tokenProvider,
+		TokenService: tokenService,
 	}
 
 	u := auth.NewUseCase(repo, user_mocks.NewMockIRepository(t), &pkg, &config.MailConfig{})
@@ -107,18 +107,18 @@ func TestRefresh_InvalidToken(t *testing.T) {
 	repo := auth_mocks.NewMockIRepository(t)
 	repo.EXPECT().FindJWT(ctx, mock.Anything).Return(&dbToken, nil)
 
-	bcryptHasher := pkg_mocks.NewMockBcryptHasher(t)
+	bcryptHasher := pkg_mocks.NewMockHasher(t)
 	bcryptHasher.EXPECT().Compare(mock.Anything, mock.Anything).Return(shared.ErrCredentialsIncorrect)
 
-	tokenProvider := pkg_mocks.NewMockJWTProvider(t)
-	tokenProvider.
+	tokenService := pkg_mocks.NewMockTokenService(t)
+	tokenService.
 		EXPECT().
 		ParseRefreshToken(mock.AnythingOfType("string")).
 		Return(jwtPayload, nil)
 
 	pkg := auth.UseCasePackages{
-		Bcrypt:        bcryptHasher,
-		TokenProvider: tokenProvider,
+		Hasher:       bcryptHasher,
+		TokenService: tokenService,
 	}
 
 	u := auth.NewUseCase(repo, user_mocks.NewMockIRepository(t), &pkg, &config.MailConfig{})

@@ -16,7 +16,7 @@ import (
 
 func TestDeleteUser_Success(t *testing.T) {
 	mockRepo := &user_mocks.MockIRepository{}
-	u := user.NewUseCase(mockRepo, &pkg_mocks.MockBcryptHasher{}, &pkg_mocks.MockLogger{})
+	u := user.NewUseCase(mockRepo, &pkg_mocks.MockHasher{}, &pkg_mocks.MockLogger{})
 
 	id := uuid.New()
 	existingAccount := domain.User{
@@ -35,7 +35,7 @@ func TestDeleteUser_Success(t *testing.T) {
 
 func TestDeleteUser_RecordNotFound(t *testing.T) {
 	mockRepo := &user_mocks.MockIRepository{}
-	u := user.NewUseCase(mockRepo, &pkg_mocks.MockBcryptHasher{}, &pkg_mocks.MockLogger{})
+	u := user.NewUseCase(mockRepo, &pkg_mocks.MockHasher{}, &pkg_mocks.MockLogger{})
 
 	id := uuid.New()
 	ctx := context.Background()

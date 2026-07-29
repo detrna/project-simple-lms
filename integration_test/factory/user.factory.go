@@ -20,7 +20,7 @@ func (f Factory) CreateUser(
 
 	password := "password123"
 
-	hashedPassword, err := f.Infra.BcryptHasher.Hash(password)
+	hashedPassword, err := f.Infra.Hasher.Hash(password)
 	require.NoError(t, err)
 
 	user := &database.User{
@@ -48,7 +48,7 @@ func (f Factory) CreateAdmin(t *testing.T) *domain.User {
 
 	password := "password123"
 
-	hashedPassword, err := f.Infra.BcryptHasher.Hash(password)
+	hashedPassword, err := f.Infra.Hasher.Hash(password)
 	require.NoError(t, err)
 
 	user := &database.User{

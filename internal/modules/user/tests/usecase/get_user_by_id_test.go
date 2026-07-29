@@ -27,7 +27,7 @@ func TestGetUserByID_Success(t *testing.T) {
 		uuid,
 	).Return(expectedPayload, nil)
 
-	useCase := user.NewUseCase(mockRepo, &pkg_mocks.MockBcryptHasher{}, &pkg_mocks.MockLogger{})
+	useCase := user.NewUseCase(mockRepo, &pkg_mocks.MockHasher{}, &pkg_mocks.MockLogger{})
 
 	result, err := useCase.GetUserByID(ctx, uuid)
 	require.NoError(t, err)
@@ -49,7 +49,7 @@ func TestGetUserByID_RecordNotFound(t *testing.T) {
 		uuid,
 	).Return(&domain.User{}, shared.ErrRecordNotFound)
 
-	useCase := user.NewUseCase(mockRepo, &pkg_mocks.MockBcryptHasher{}, &pkg_mocks.MockLogger{})
+	useCase := user.NewUseCase(mockRepo, &pkg_mocks.MockHasher{}, &pkg_mocks.MockLogger{})
 
 	result, err := useCase.GetUserByID(ctx, uuid)
 

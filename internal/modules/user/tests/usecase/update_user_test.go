@@ -52,7 +52,7 @@ func TestUpdateUser_Success(t *testing.T) {
 	mockRepo.On("FindByID", ctx, mock.AnythingOfType("uuid.UUID")).Return(existingAccount, nil)
 	mockRepo.On("Update", ctx, mock.AnythingOfType("*domain.User")).Return(&repoResult, nil)
 
-	u := user.NewUseCase(mockRepo, pkg_mocks.NewMockBcryptHasher(t), pkg_mocks.NewMockLogger(t))
+	u := user.NewUseCase(mockRepo, pkg_mocks.NewMockHasher(t), pkg_mocks.NewMockLogger(t))
 
 	result, err := u.UpdateUser(ctx, &requestData)
 	require.NoError(t, err)

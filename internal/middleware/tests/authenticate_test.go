@@ -56,7 +56,7 @@ func TestAuthenticate_InvalidToken(t *testing.T) {
 }
 
 func TestAuthenticate_Success(t *testing.T) {
-	mockJWT := new(pkg_mocks.MockJWTProvider)
+	mockJWT := new(pkg_mocks.MockTokenService)
 	mockLogger := shared_testing.NewMockLogger(t)
 
 	expectedPayload := &domain.JWTPayload{

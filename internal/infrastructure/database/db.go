@@ -12,7 +12,7 @@ import (
 
 var DB *gorm.DB
 
-func Connect(dbConfig config.DatabaseConfig) error {
+func Connect(dbConfig *config.DatabaseConfig) error {
 
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
@@ -54,7 +54,7 @@ func Migrate() error {
 	)
 }
 
-func Load(dbConfig config.DatabaseConfig) *gorm.DB {
+func Load(dbConfig *config.DatabaseConfig) *gorm.DB {
 	if err := Connect(dbConfig); err != nil {
 		log.Fatal(err)
 	}

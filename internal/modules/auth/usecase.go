@@ -9,16 +9,18 @@ import (
 	"main/internal/modules/user"
 	"main/internal/pkg"
 	"main/internal/shared"
+	"main/internal/shared/templates"
 	"math/big"
+	"strconv"
 	"time"
 )
 
 type UseCasePackages struct {
-	Bcrypt        pkg.BcryptHasher
-	Mailer        pkg.ResendClient
-	TokenProvider pkg.JWTProvider
-	Redis         pkg.RedisClient
-	Logger        pkg.Logger
+	Hasher       pkg.Hasher
+	Mailer       pkg.Mailer
+	TokenService pkg.TokenService
+	Redis        pkg.RedisClient
+	Logger       pkg.Logger
 }
 
 type UseCase struct {
@@ -51,20 +53,20 @@ func (usecase *UseCase) Login(ctx context.Context, data *LoginSchema) (*Tokens, 
 		return nil, err
 	}
 
-	err = usecase.packages.Bcrypt.Compare(dbAccount.Password, data.Password)
+	err = usecase.packages.Hasher.Compare(dbAccount.Password, data.Password)
 
 	if err != nil {
 		return nil, shared.ErrCredentialsIncorrect
 	}
 
-	accessToken, err := usecase.packages.TokenProvider.GenerateAccessToken(dbAccount)
-	refreshToken, err := usecase.packages.TokenProvider.GenerateRefreshToken(dbAccount)
+	accessToken, err := usecase.packages.TokenService.GenerateAccessToken(dbAccount)
+	refreshToken, err := usecase.packages.TokenService.GenerateRefreshToken(dbAccount)
 
 	if err != nil {
 		return nil, err
 	}
 
-	hashedToken := usecase.packages.TokenProvider.HashToken(refreshToken.Value)
+	hashedToken := usecase.packages.TokenService.HashToken(refreshToken.Value)
 
 	_, err = usecase.repo.CreateJWT(ctx, &accessToken.Payload, hashedToken)
 
@@ -76,7 +78,7 @@ func (usecase *UseCase) Login(ctx context.Context, data *LoginSchema) (*Tokens, 
 }
 
 func (usecase *UseCase) Logout(ctx context.Context, refreshToken string) error {
-	tokenPayload, err := usecase.packages.TokenProvider.ParseRefreshToken(refreshToken)
+	tokenPayload, err := usecase.packages.TokenService.ParseRefreshToken(refreshToken)
 
 	if err != nil {
 		return shared.ErrUnauthorized
@@ -88,7 +90,7 @@ func (usecase *UseCase) Logout(ctx context.Context, refreshToken string) error {
 		return err
 	}
 
-	if !usecase.packages.TokenProvider.Compare(*dbToken, refreshToken) {
+	if !usecase.packages.TokenService.Compare(*dbToken, refreshToken) {
 		return shared.ErrUnauthorized
 	}
 
@@ -96,7 +98,7 @@ func (usecase *UseCase) Logout(ctx context.Context, refreshToken string) error {
 }
 
 func (usecase *UseCase) Refresh(ctx context.Context, refreshToken string) (*Tokens, error) {
-	tokenPayload, err := usecase.packages.TokenProvider.ParseRefreshToken(refreshToken)
+	tokenPayload, err := usecase.packages.TokenService.ParseRefreshToken(refreshToken)
 
 	if err != nil {
 		return nil, shared.ErrUnauthorized
@@ -108,7 +110,7 @@ func (usecase *UseCase) Refresh(ctx context.Context, refreshToken string) (*Toke
 		return nil, err
 	}
 
-	if !usecase.packages.TokenProvider.Compare(*dbToken, refreshToken) {
+	if !usecase.packages.TokenService.Compare(*dbToken, refreshToken) {
 		return nil, shared.ErrUnauthorized
 	}
 
@@ -119,14 +121,14 @@ func (usecase *UseCase) Refresh(ctx context.Context, refreshToken string) (*Toke
 		SystemID: tokenPayload.SystemID,
 	}
 
-	newAccessToken, err := usecase.packages.TokenProvider.GenerateAccessToken(&user)
-	newRefreshToken, err := usecase.packages.TokenProvider.GenerateRefreshToken(&user)
+	newAccessToken, err := usecase.packages.TokenService.GenerateAccessToken(&user)
+	newRefreshToken, err := usecase.packages.TokenService.GenerateRefreshToken(&user)
 
 	if err != nil {
 		return nil, err
 	}
 
-	hashedToken := usecase.packages.TokenProvider.HashToken(newRefreshToken.Value)
+	hashedToken := usecase.packages.TokenService.HashToken(newRefreshToken.Value)
 
 	_, err = usecase.repo.CreateJWT(ctx, &newRefreshToken.Payload, hashedToken)
 
@@ -152,8 +154,22 @@ func (usecase UseCase) Recover(ctx context.Context, data *RecoverSchema) error {
 	}
 
 	otp, _ := rand.Int(rand.Reader, big.NewInt(1000000))
+	htmlBody, err := templates.VerifyOTP(templates.VerifyOTPData{
+		Name:   dbAccount.Name,
+		OTP:    otp.String(),
+		Expiry: strconv.Itoa(usecase.mailConfig.OTPExpiryMin),
+	})
 
-	if err = usecase.packages.Mailer.SendRecoveryOTP(ctx, dbAccount, otp.String()); err != nil {
+	if err != nil {
+		return err
+	}
+
+	if err = usecase.packages.Mailer.Send(
+		ctx,
+		dbAccount.Email,
+		"Reset your Password",
+		htmlBody,
+	); err != nil {
 		usecase.packages.Logger.Info(err.Error())
 		return err
 	}

@@ -12,12 +12,12 @@ import (
 
 type UseCase struct {
 	repo   IRepository
-	bcrypt pkg.BcryptHasher
+	hasher pkg.Hasher
 	logger pkg.Logger
 }
 
-func NewUseCase(repo IRepository, bcrypt pkg.BcryptHasher, logger pkg.Logger) *UseCase {
-	return (&UseCase{repo: repo, bcrypt: bcrypt, logger: logger})
+func NewUseCase(repo IRepository, hasher pkg.Hasher, logger pkg.Logger) *UseCase {
+	return (&UseCase{repo: repo, hasher: hasher, logger: logger})
 }
 
 type IUseCase interface {
@@ -75,7 +75,7 @@ func (usecase UseCase) CreateUser(ctx context.Context, data *CreateUserSchema) (
 		return nil, shared.ErrEmailTaken
 	}
 
-	hashedPassword, err := usecase.bcrypt.Hash(data.Password)
+	hashedPassword, err := usecase.hasher.Hash(data.Password)
 
 	if err != nil {
 		return nil, err

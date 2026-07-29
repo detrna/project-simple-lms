@@ -18,7 +18,7 @@ import (
 
 func TestCreateUser_Success(t *testing.T) {
 	mockRepo := &user_mocks.MockIRepository{}
-	mockBcrypt := &pkg_mocks.MockBcryptHasher{}
+	mockBcrypt := &pkg_mocks.MockHasher{}
 	u := user.NewUseCase(mockRepo, mockBcrypt, &pkg_mocks.MockLogger{})
 
 	request := user.CreateUserSchema{
@@ -70,7 +70,7 @@ func TestCreateUser_Success(t *testing.T) {
 
 func TestCreateUser_EmailTaken(t *testing.T) {
 	mockRepo := &user_mocks.MockIRepository{}
-	mockBcrypt := &pkg_mocks.MockBcryptHasher{}
+	mockBcrypt := &pkg_mocks.MockHasher{}
 	u := user.NewUseCase(mockRepo, mockBcrypt, &pkg_mocks.MockLogger{})
 
 	request := user.CreateUserSchema{

@@ -1,10 +1,9 @@
 package pkg
 
 type Packages struct {
-	JWTProvider  JWTProvider
-	BcryptHasher BcryptHasher
+	TokenService TokenService
+	Hasher       Hasher
 	Logger       Logger
-	// Pagination   Pagination
 	RedisClient  RedisClient
-	ResendClient ResendClient
+	Mailer       Mailer
 }

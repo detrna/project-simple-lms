@@ -10,20 +10,20 @@ import (
 )
 
 func Initialize(cfg *config.Config) (*pkg.Packages, *gorm.DB, *repository.Repository, error) {
-	db := database.Load(*cfg.Database)
-	logger := NewLogger(*cfg.Logger)
-	redis := RedisSetup(*cfg.Redis)
-	resend := ResendClient{}
-	jwtProvider := NewTokenProvider(*cfg.JWT)
-	bcrypt := NewBcryptHasher(*cfg.Bcrypt)
+	db := database.Load(cfg.Database)
+	logger := NewLogger(cfg.Logger)
+	redis := RedisSetup(cfg.Redis)
+	gomail, _ := NewGoMailer(cfg.Mail)
+	jwtService := NewTokenService(cfg.JWT)
+	bcrypt := NewBcryptHasher(cfg.Bcrypt)
 	repository := repository.NewRepository(db, logger)
 
 	return &pkg.Packages{
 		Logger:       logger,
 		RedisClient:  redis,
-		ResendClient: resend,
-		JWTProvider:  jwtProvider,
-		BcryptHasher: bcrypt,
+		Mailer:       gomail,
+		TokenService: jwtService,
+		Hasher:       bcrypt,
 	}, db, repository, nil
 
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Authenticate(jwtProvider pkg.JWTProvider, logger pkg.Logger) gin.HandlerFunc {
+func Authenticate(jwtProvider pkg.TokenService, logger pkg.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		accessTokenPayload, err := parseHeader(c, jwtProvider)
 
@@ -25,7 +25,7 @@ func Authenticate(jwtProvider pkg.JWTProvider, logger pkg.Logger) gin.HandlerFun
 	}
 }
 
-func parseHeader(c *gin.Context, tokenService pkg.JWTProvider) (*domain.JWTPayload, error) {
+func parseHeader(c *gin.Context, tokenService pkg.TokenService) (*domain.JWTPayload, error) {
 	authHeader := c.GetHeader("Authorization")
 
 	if authHeader == "" {

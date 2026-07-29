@@ -8,13 +8,13 @@ import (
 )
 
 type Routes struct {
-	controller    IController
-	tokenProvider pkg.JWTProvider
-	logger        pkg.Logger
+	controller   IController
+	tokenService pkg.TokenService
+	logger       pkg.Logger
 }
 
-func NewRoutes(c IController, tokenProvider pkg.JWTProvider, logger pkg.Logger) *Routes {
-	return &Routes{controller: c, tokenProvider: tokenProvider, logger: logger}
+func NewRoutes(c IController, tokenService pkg.TokenService, logger pkg.Logger) *Routes {
+	return &Routes{controller: c, tokenService: tokenService, logger: logger}
 }
 
 func (routes Routes) RegisterRoutes(rg *gin.RouterGroup) {
@@ -23,12 +23,12 @@ func (routes Routes) RegisterRoutes(rg *gin.RouterGroup) {
 	router.POST("/login", routes.controller.Login)
 	router.DELETE(
 		"/logout",
-		middleware.Authenticate(routes.tokenProvider, routes.logger),
+		middleware.Authenticate(routes.tokenService, routes.logger),
 		routes.controller.Logout,
 	)
 	router.POST(
 		"/refresh",
-		middleware.Authenticate(routes.tokenProvider, routes.logger),
+		middleware.Authenticate(routes.tokenService, routes.logger),
 		routes.controller.Refresh,
 	)
 	router.POST(

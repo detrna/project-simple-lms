@@ -14,7 +14,7 @@ type BcryptHasher struct {
 	cost int
 }
 
-func NewBcryptHasher(cfg config.BcryptConfig) pkg.BcryptHasher {
+func NewBcryptHasher(cfg *config.BcryptConfig) pkg.Hasher {
 	return &BcryptHasher{salt: cfg.Salt, cost: cfg.Cost}
 }
 

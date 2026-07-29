@@ -18,7 +18,7 @@ func TestRefresh_Success(t *testing.T) {
 
 	existingUser := factory.CreateUser(t, "Student1")
 	existingJWT := factory.CreateJWT(t, existingUser)
-	accessToken, err := factory.Infra.JWTProvider.GenerateRefreshToken(existingUser)
+	accessToken, err := factory.Infra.TokenService.GenerateRefreshToken(existingUser)
 	require.NoError(t, err)
 
 	w := httptest.NewRecorder()
