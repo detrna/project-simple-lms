@@ -1,0 +1,146 @@
+{
+  "LoginSchema": {
+    "type": "object",
+    "required": ["email", "password"],
+    "properties": {
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "password": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 32
+      }
+    }
+  },
+  "RecoverSchema": {
+    "type": "object",
+    "required": ["email"],
+    "properties": {
+      "email": {
+        "type": "string",
+        "format": "email"
+      }
+    }
+  },
+  "VerifyRecoverySchema": {
+    "type": "object",
+    "required": ["email", "newPassword", "otp"],
+    "properties": {
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "newPassword": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 32
+      },
+      "otp": {
+        "type": "string",
+        "pattern": "^[0-9]{8}$"
+      }
+    }
+  },
+  "TokenResponse": {
+    "type": "object",
+    "properties": {
+      "accessToken": {
+        "type": "string"
+      }
+    }
+  },
+  "UserResponse": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "systemId": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "role": {
+        "type": "string"
+      },
+      "createdAt": {
+        "type": "string",
+        "format": "date-time"
+      }
+    }
+  },
+  "CreateUserSchema": {
+    "type": "object",
+    "required": ["systemId", "name", "email", "password", "role"],
+    "properties": {
+      "systemId": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "password": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 32
+      },
+      "role": {
+        "type": "string"
+      }
+    }
+  },
+  "AdminUpdateUserSchema": {
+    "type": "object",
+    "properties": {
+      "systemId": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "password": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 32
+      },
+      "role": {
+        "type": "string"
+      }
+    }
+  },
+  "UpdateUserSchema": {
+    "type": "object",
+    "required": ["password"],
+    "properties": {
+      "password": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 32
+      }
+    }
+  },
+  "ErrorResponse": {
+    "type": "object",
+    "properties": {
+      "error": {
+        "type": "string"
+      }
+    }
+  }
+}
