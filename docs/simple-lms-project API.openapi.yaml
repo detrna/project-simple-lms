@@ -1,0 +1,3730 @@
+openapi: 3.1.0
+info:
+  title: simple-lms-project 
+  description: >-
+    OpenAPI specification for the Project LMS backend routes exposed through
+    Gin.
+  version: 2.0.0
+tags:
+  - name: Auth
+  - name: Assignments
+  - name: Announcements
+  - name: Classes
+  - name: ClassEnrollments
+  - name: Courses
+  - name: CourseEnrollment
+  - name: Comments
+  - name: Comments/Materials
+  - name: Comments/Assignments
+  - name: Comments/Announcements
+  - name: Comments/Submissions
+  - name: Files
+  - name: Materials
+  - name: Submissions
+  - name: Transcripts
+  - name: Users
+  - name: Class
+paths:
+  /auth/login:
+    post:
+      summary: Login
+      deprecated: false
+      description: ''
+      tags:
+        - Auth
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples: {}
+        required: true
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TokenResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+      security:
+        - BearerAuth: []
+  /auth/refresh:
+    post:
+      summary: Refresh access token
+      deprecated: false
+      description: ''
+      tags:
+        - Auth
+      parameters: []
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+          headers: {}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+      security:
+        - BearerAuth: []
+  /auth/recover:
+    post:
+      summary: Send password recovery OTP
+      deprecated: false
+      description: ''
+      tags:
+        - Auth
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecoverRequest'
+        required: true
+      responses:
+        '204':
+          description: OTP sent
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /auth/verify-recovery:
+    post:
+      summary: Verify recovery OTP and update password
+      deprecated: false
+      description: ''
+      tags:
+        - Auth
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyRecoveryRequest'
+        required: true
+      responses:
+        '204':
+          description: Password updated successfully
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /auth/logout:
+    delete:
+      summary: Logout
+      deprecated: false
+      description: ''
+      tags:
+        - Auth
+      parameters: []
+      responses:
+        '204':
+          description: Logout successful
+          headers: {}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+      security:
+        - BearerAuth: []
+  /assignments/{id}:
+    get:
+      summary: Get assignment by id
+      deprecated: false
+      description: ''
+      tags:
+        - Assignments
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AssignmentResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+      security:
+        - BearerAuth: []
+    patch:
+      summary: Patch assignment
+      deprecated: false
+      description: ''
+      tags:
+        - Assignments
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchAssignmentRequest'
+            examples: {}
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AssignmentResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /courses/{courseId}/assignments:
+    post:
+      summary: Create assignment
+      deprecated: false
+      description: ''
+      tags:
+        - Assignments
+      parameters:
+        - name: courseId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAssignmentRequest'
+            examples: {}
+        required: true
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AssignmentResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+      security:
+        - BearerAuth: []
+  /assignemnts/{id}:
+    delete:
+      summary: Delete assignment
+      deprecated: false
+      description: ''
+      tags:
+        - Assignments
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /announcements/{id}:
+    get:
+      summary: Get announcement by id
+      deprecated: false
+      description: ''
+      tags:
+        - Announcements
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AnnouncementResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+      security:
+        - BearerAuth: []
+    patch:
+      summary: Patch announcement
+      deprecated: false
+      description: ''
+      tags:
+        - Announcements
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchAnnouncementSchema'
+            examples: {}
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AnnouncementResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+    delete:
+      summary: Delete announcement
+      deprecated: false
+      description: ''
+      tags:
+        - Announcements
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /courses/{courseId}/announcements:
+    post:
+      summary: Create announcement
+      deprecated: false
+      description: ''
+      tags:
+        - Announcements
+      parameters:
+        - name: courseId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAnnouncementSchema'
+            examples: {}
+        required: true
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AnnouncementResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+      security:
+        - BearerAuth: []
+  /classes:
+    post:
+      summary: Create class
+      deprecated: false
+      description: ''
+      operationId: createClass
+      tags:
+        - Classes
+        - Class
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClassRequest'
+            example: ''
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ClassSummarizedResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '409':
+          $ref: '#/components/responses/Conflict'
+          description: Conflict
+      security:
+        - BearerAuth: []
+  /classes/{id}:
+    get:
+      summary: Get class by id
+      deprecated: false
+      description: ''
+      operationId: getClassById
+      tags:
+        - Classes
+        - Class
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          example: ''
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Class'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+      security:
+        - BearerAuth: []
+    patch:
+      summary: Patch class
+      deprecated: false
+      description: ''
+      operationId: patchClass
+      tags:
+        - Classes
+        - Class
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          example: ''
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Class'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '409':
+          $ref: '#/components/responses/Conflict'
+          description: Conflict
+      security:
+        - BearerAuth: []
+    delete:
+      summary: Delete class
+      deprecated: false
+      description: ''
+      operationId: deleteClass
+      tags:
+        - Classes
+        - Class
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          example: ''
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+      security:
+        - BearerAuth: []
+  /classes/{id}/students:
+    get:
+      summary: Get students by class ID
+      deprecated: false
+      description: ''
+      operationId: getMyClasses
+      tags:
+        - Classes
+        - Class
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserResponse'
+                  pagination:
+                    anyOf:
+                      - $ref: '#/components/schemas/Pagination'
+                      - type: 'null'
+                required:
+                  - data
+                  - pagination
+          headers: {}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+      security:
+        - BearerAuth: []
+  /class-enrollments/{classEnrollmentId}/users:
+    get:
+      summary: Get all users by class ID
+      deprecated: false
+      description: ''
+      tags:
+        - ClassEnrollments
+      parameters:
+        - name: classEnrollmentId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ClassEnrollmentResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /class-enrollments/me:
+    get:
+      summary: Get my class enrollments
+      deprecated: false
+      description: ''
+      tags:
+        - ClassEnrollments
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/GetMyClassEnrollmentResponse'
+                  pagination:
+                    anyOf:
+                      - $ref: '#/components/schemas/Pagination'
+                      - type: 'null'
+                required:
+                  - data
+                  - pagination
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /classes/{classId}/users/{userId}/enroll:
+    post:
+      summary: Enroll student to class
+      deprecated: false
+      description: ''
+      tags:
+        - ClassEnrollments
+      parameters:
+        - name: classId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClassEnrollmentRequest'
+            examples: {}
+        required: true
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ClassEnrollmentResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /class-enrollments/{id}:
+    patch:
+      summary: Patch class enrollment
+      deprecated: false
+      description: ''
+      tags:
+        - ClassEnrollments
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchClassEnrollmentRequest'
+            examples: {}
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ClassEnrollmentResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /classes-enrollment/{id}:
+    delete:
+      summary: Delete class enrollment
+      deprecated: false
+      description: ''
+      tags:
+        - ClassEnrollments
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchClassEnrollmentRequest'
+            examples: {}
+        required: true
+      responses:
+        '204':
+          description: ''
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /courses/{id}:
+    get:
+      summary: Get course by id
+      deprecated: false
+      description: ''
+      tags:
+        - Courses
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CourseResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+    patch:
+      summary: Patch course
+      deprecated: false
+      description: ''
+      tags:
+        - Courses
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patch%20Course%20Request'
+            examples: {}
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CourseResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+    delete:
+      summary: Delete course
+      deprecated: false
+      description: ''
+      tags:
+        - Courses
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /classes/{classId}/courses/me:
+    get:
+      summary: Get my courses
+      deprecated: false
+      description: ''
+      tags:
+        - Courses
+      parameters:
+        - name: classId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CourseResponse'
+                  pagination:
+                    anyOf:
+                      - $ref: '#/components/schemas/Pagination'
+                      - type: 'null'
+                required:
+                  - data
+                  - pagination
+          headers: {}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+      security:
+        - BearerAuth: []
+  /courses:
+    post:
+      summary: Create course
+      deprecated: false
+      description: ''
+      tags:
+        - Courses
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Create%20Course%20Request'
+            examples: {}
+        required: true
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CourseResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+      security:
+        - BearerAuth: []
+  /users/{userId}/courses/{courseId}:
+    post:
+      summary: Enroll student
+      deprecated: false
+      description: ''
+      tags:
+        - Courses
+      parameters:
+        - name: userId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+        - name: courseId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Create%20Course%20Request'
+            examples: {}
+        required: true
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CourseResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+      security:
+        - BearerAuth: []
+  /course-enrollments/{courseId}/users:
+    get:
+      summary: Get all users by course ID
+      deprecated: false
+      description: ''
+      tags:
+        - CourseEnrollment
+      parameters:
+        - name: courseId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CourseEnrollmentResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /courses/{courseId}/users/{userId}/enroll:
+    post:
+      summary: Enroll student to course
+      deprecated: false
+      description: ''
+      tags:
+        - CourseEnrollment
+      parameters:
+        - name: courseId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CourseEnrollmentResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /course-enrollments/{id}:
+    patch:
+      summary: Patch course enrollment
+      deprecated: false
+      description: ''
+      tags:
+        - CourseEnrollment
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchClassEnrollmentRequest'
+            examples: {}
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CourseEnrollmentResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /courses/{courseId}/users/{userId}:
+    delete:
+      summary: Delete class membership
+      deprecated: false
+      description: ''
+      tags:
+        - CourseEnrollment
+      parameters:
+        - name: courseId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchClassEnrollmentRequest'
+            examples: {}
+        required: true
+      responses:
+        '204':
+          description: ''
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /materials/{id}/comments:
+    get:
+      summary: Get comments by material ID
+      deprecated: false
+      description: ''
+      tags:
+        - Comments/Materials
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CommentResponse'
+                  pagination:
+                    anyOf:
+                      - $ref: '#/components/schemas/Pagination'
+                      - type: 'null'
+                required:
+                  - data
+                  - pagination
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+    post:
+      summary: Create material's comment
+      deprecated: false
+      description: ''
+      tags:
+        - Comments/Materials
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentRequest'
+            examples: {}
+        required: true
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Comment'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /assignments/{id}/comments:
+    post:
+      summary: Create assignment's comment
+      deprecated: false
+      description: ''
+      tags:
+        - Comments/Assignments
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentRequest'
+            examples: {}
+        required: true
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CommentResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /material/{id}/comments:
+    get:
+      summary: Get comments by assignment ID
+      deprecated: false
+      description: ''
+      tags:
+        - Comments/Assignments
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CommentResponse'
+                  pagination:
+                    anyOf:
+                      - $ref: '#/components/schemas/Pagination'
+                      - type: 'null'
+                required:
+                  - data
+                  - pagination
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /announcements/{id}/comments:
+    get:
+      summary: Get comments by announcement ID
+      deprecated: false
+      description: ''
+      tags:
+        - Comments/Announcements
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CommentResponse'
+                  pagination:
+                    anyOf:
+                      - $ref: '#/components/schemas/Pagination'
+                      - type: 'null'
+                required:
+                  - data
+                  - pagination
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+    post:
+      summary: Create announcement's comment
+      deprecated: false
+      description: ''
+      tags:
+        - Comments/Announcements
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentRequest'
+            examples: {}
+        required: true
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CommentResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /submissions/{id}/comments:
+    get:
+      summary: Get comments by announcement ID
+      deprecated: false
+      description: ''
+      tags:
+        - Comments/Submissions
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CommentResponse'
+                  pagination:
+                    anyOf:
+                      - $ref: '#/components/schemas/Pagination'
+                      - type: 'null'
+                required:
+                  - data
+                  - pagination
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+    post:
+      summary: Create announcement's comment
+      deprecated: false
+      description: ''
+      tags:
+        - Comments/Submissions
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentRequest'
+            examples: {}
+        required: true
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CommentResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /comments/{id}/reply:
+    post:
+      summary: Create comment's reply
+      deprecated: false
+      description: ''
+      tags:
+        - Comments
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentRequest'
+            examples: {}
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Comment'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /comments/{id}:
+    delete:
+      summary: Delete comment
+      deprecated: false
+      description: ''
+      tags:
+        - Comments
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /files:
+    post:
+      summary: Create file
+      deprecated: false
+      description: ''
+      tags:
+        - Files
+      parameters: []
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+            examples: {}
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/File'
+                required:
+                  - data
+          headers: {}
+      security:
+        - BearerAuth: []
+  /files/{id}:
+    delete:
+      summary: Delete file
+      deprecated: false
+      description: ''
+      tags:
+        - Files
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+          headers: {}
+      security:
+        - BearerAuth: []
+    get:
+      summary: Get file by ID
+      deprecated: false
+      description: ''
+      tags:
+        - Files
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/File'
+                required:
+                  - data
+          headers: {}
+      security:
+        - BearerAuth: []
+  /files/{id}/download:
+    get:
+      summary: Download file by ID
+      deprecated: false
+      description: ''
+      tags:
+        - Files
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+          headers: {}
+      security:
+        - BearerAuth: []
+  /materials/{id}:
+    get:
+      summary: Get material by id
+      deprecated: false
+      description: ''
+      tags:
+        - Materials
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaterialResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+      security:
+        - BearerAuth: []
+    patch:
+      summary: Patch material
+      deprecated: false
+      description: ''
+      tags:
+        - Materials
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+            examples: {}
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaterialResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+    delete:
+      summary: Delete material
+      deprecated: false
+      description: ''
+      tags:
+        - Materials
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /courses/{courseId}/materials:
+    post:
+      summary: Create material
+      deprecated: false
+      description: ''
+      tags:
+        - Materials
+      parameters:
+        - name: courseId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/MaterialResponse'
+              required:
+                - data
+            examples: {}
+        required: true
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaterialResponse'
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+      security:
+        - BearerAuth: []
+  /assignments/{assignmentId}/submissions:
+    get:
+      summary: Get submission by assignment ID
+      deprecated: false
+      description: ''
+      tags:
+        - Submissions
+      parameters:
+        - name: assignmentId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SubmissionResponse'
+                  pagination:
+                    anyOf:
+                      - $ref: '#/components/schemas/Pagination'
+                      - type: 'null'
+                required:
+                  - data
+                  - pagination
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+      security:
+        - BearerAuth: []
+  /submissions/{id}:
+    get:
+      summary: Get submission by id
+      deprecated: false
+      description: ''
+      tags:
+        - Submissions
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SemesterTranscript'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+      security:
+        - BearerAuth: []
+    delete:
+      summary: Delete assignment
+      deprecated: false
+      description: ''
+      tags:
+        - Submissions
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /assignments/{assignmentId}/submission:
+    post:
+      summary: Create submission
+      deprecated: false
+      description: ''
+      tags:
+        - Submissions
+      parameters:
+        - name: assignmentId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubmissionRequest'
+            examples: {}
+        required: true
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AssignmentResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+      security:
+        - BearerAuth: []
+  /submission/{id}:
+    patch:
+      summary: Evaluate submission
+      deprecated: false
+      description: ''
+      tags:
+        - Submissions
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeacherPatchSubmissionRequest'
+            examples: {}
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AssignmentResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /transcripts/me:
+    get:
+      summary: Get my transcripts
+      deprecated: false
+      description: ''
+      tags:
+        - Transcripts
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AcademicTranscript'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+      security:
+        - BearerAuth: []
+  /users/{userId}/transcripts:
+    get:
+      summary: Get transcripts by user ID
+      deprecated: false
+      description: ''
+      tags:
+        - Transcripts
+      parameters:
+        - name: userId
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AcademicTranscript'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+      security:
+        - BearerAuth: []
+  /users/{id}:
+    get:
+      summary: Get user by ID
+      deprecated: false
+      description: ''
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          example: ''
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserResponse'
+                required:
+                  - data
+          headers: {}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+    delete:
+      summary: Delete user by ID
+      deprecated: false
+      description: ''
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          example: ''
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User deleted
+          headers: {}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+      security:
+        - BearerAuth: []
+  /users/me:
+    get:
+      summary: Get my profile
+      deprecated: false
+      description: ''
+      tags:
+        - Users
+      parameters: []
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserResponse'
+                required:
+                  - data
+          headers: {}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+      security:
+        - BearerAuth: []
+    patch:
+      summary: Update my password
+      deprecated: false
+      description: ''
+      tags:
+        - Users
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRequest'
+            examples: {}
+        required: true
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserResponse'
+                required:
+                  - data
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+      security:
+        - BearerAuth: []
+  /users:
+    post:
+      summary: Create a new user
+      deprecated: false
+      description: ''
+      tags:
+        - Users
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+        required: true
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '409':
+          $ref: '#/components/responses/Conflict'
+          description: Conflict
+      security:
+        - BearerAuth: []
+  /users/{id}/admin:
+    patch:
+      summary: Admin update user
+      deprecated: false
+      description: ''
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          description: ''
+          required: true
+          example: ''
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUpdateUserRequest'
+        required: true
+      responses:
+        '200':
+          description: User updated by admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+          headers: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+          description: Bad request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+          description: Unauthorized
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+          description: Resource not found
+        '409':
+          $ref: '#/components/responses/Conflict'
+          description: Conflict
+      security:
+        - BearerAuth: []
+webhooks: {}
+components:
+  schemas:
+    UpdateUserRequest:
+      type: object
+      properties:
+        password:
+          type: string
+    CreateUserRequest:
+      type: object
+      properties:
+        systemId:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        role:
+          type: string
+      required:
+        - systemId
+        - name
+        - password
+        - role
+    UpdateRequest:
+      type: object
+      required:
+        - password
+      properties:
+        password:
+          type: string
+          minLength: 8
+          maxLength: 32
+    AdminUpdateUserRequest:
+      type: object
+      properties:
+        systemId:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        role:
+          type: string
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        systemId:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - systemId
+        - name
+        - role
+        - createdAt
+        - updatedAt
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        systemId:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        role:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - password
+        - systemId
+        - name
+        - id
+        - role
+        - updatedAt
+        - createdAt
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 32
+    RecoverRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+    VerifyRecoveryRequest:
+      type: object
+      required:
+        - email
+        - newPassword
+        - otp
+      properties:
+        email:
+          type: string
+          format: email
+        newPassword:
+          type: string
+          minLength: 8
+          maxLength: 32
+        otp:
+          type: string
+          pattern: ^[0-9]{8}$
+    TokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+    CreateMaterialRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        fileIds:
+          type: string
+      required:
+        - title
+        - description
+        - fileIds
+    PatchMaterialRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        fileIds:
+          type: string
+    MaterialResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        courseId:
+          type: string
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - courseId
+        - files
+        - createdAt
+        - updatedAt
+    MaterialSummarizedResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        courseId:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - courseId
+        - createdAt
+        - updatedAt
+    Material:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        courseId:
+          type: string
+        fileIds:
+          type: string
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - createdAt
+        - updatedAt
+        - courseId
+        - files
+        - fileIds
+    CreateAssignmentRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        deadline:
+          type: string
+        teacherIds:
+          type: array
+          items:
+            type: string
+        fileIds:
+          type: array
+          items:
+            type: string
+      required:
+        - title
+        - description
+        - deadline
+        - teacherIds
+        - fileIds
+    PatchAssignmentRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        deadline:
+          type: string
+        teacherIds:
+          type: array
+          items:
+            type: string
+        fileIds:
+          type: array
+          items:
+            type: string
+        teachers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponse'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+      required:
+        - teacherIds
+        - fileIds
+        - teachers
+        - files
+    AssignmentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        deadline:
+          type: string
+        courseId:
+          type: string
+        fileIds:
+          type: array
+          items:
+            type: string
+        teachers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponse'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - deadline
+        - courseId
+        - fileIds
+        - teachers
+        - files
+        - createdAt
+        - updatedAt
+    AssignmentSummarizedResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        deadline:
+          type: string
+        courseId:
+          type: string
+        fileIds:
+          type: array
+          items:
+            type: string
+        teachers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponse'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - deadline
+        - courseId
+        - fileIds
+        - teachers
+        - files
+        - createdAt
+        - updatedAt
+    Assignment:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        deadline:
+          type: string
+        courseId:
+          type: string
+        teacherIds:
+          type: array
+          items:
+            type: string
+        fileIds:
+          type: array
+          items:
+            type: string
+        teachers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponse'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - createdAt
+        - updatedAt
+        - courseId
+        - fileIds
+        - deadline
+        - files
+        - teacherIds
+        - teachers
+    StudentPatchSubmissionRequest:
+      type: object
+      properties:
+        studentNote:
+          type: string
+        fileIds:
+          type: array
+          items:
+            type: string
+    TeacherPatchSubmissionRequest:
+      type: object
+      properties:
+        score:
+          type: number
+        teacherNote:
+          type: string
+        fileIds:
+          type: array
+          items:
+            type: string
+    CreateSubmissionRequest:
+      type: object
+      properties:
+        teacherNote:
+          type: string
+        studentNote:
+          type: string
+        fileIds:
+          type: array
+          items:
+            type: string
+      required:
+        - teacherNote
+        - studentNote
+        - fileIds
+    SubmissionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        assignmentId:
+          type: string
+        studentId:
+          type: string
+        score:
+          type: number
+        teacherNote:
+          type: string
+        studentNote:
+          type: string
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - assignmentId
+        - studentId
+        - score
+        - teacherNote
+        - studentNote
+        - files
+        - createdAt
+        - updatedAt
+    Submission:
+      type: object
+      properties:
+        id:
+          type: string
+        assignmentId:
+          type: string
+        studentId:
+          type: string
+        score:
+          type: number
+        teacherNote:
+          type: string
+        studentNote:
+          type: string
+        fileIds:
+          type: array
+          items:
+            type: string
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - assignmentId
+        - studentId
+        - createdAt
+        - updatedAt
+        - teacherNote
+        - score
+        - fileIds
+        - files
+        - studentNote
+    CreateSemesterTranscriptRequest:
+      type: object
+      properties:
+        period:
+          type: string
+        academicTranscriptId:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - period
+        - academicTranscriptId
+        - createdAt
+        - updatedAt
+    SubmissionResponse1:
+      $ref: '#/components/schemas/SemesterTranscript'
+    SemesterTranscript:
+      type: object
+      properties:
+        id:
+          type: string
+        period:
+          type: string
+        academicTranscriptId:
+          type: string
+        enrollments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseEnrollment'
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - enrollments
+        - period
+        - academicTranscriptId
+    CreateAcademicTranscriptRequest:
+      type: object
+      properties:
+        studentId:
+          type: string
+      required:
+        - studentId
+    AcademicTranscriptResponse:
+      $ref: '#/components/schemas/AcademicTranscript'
+    AcademicTranscript:
+      type: object
+      properties:
+        id:
+          type: string
+        semesterTranscripts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SemesterTranscript'
+        studentId:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - semesterTranscripts
+        - studentId
+    PatchCourseEnrollmentRequest:
+      type: object
+      properties:
+        score:
+          type: number
+        teacherNote:
+          type: string
+    CreateCourseEnrollmentRequest:
+      type: object
+      properties: {}
+    CourseEnrollmentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        score:
+          type: number
+        teacherNote:
+          type: string
+        course:
+          $ref: '#/components/schemas/Course'
+        student:
+          $ref: '#/components/schemas/UserResponse'
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - score
+        - teacherNote
+        - course
+        - student
+        - createdAt
+        - updatedAt
+    CourseEnrollment:
+      type: object
+      properties:
+        id:
+          type: string
+        courseId:
+          type: string
+        studentId:
+          type: string
+        score:
+          type: number
+        teacherNote:
+          type: string
+        course:
+          $ref: '#/components/schemas/Course'
+        student:
+          $ref: '#/components/schemas/UserResponse'
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - courseId
+        - studentId
+        - createdAt
+        - updatedAt
+        - teacherNote
+        - score
+        - student
+        - course
+    CreateAnnouncementSchema:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        courseId:
+          type: string
+        fileIds:
+          type: string
+      required:
+        - title
+        - content
+        - courseId
+        - fileIds
+    PatchAnnouncementSchema:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        courseId:
+          type: string
+        fileIds:
+          type: string
+        teacher:
+          $ref: '#/components/schemas/UserResponse'
+      required:
+        - courseId
+        - teacher
+    AnnouncementResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        courseId:
+          type: string
+        teacher:
+          $ref: '#/components/schemas/UserResponse'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - title
+        - content
+        - courseId
+        - teacher
+        - files
+        - createdAt
+        - updatedAt
+    AnnouncementSummarizedResponse:
+      $ref: '#/components/schemas/Announcement'
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        courseId:
+          type: string
+        teacherId:
+          type: string
+        fileIds:
+          type: string
+        teacher:
+          $ref: '#/components/schemas/UserResponse'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - title
+        - content
+        - createdAt
+        - updatedAt
+        - courseId
+        - files
+        - fileIds
+        - teacherId
+        - teacher
+    Create Course Request:
+      type: object
+      properties:
+        systemId:
+          type: string
+        name:
+          type: string
+        credits:
+          type: integer
+        academicYear:
+          $ref: '#/components/schemas/AcademicYear'
+        teacherIds:
+          type: array
+          items:
+            type: string
+      required:
+        - systemId
+        - name
+        - credits
+        - academicYear
+        - teacherIds
+    Patch Course Request:
+      type: object
+      properties:
+        systemId:
+          type: string
+        name:
+          type: string
+        credits:
+          type: integer
+        academicYear:
+          $ref: '#/components/schemas/AcademicYear'
+        teacherIds:
+          type: array
+          items:
+            type: string
+      required:
+        - academicYear
+        - teacherIds
+    CourseResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        systemId:
+          type: string
+        name:
+          type: string
+        credits:
+          type: integer
+        academicYear:
+          $ref: '#/components/schemas/AcademicYear'
+        teachers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponse'
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - systemId
+        - name
+        - credits
+        - academicYear
+        - teachers
+        - createdAt
+        - updatedAt
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+        systemId:
+          type: string
+        name:
+          type: string
+        credits:
+          type: integer
+        academicYear:
+          $ref: '#/components/schemas/AcademicYear'
+        teacherIds:
+          type: array
+          items:
+            type: string
+        teachers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponse'
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - name
+        - createdAt
+        - updatedAt
+        - credits
+        - systemId
+        - academicYear
+        - teacherIds
+        - teachers
+    CreateClassRequest:
+      type: object
+      properties:
+        systemId:
+          type: string
+        name:
+          type: string
+      required:
+        - systemId
+        - name
+    UpdateClassRequest:
+      type: object
+      properties:
+        systemId:
+          type: string
+        name:
+          type: string
+      required:
+        - systemId
+        - name
+    ClassSummarizedResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        systemId:
+          type: string
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+      required:
+        - id
+        - name
+        - createdAt
+        - updatedAt
+        - systemId
+    ClassResponse:
+      $ref: '#/components/schemas/Class'
+    Class:
+      type: object
+      properties:
+        id:
+          type: string
+        systemId:
+          type: string
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+      required:
+        - id
+        - name
+        - createdAt
+        - updatedAt
+        - systemId
+    AcademicYear: &ref_0
+      type: string
+    Semester: *ref_0
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+    File:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        fileUrl:
+          type: string
+        contentType:
+          type: string
+        size:
+          type: number
+      required:
+        - id
+        - name
+        - fileUrl
+        - contentType
+        - size
+    Pagination:
+      type: object
+      properties:
+        nextCursor:
+          type: string
+        totalItems:
+          type: integer
+      required:
+        - nextCursor
+        - totalItems
+    SuccessResponse:
+      type: object
+      properties:
+        data:
+          type:
+            - string
+            - integer
+            - boolean
+            - array
+            - object
+            - number
+            - 'null'
+      required:
+        - data
+    SuccessPaginatedResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type:
+              - string
+              - integer
+              - boolean
+              - array
+              - object
+              - number
+              - 'null'
+        pagination:
+          anyOf:
+            - $ref: '#/components/schemas/Pagination'
+            - type: 'null'
+      required:
+        - pagination
+        - data
+    CreateCommentRequest:
+      type: object
+      properties:
+        content:
+          type: string
+      required:
+        - content
+    CommentResponse: &ref_1
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        userId:
+          type: string
+        parentType:
+          type: string
+        parentId:
+          type: string
+        replies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+        createdAt:
+          type: string
+      required:
+        - id
+        - content
+        - createdAt
+        - userId
+        - replies
+        - parentId
+        - parentType
+    Comment: *ref_1
+    CreateClassEnrollmentRequest:
+      type: object
+      properties:
+        academicYear:
+          $ref: '#/components/schemas/AcademicYear'
+        class:
+          $ref: '#/components/schemas/Class'
+      required:
+        - academicYear
+        - class
+    PatchClassEnrollmentRequest:
+      type: object
+      properties:
+        status:
+          type: string
+        academicYear:
+          $ref: '#/components/schemas/AcademicYear'
+        class:
+          $ref: '#/components/schemas/Class'
+        leftAt:
+          type: string
+      required:
+        - class
+    ClassEnrollmentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+        academicYear:
+          $ref: '#/components/schemas/AcademicYear'
+        student:
+          $ref: '#/components/schemas/UserResponse'
+        class:
+          $ref: '#/components/schemas/Class'
+        leftAt:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - status
+        - academicYear
+        - student
+        - class
+        - leftAt
+        - createdAt
+        - updatedAt
+    GetMyClassEnrollmentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+        academicYear:
+          $ref: '#/components/schemas/AcademicYear'
+        class:
+          $ref: '#/components/schemas/Class'
+        leftAt:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - status
+        - academicYear
+        - class
+        - leftAt
+        - createdAt
+        - updatedAt
+    ClassEnrollment:
+      type: object
+      properties:
+        id:
+          type: string
+        studentId:
+          type: string
+        classId:
+          type: string
+        status:
+          type: string
+        academicYear:
+          $ref: '#/components/schemas/AcademicYear'
+        student:
+          $ref: '#/components/schemas/UserResponse'
+        class:
+          $ref: '#/components/schemas/Class'
+        leftAt:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - studentId
+        - classId
+        - status
+        - createdAt
+        - updatedAt
+        - leftAt
+        - academicYear
+        - student
+        - class
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema: {}
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+servers: []
+security:
+  - BearerAuth: []
