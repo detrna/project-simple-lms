@@ -19,8 +19,9 @@ type MinIO struct {
 func SetupMinIO(config *config.ObjectStorageConfig) (pkg.ObjectStorage, error) {
 	client, err := minio.New(config.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(config.AccessKey, config.SecretKey, ""),
-		Secure: false,
+		Secure: config.UseSSL == "true",
 	})
+
 	if err != nil {
 		return nil, err
 	}
