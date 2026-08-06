@@ -1,4 +1,3 @@
-// user/container.go
 package container
 
 import (

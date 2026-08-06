@@ -34,3 +34,19 @@ func (controller Controller) GetStudents(c *gin.Context) {
 
 	c.JSON(200, result)
 }
+
+func (controller Controller) GetClassByID(c *gin.Context) {
+
+}
+
+func (controller Controller) CreateClass(c *gin.Context) {
+
+}
+
+func (controller Controller) UpdateClass(c *gin.Context) {
+
+}
+
+func (controller Controller) DeleteClass(c *gin.Context) {
+
+}

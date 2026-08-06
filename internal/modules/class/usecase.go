@@ -33,12 +33,7 @@ func (usecase UseCase) GetStudents(ctx context.Context, classID uuid.UUID) ([]*d
 	return result, nil
 }
 
-func (usecase UseCase) GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*domain.Class, error) {
-	result, err := usecase.repo.GetMyClasses(ctx, userID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
+func (usecase UseCase) GetClassByID(ctx context.Context, classID uuid.UUID) (*domain.Class, error)
+func (usecase UseCase) CreateClass(ctx context.Context, data *CreateClassRequest) (*domain.Class, error)
+func (usecase UseCase) UpdateClass(ctx context.Context, data *UpdateClassRequest) (*domain.Class, error)
+func (usecase UseCase) DeleteClass(ctx context.Context, classID uuid.UUID) error

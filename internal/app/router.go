@@ -8,6 +8,8 @@ import (
 	"main/internal/pkg"
 
 	"github.com/gin-gonic/gin"
+
+	classContainer "main/internal/modules/class/container"
 )
 
 func SetupRouter(cfg *config.Config, infra *pkg.Packages, repo *repository.Repository) *gin.Engine {
@@ -20,10 +22,12 @@ func SetupRouter(cfg *config.Config, infra *pkg.Packages, repo *repository.Repos
 
 	userModule := container.NewUserContainer(infra, repo)
 	authModule := container.NewAuthContainer(cfg, infra, repo)
+	classModule := classContainer.NewClassContainer(infra, repo.ClassRepository)
 
 	api := router.Group("/api/v1")
 	userModule.Routes.RegisterRoutes(api)
 	authModule.Routes.RegisterRoutes(api)
+	classModule.Routes.RegisterRoutes(api)
 
 	return router
 }

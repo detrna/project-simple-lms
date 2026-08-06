@@ -1,7 +1,41 @@
 package class
 
-import "github.com/gin-gonic/gin"
+import (
+	"main/internal/middleware"
+	"main/internal/pkg"
 
-func RegisterRoutes(router *gin.RouterGroup, controller *Controller) {
-	router.GET("/:classId/students", controller.GetStudents)
+	"github.com/gin-gonic/gin"
+)
+
+type Routes struct {
+	controller   IController
+	logger       pkg.Logger
+	tokenService pkg.TokenService
+}
+
+func NewRoutes(c IController, logger pkg.Logger) *Routes {
+	return &Routes{controller: c, logger: logger}
+}
+
+func (r Routes) RegisterRoutes(rg *gin.RouterGroup) {
+	router := rg.Group("/classes")
+	router.Use(middleware.Authenticate(r.tokenService, r.logger))
+
+	router.GET("/:classId/students", r.controller.GetStudents)
+	router.GET("/:classId", r.controller.GetClassByID)
+	router.POST(
+		"",
+		middleware.RequiredRole("admin", r.logger),
+		r.controller.CreateClass,
+	)
+	router.PATCH(
+		"/:classId",
+		middleware.RequiredRole("admin", r.logger),
+		r.controller.UpdateClass,
+	)
+	router.DELETE(
+		"/:classId",
+		middleware.RequiredRole("admin", r.logger),
+		r.controller.DeleteClass,
+	)
 }
