@@ -15,7 +15,6 @@ func NewController(usecase *UseCase) *Controller {
 
 type IController interface {
 	GetStudents(c *gin.Context)
-	GetMyClasses(c *gin.Context)
 	GetClassByID(c *gin.Context)
 	CreateClass(c *gin.Context)
 	UpdateClass(c *gin.Context)
@@ -32,20 +31,6 @@ func (controller Controller) GetStudents(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	result, err := controller.usecase.GetStudents(ctx, classID)
-
-	c.JSON(200, result)
-}
-
-func (controller Controller) GetMyClasses(c *gin.Context) {
-	userID, err := uuid.Parse(c.Param("userId"))
-
-	if err != nil {
-		c.JSON(404, gin.H{"Error": err.Error()})
-	}
-
-	ctx := c.Request.Context()
-
-	result, err := controller.usecase.GetMyClasses(ctx, userID)
 
 	c.JSON(200, result)
 }
