@@ -14,6 +14,7 @@ func ToDomainUser(u *database.User) *domain.User {
 		Password:  u.Password,
 		Role:      u.Role,
 		CreatedAt: u.CreatedAt,
+		UpdatedAt: u.UpdatedAt,
 	}
 }
 
@@ -26,6 +27,7 @@ func ToDatabaseUser(u *domain.User) *database.User {
 		Password:  u.Password,
 		Role:      u.Role,
 		CreatedAt: u.CreatedAt,
+		UpdatedAt: u.UpdatedAt,
 	}
 }
 

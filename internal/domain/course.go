@@ -11,4 +11,5 @@ type Course struct {
 	Name      string
 	Credits   int
 	CreatedAt time.Time
+	UpdatedAt time.Time
 }

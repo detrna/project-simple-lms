@@ -13,6 +13,7 @@ type Assignment struct {
 	Description string
 	Deadline    time.Time
 	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type AssignmentFile struct {
@@ -20,6 +21,7 @@ type AssignmentFile struct {
 	AssignmentID uuid.UUID
 	URL          string
 	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 type SubmissionFile struct {
@@ -28,6 +30,7 @@ type SubmissionFile struct {
 	UserID       uuid.UUID
 	URL          string
 	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 type SubmissionGrades struct {
@@ -36,4 +39,5 @@ type SubmissionGrades struct {
 	UserID       uuid.UUID
 	Grade        float64
 	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }

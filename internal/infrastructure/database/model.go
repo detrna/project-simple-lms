@@ -14,6 +14,7 @@ type User struct {
 	Password  string    `gorm:"not null"`
 	Role      string    `gorm:"not null;default:user"`
 	CreatedAt time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 
 	SubmissionFile   []SubmissionFile   `gorm:"foreignKey:UserID"`
 	SubmissionGrades []SubmissionGrades `gorm:"foreignKey:UserID"`
@@ -26,6 +27,7 @@ type Course struct {
 	Name      string    `gorm:"not null"`
 	Credits   int       `gorm:"not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 }
 
 type Takes struct {
@@ -34,6 +36,7 @@ type Takes struct {
 	ClassID   uuid.UUID `gorm:"not null"`
 	Grade     float64
 	CreatedAt time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 
 	User  User  `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Class Class `gorm:"foreignKey:ClassID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
@@ -44,6 +47,7 @@ type Teaches struct {
 	UserID    uuid.UUID `gorm:"not null"`
 	ClassID   uuid.UUID `gorm:"not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 
 	User  User  `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Class Class `gorm:"foreignKey:ClassID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
@@ -54,6 +58,7 @@ type Class struct {
 	CourseID  uuid.UUID `gorm:"not null"`
 	Name      string    `gorm:"not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 
 	Course Course `gorm:"foreignKey:CourseID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
@@ -64,6 +69,7 @@ type Material struct {
 	Title       string    `gorm:"not null"`
 	Description string    `gorm:"not null"`
 	CreatedAt   time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
+	UpdatedAt   time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 
 	Class        Class          `gorm:"foreignKey:ClassID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	MaterialFile []MaterialFile `gorm:"foreignKey:MaterialID"`
@@ -74,6 +80,7 @@ type MaterialFile struct {
 	MaterialID uuid.UUID `gorm:"not null"`
 	URL        string    `gorm:"not null"`
 	CreatedAt  time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
+	UpdatedAt  time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 
 	Material Material `gorm:"foreignKey:MaterialID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
@@ -85,6 +92,7 @@ type Assignment struct {
 	Description string    `gorm:"not null"`
 	Deadline    time.Time `gorm:"not null"`
 	CreatedAt   time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
+	UpdatedAt   time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 
 	Class          Class            `gorm:"foreignKey:ClassID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	AssignmentFile []AssignmentFile `gorm:"foreignKey:AssignmentID"`
@@ -96,6 +104,7 @@ type AssignmentFile struct {
 	AssignmentID uuid.UUID `gorm:"not null"`
 	URL          string    `gorm:"not null"`
 	CreatedAt    time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
+	UpdatedAt    time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 
 	Assignment Assignment `gorm:"foreignKey:AssignmentID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
@@ -106,6 +115,7 @@ type SubmissionFile struct {
 	UserID       uuid.UUID `gorm:"not null"`
 	URL          string    `gorm:"not null"`
 	CreatedAt    time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
+	UpdatedAt    time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 
 	User       User       `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Assignment Assignment `gorm:"foreignKey:AssignmentID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
@@ -117,6 +127,7 @@ type SubmissionGrades struct {
 	UserID       uuid.UUID `gorm:"not null"`
 	Grade        float64
 	CreatedAt    time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
+	UpdatedAt    time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 
 	User       User       `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Assignment Assignment `gorm:"foreignKey:AssignmentID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
@@ -127,6 +138,7 @@ type JWT struct {
 	UserID    uuid.UUID `gorm:"not null"`
 	Token     string    `gorm:"not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 
 	User User `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }

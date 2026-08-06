@@ -14,6 +14,10 @@ type UseCase struct {
 type IUseCase interface {
 	GetStudents(ctx context.Context, classID uuid.UUID) ([]*domain.User, error)
 	GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*Class, error)
+	GetClassByID(ctx context.Context, userID uuid.UUID) ([]*Class, error)
+	CreateClass(ctx context.Context, userID uuid.UUID) (*Class, error)
+	UpdateClass(ctx context.Context, userID uuid.UUID) ([]*Class, error)
+	DeleteClass(ctx context.Context, userID uuid.UUID) ([]*Class, error)
 }
 
 func NewUseCase(repo IRepository) *UseCase {

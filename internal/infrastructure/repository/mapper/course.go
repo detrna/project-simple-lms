@@ -11,5 +11,6 @@ func ToDomainCourse(dbClass *database.Course) *domain.Course {
 		Credits:   dbClass.Credits,
 		Name:      dbClass.Name,
 		CreatedAt: dbClass.CreatedAt,
+		UpdatedAt: dbClass.UpdatedAt,
 	}
 }

@@ -11,5 +11,6 @@ func ToDomainClass(dbClass *database.Class) *domain.Class {
 		Course:    domain.Course(dbClass.Course),
 		Name:      dbClass.Name,
 		CreatedAt: dbClass.CreatedAt,
+		UpdatedAt: dbClass.UpdatedAt,
 	}
 }

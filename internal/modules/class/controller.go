@@ -16,6 +16,10 @@ func NewController(usecase *UseCase) *Controller {
 type IController interface {
 	GetStudents(c *gin.Context)
 	GetMyClasses(c *gin.Context)
+	GetClassByID(c *gin.Context)
+	CreateClass(c *gin.Context)
+	UpdateClass(c *gin.Context)
+	DeleteClass(c *gin.Context)
 }
 
 func (controller Controller) GetStudents(c *gin.Context) {

@@ -14,6 +14,7 @@ type User struct {
 	Password  string
 	Role      string
 	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type JWTPayload struct {

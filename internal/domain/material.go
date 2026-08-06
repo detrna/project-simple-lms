@@ -12,6 +12,7 @@ type Material struct {
 	Title       string
 	Description string
 	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type MaterialFile struct {
@@ -19,4 +20,5 @@ type MaterialFile struct {
 	MaterialID uuid.UUID
 	URL        string
 	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }

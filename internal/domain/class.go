@@ -11,6 +11,7 @@ type Class struct {
 	Course    Course
 	Name      string
 	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type Takes struct {
@@ -19,6 +20,7 @@ type Takes struct {
 	ClassID   uuid.UUID
 	Grade     float64
 	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type Teaches struct {
@@ -26,4 +28,5 @@ type Teaches struct {
 	UserID    uuid.UUID
 	ClassID   uuid.UUID
 	CreatedAt time.Time
+	UpdatedAt time.Time
 }
