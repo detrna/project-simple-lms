@@ -8,17 +8,11 @@ import (
 
 type Material struct {
 	ID          uuid.UUID
-	ClassID     uuid.UUID
+	CourseID    uuid.UUID
 	Title       string
 	Description string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
-}
 
-type MaterialFile struct {
-	ID         uuid.UUID
-	MaterialID uuid.UUID
-	URL        string
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	Files []File
 }

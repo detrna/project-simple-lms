@@ -40,7 +40,7 @@ func SetupSuite() (*gin.Engine, *factory.Factory) {
 func TruncateDatabase(db *gorm.DB) error {
 	return db.Exec(`
         TRUNCATE TABLE
-            takes,
+            course_enrollments,
             classes,
             courses,
             users

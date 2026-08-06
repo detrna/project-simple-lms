@@ -24,7 +24,7 @@ func TestGetStudentsByClassID(t *testing.T) {
 
 	student := factory.CreateUser(t, "Student1")
 
-	factory.EnrollStudent(t, class, student)
+	factory.EnrollClass(t, class, student)
 
 	req := httptest.NewRequest(
 		http.MethodGet,

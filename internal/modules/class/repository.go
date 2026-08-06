@@ -12,7 +12,7 @@ import (
 
 type IRepository interface {
 	GetStudents(ctx context.Context, classID uuid.UUID) ([]*domain.User, error)
-	GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*Class, error)
+	GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*domain.Class, error)
 }
 
 type Repository struct {
@@ -24,7 +24,7 @@ func NewRepository(db *gorm.DB) *Repository {
 }
 
 func (repo Repository) GetStudents(ctx context.Context, classID uuid.UUID) ([]*domain.User, error) {
-	rows, err := gorm.G[database.Takes](repo.db).
+	rows, err := gorm.G[database.ClassEnrollment](repo.db).
 		Preload("User", nil).
 		Where("class_id = ?", classID).
 		Find(ctx)
@@ -36,14 +36,14 @@ func (repo Repository) GetStudents(ctx context.Context, classID uuid.UUID) ([]*d
 	var students []*domain.User
 
 	for _, take := range rows {
-		students = append(students, mapper.ToDomainUser(&take.User))
+		students = append(students, mapper.ToDomainUser(&take.Student))
 	}
 
 	return students, nil
 }
 
-func (repo Repository) GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*Class, error) {
-	rows, err := gorm.G[database.Takes](repo.db).
+func (repo Repository) GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*domain.Class, error) {
+	rows, err := gorm.G[database.ClassEnrollment](repo.db).
 		Preload("Class", nil).
 		Where("user_id = ?", userID).
 		Find(ctx)
@@ -52,7 +52,7 @@ func (repo Repository) GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*C
 		return nil, err
 	}
 
-	var classes []*Class
+	var classes []*domain.Class
 
 	for _, take := range rows {
 		classes = append(classes, mapper.ToDomainClass(&take.Class))

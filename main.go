@@ -8,10 +8,10 @@ import (
 	"main/internal/app"
 	"main/internal/config"
 	"main/internal/infrastructure"
-	"main/internal/infrastructure/database"
+	"main/internal/infrastructure/database/seed"
 )
 
-var seed = flag.Bool("seed", false, "run seed")
+var seedFlag = flag.Bool("seed", false, "run seed")
 
 func main() {
 	flag.Parse()
@@ -31,8 +31,10 @@ func main() {
 	logger := packages.Logger
 	logger.Info("application starting")
 
-	if *seed {
-		database.Seed(db)
+	if *seedFlag {
+		if err := seed.Run(db); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	port := cfg.Server.Port

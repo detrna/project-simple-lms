@@ -41,15 +41,19 @@ func Migrate() error {
 	return DB.AutoMigrate(
 		&User{},
 		&Course{},
-		&Takes{},
 		&Teaches{},
 		&Class{},
 		&Material{},
-		&MaterialFile{},
 		&Assignment{},
-		&AssignmentFile{},
-		&SubmissionFile{},
 		&SubmissionGrades{},
+		&File{},
+		&Submission{},
+		&AcademicTranscript{},
+		&SemesterTranscript{},
+		&CourseEnrollment{},
+		&Announcement{},
+		&Comment{},
+		&ClassEnrollment{},
 		&JWT{},
 	)
 }

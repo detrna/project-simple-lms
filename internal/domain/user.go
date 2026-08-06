@@ -17,6 +17,16 @@ type User struct {
 	UpdatedAt time.Time
 }
 
+type MaskedUser struct {
+	ID        uuid.UUID
+	SystemID  string
+	Name      string
+	Email     string
+	Role      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type JWTPayload struct {
 	JTI      uuid.UUID
 	UserID   uuid.UUID

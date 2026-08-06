@@ -13,11 +13,11 @@ type UseCase struct {
 
 type IUseCase interface {
 	GetStudents(ctx context.Context, classID uuid.UUID) ([]*domain.User, error)
-	GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*Class, error)
-	GetClassByID(ctx context.Context, userID uuid.UUID) ([]*Class, error)
-	CreateClass(ctx context.Context, userID uuid.UUID) (*Class, error)
-	UpdateClass(ctx context.Context, userID uuid.UUID) ([]*Class, error)
-	DeleteClass(ctx context.Context, userID uuid.UUID) ([]*Class, error)
+	GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*domain.Class, error)
+	GetClassByID(ctx context.Context, userID uuid.UUID) ([]*domain.Class, error)
+	CreateClass(ctx context.Context, userID uuid.UUID) (*domain.Class, error)
+	UpdateClass(ctx context.Context, userID uuid.UUID) ([]*domain.Class, error)
+	DeleteClass(ctx context.Context, userID uuid.UUID) ([]*domain.Class, error)
 }
 
 func NewUseCase(repo IRepository) *UseCase {
@@ -34,7 +34,7 @@ func (usecase UseCase) GetStudents(ctx context.Context, classID uuid.UUID) ([]*d
 	return result, nil
 }
 
-func (usecase UseCase) GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*Class, error) {
+func (usecase UseCase) GetMyClasses(ctx context.Context, userID uuid.UUID) ([]*domain.Class, error) {
 	result, err := usecase.repo.GetMyClasses(ctx, userID)
 
 	if err != nil {
