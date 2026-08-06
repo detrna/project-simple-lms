@@ -114,8 +114,8 @@ type File struct {
 	Name        string    `gorm:"not null"`
 	FileURL     string    `gorm:"not null"`
 	ContentType string    `gorm:"not null"`
-	Size        float64   `gorm:"not null"`
-	ParentType  string    `gorm:"not null;index:idx_files_parent"`
+	Size        int64     `gorm:"not null"`
+	Bucket      string    `gorm:"not null;index:idx_files_parent"`
 	ParentID    uuid.UUID `gorm:"not null;index:idx_files_parent"`
 	CreatedAt   time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
 	UpdatedAt   time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`

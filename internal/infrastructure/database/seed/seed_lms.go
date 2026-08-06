@@ -27,10 +27,10 @@ func seedLMS(db *gorm.DB, ctx context.Context, state *State) error {
 	classEnrollments := []database.ClassEnrollment{{ID: uuid.MustParse("12121212-1212-1212-1212-121212121212"), StudentID: studentID, ClassID: classID, Status: "active", AcademicYear: "2026/2027"}}
 	comments := []database.Comment{{ID: uuid.MustParse("13131313-1313-1313-1313-131313131313"), Content: "Looking forward to the class.", UserID: studentID, ParentType: "announcement", ParentID: announcementID}}
 	files := []database.File{
-		{ID: uuid.MustParse("99999999-9999-9999-9999-999999999991"), Name: "english-reading.pdf", FileURL: "https://example.com/files/english-reading.pdf", ContentType: "application/pdf", Size: 128000, ParentType: "material", ParentID: materials[0].ID},
-		{ID: uuid.MustParse("99999999-9999-9999-9999-999999999992"), Name: "assignment-brief.pdf", FileURL: "https://example.com/files/assignment-brief.pdf", ContentType: "application/pdf", Size: 64000, ParentType: "assignment", ParentID: assignmentID},
-		{ID: uuid.MustParse("99999999-9999-9999-9999-999999999993"), Name: "submission.pdf", FileURL: "https://example.com/files/submission.pdf", ContentType: "application/pdf", Size: 96000, ParentType: "submission", ParentID: submissions[0].ID},
-		{ID: uuid.MustParse("99999999-9999-9999-9999-999999999994"), Name: "welcome.pdf", FileURL: "https://example.com/files/welcome.pdf", ContentType: "application/pdf", Size: 32000, ParentType: "announcement", ParentID: announcementID},
+		{ID: uuid.MustParse("99999999-9999-9999-9999-999999999991"), Name: "english-reading.pdf", FileURL: "https://example.com/files/english-reading.pdf", ContentType: "application/pdf", Size: 128000, Bucket: "material", ParentID: materials[0].ID},
+		{ID: uuid.MustParse("99999999-9999-9999-9999-999999999992"), Name: "assignment-brief.pdf", FileURL: "https://example.com/files/assignment-brief.pdf", ContentType: "application/pdf", Size: 64000, Bucket: "assignment", ParentID: assignmentID},
+		{ID: uuid.MustParse("99999999-9999-9999-9999-999999999993"), Name: "submission.pdf", FileURL: "https://example.com/files/submission.pdf", ContentType: "application/pdf", Size: 96000, Bucket: "submission", ParentID: submissions[0].ID},
+		{ID: uuid.MustParse("99999999-9999-9999-9 ninety-nine-nine-nine-nine-nine"), Name: "welcome.pdf", FileURL: "https://example.com/files/welcome.pdf", ContentType: "application/pdf", Size: 32000, Bucket: "announcement", ParentID: announcementID},
 	}
 	for _, rows := range []any{&materials, &announcements, &submissions, &transcripts, &semesters, &enrollments, &classEnrollments, &comments, &files} {
 		if err := db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(rows).Error; err != nil {

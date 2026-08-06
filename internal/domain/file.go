@@ -10,9 +10,9 @@ type File struct {
 	ID          uuid.UUID
 	Name        string
 	FileURL     string
-	Size        float64
+	Size        int64
 	ContentType string
-	ParentType  string
+	Bucket      string
 	ParentID    uuid.UUID
 	CreatedAt   time.Time
 	UpdatedAt   time.Time

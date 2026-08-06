@@ -9,14 +9,15 @@ import (
 )
 
 type Config struct {
-	Server   *ServerConfig
-	Database *DatabaseConfig
-	Logger   *LoggerConfig
-	JWT      *JWTConfig
-	Bcrypt   *BcryptConfig
-	Redis    *RedisConfig
-	Mail     *MailConfig
-	App      *AppConfig
+	Server        *ServerConfig
+	Database      *DatabaseConfig
+	Logger        *LoggerConfig
+	JWT           *JWTConfig
+	Bcrypt        *BcryptConfig
+	Redis         *RedisConfig
+	Mail          *MailConfig
+	App           *AppConfig
+	ObjectStorage *ObjectStorageConfig
 }
 
 func GetEnv(key, defaultValue string) string {
@@ -33,14 +34,15 @@ func Load() (*Config, error) {
 	}
 
 	return &Config{
-		Server:   LoadServerConfig(),
-		Database: LoadDatabaseConfig(),
-		Logger:   LoadLoggerConfig(),
-		JWT:      LoadJWTConfig(),
-		Bcrypt:   LoadBcryptConfig(),
-		Redis:    LoadRedisConfig(),
-		App:      LoadAppConfig(),
-		Mail:     LoadMailConfig(),
+		Server:        LoadServerConfig(),
+		Database:      LoadDatabaseConfig(),
+		Logger:        LoadLoggerConfig(),
+		JWT:           LoadJWTConfig(),
+		Bcrypt:        LoadBcryptConfig(),
+		Redis:         LoadRedisConfig(),
+		App:           LoadAppConfig(),
+		Mail:          LoadMailConfig(),
+		ObjectStorage: LoadObjectStorageConfig(),
 	}, nil
 }
 
