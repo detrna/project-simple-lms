@@ -2,7 +2,6 @@ package class
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type Controller struct {
@@ -14,28 +13,23 @@ func NewController(usecase *UseCase) *Controller {
 }
 
 type IController interface {
-	GetStudents(c *gin.Context)
+	GetClasses(c *gin.Context)
 	GetClassByID(c *gin.Context)
+	GetClassBySystemID(c *gin.Context)
 	CreateClass(c *gin.Context)
 	UpdateClass(c *gin.Context)
 	DeleteClass(c *gin.Context)
 }
 
-func (controller Controller) GetStudents(c *gin.Context) {
-	classID, err := uuid.Parse(c.Param("classId"))
+func (controller Controller) GetClasses(c *gin.Context) {
 
-	if err != nil {
-		c.JSON(404, gin.H{"Error": err.Error()})
-	}
-
-	ctx := c.Request.Context()
-
-	result, err := controller.usecase.GetStudents(ctx, classID)
-
-	c.JSON(200, result)
 }
 
 func (controller Controller) GetClassByID(c *gin.Context) {
+
+}
+
+func (controller Controller) GetClassBySystemID(c *gin.Context) {
 
 }
 

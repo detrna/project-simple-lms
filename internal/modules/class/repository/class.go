@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"main/internal/domain"
 	"main/internal/infrastructure/database"
 	"main/internal/infrastructure/repository/mapper"
 	classdomain "main/internal/modules/class/domain"
@@ -21,27 +20,36 @@ func NewClassRepository(db *gorm.DB) *ClassRepository {
 	return &ClassRepository{db: db}
 }
 
-func (repo ClassRepository) GetStudents(ctx context.Context, classID uuid.UUID) ([]*domain.User, error) {
-	rows, err := gorm.G[database.ClassEnrollment](repo.db).
-		Preload("User", nil).
-		Where("class_id = ?", classID).
-		Find(ctx)
+func (repo ClassRepository) GetClasses(ctx context.Context) (*[]classdomain.Class, error) {
+	rows, err := gorm.G[database.Class](repo.db).Find(ctx)
 
 	if err != nil {
 		return nil, shared.ErrRecordNotFound
 	}
 
-	var students []*domain.User
-
-	for _, take := range rows {
-		students = append(students, mapper.ToDomainUser(&take.Student))
+	var classes []classdomain.Class
+	for _, class := range rows {
+		domainClass := mapper.ToDomainClass(&class)
+		classes = append(classes, *domainClass)
 	}
 
-	return students, nil
+	return &classes, nil
 }
 
 func (repo ClassRepository) GetClassByID(ctx context.Context, classID uuid.UUID) (*classdomain.Class, error) {
 	rows, err := gorm.G[database.Class](repo.db).Where("id = ?", classID).First(ctx)
+
+	if err != nil {
+		return nil, shared.ErrRecordNotFound
+	}
+
+	class := mapper.ToDomainClass(&rows)
+
+	return class, nil
+}
+
+func (repo ClassRepository) GetClassBySystemID(ctx context.Context, systemID string) (*classdomain.Class, error) {
+	rows, err := gorm.G[database.Class](repo.db).Where("system_id = ?", systemID).First(ctx)
 
 	if err != nil {
 		return nil, shared.ErrRecordNotFound

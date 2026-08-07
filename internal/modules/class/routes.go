@@ -21,8 +21,9 @@ func (r Routes) RegisterRoutes(rg *gin.RouterGroup) {
 	router := rg.Group("/classes")
 	router.Use(middleware.Authenticate(r.tokenService, r.logger))
 
-	router.GET("/:classId/students", r.controller.GetStudents)
+	router.GET("/", r.controller.GetClasses)
 	router.GET("/:classId", r.controller.GetClassByID)
+	router.GET("/system/:systemId", r.controller.GetClassBySystemID)
 	router.POST(
 		"",
 		middleware.RequiredRole("admin", r.logger),
