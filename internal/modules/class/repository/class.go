@@ -6,6 +6,7 @@ import (
 	"main/internal/domain"
 	"main/internal/infrastructure/database"
 	"main/internal/infrastructure/repository/mapper"
+	classdomain "main/internal/modules/class/domain"
 	"main/internal/shared"
 
 	"github.com/google/uuid"
@@ -39,7 +40,7 @@ func (repo ClassRepository) GetStudents(ctx context.Context, classID uuid.UUID) 
 	return students, nil
 }
 
-func (repo ClassRepository) GetClassByID(ctx context.Context, classID uuid.UUID) (*domain.Class, error) {
+func (repo ClassRepository) GetClassByID(ctx context.Context, classID uuid.UUID) (*classdomain.Class, error) {
 	rows, err := gorm.G[database.Class](repo.db).Where("id = ?", classID).First(ctx)
 
 	if err != nil {
@@ -51,7 +52,7 @@ func (repo ClassRepository) GetClassByID(ctx context.Context, classID uuid.UUID)
 	return class, nil
 }
 
-func (repo ClassRepository) CreateClass(ctx context.Context, data *domain.Class) (*domain.Class, error) {
+func (repo ClassRepository) CreateClass(ctx context.Context, data *classdomain.Class) (*classdomain.Class, error) {
 	dbClass := mapper.ToDatabaseClass(data)
 
 	err := gorm.G[database.Class](repo.db).Create(ctx, dbClass)
@@ -64,7 +65,7 @@ func (repo ClassRepository) CreateClass(ctx context.Context, data *domain.Class)
 	return createdClass, nil
 }
 
-func (repo ClassRepository) UpdateClass(ctx context.Context, data *domain.Class) (*domain.Class, error) {
+func (repo ClassRepository) UpdateClass(ctx context.Context, data *classdomain.Class) (*classdomain.Class, error) {
 	dbClass := mapper.ToDatabaseClass(data)
 
 	_, err := gorm.G[database.Class](repo.db).Where("id = ?", data.ID).Updates(ctx, *dbClass)

@@ -5,6 +5,7 @@ import (
 	"main/internal/domain"
 	"main/internal/infrastructure/database"
 	"main/internal/infrastructure/repository/mapper"
+	classdomain "main/internal/modules/class/domain"
 	"testing"
 
 	"github.com/google/uuid"
@@ -14,7 +15,7 @@ import (
 func (f Factory) CreateClass(
 	t *testing.T,
 	course *domain.Course,
-) *domain.Class {
+) *classdomain.Class {
 
 	t.Helper()
 

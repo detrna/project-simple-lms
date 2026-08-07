@@ -3,6 +3,7 @@ package class
 import (
 	"context"
 	"main/internal/domain"
+	classdomain "main/internal/modules/class/domain"
 
 	"github.com/google/uuid"
 )
@@ -13,9 +14,9 @@ type UseCase struct {
 
 type IUseCase interface {
 	GetStudents(ctx context.Context, classID uuid.UUID) ([]*domain.User, error)
-	GetClassByID(ctx context.Context, classID uuid.UUID) (*domain.Class, error)
-	CreateClass(ctx context.Context, data *CreateClassRequest) (*domain.Class, error)
-	UpdateClass(ctx context.Context, data *UpdateClassRequest) (*domain.Class, error)
+	GetClassByID(ctx context.Context, classID uuid.UUID) (*classdomain.Class, error)
+	CreateClass(ctx context.Context, data *CreateClassRequest) (*classdomain.Class, error)
+	UpdateClass(ctx context.Context, data *UpdateClassRequest) (*classdomain.Class, error)
 	DeleteClass(ctx context.Context, classID uuid.UUID) error
 }
 
@@ -33,7 +34,7 @@ func (usecase UseCase) GetStudents(ctx context.Context, classID uuid.UUID) ([]*d
 	return result, nil
 }
 
-func (usecase UseCase) GetClassByID(ctx context.Context, classID uuid.UUID) (*domain.Class, error)
-func (usecase UseCase) CreateClass(ctx context.Context, data *CreateClassRequest) (*domain.Class, error)
-func (usecase UseCase) UpdateClass(ctx context.Context, data *UpdateClassRequest) (*domain.Class, error)
+func (usecase UseCase) GetClassByID(ctx context.Context, classID uuid.UUID) (*classdomain.Class, error)
+func (usecase UseCase) CreateClass(ctx context.Context, data *CreateClassRequest) (*classdomain.Class, error)
+func (usecase UseCase) UpdateClass(ctx context.Context, data *UpdateClassRequest) (*classdomain.Class, error)
 func (usecase UseCase) DeleteClass(ctx context.Context, classID uuid.UUID) error

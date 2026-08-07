@@ -4,6 +4,7 @@ import (
 	"context"
 	"main/internal/domain"
 	"main/internal/infrastructure/database"
+	classdomain "main/internal/modules/class/domain"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -11,7 +12,7 @@ import (
 
 func (f Factory) EnrollClass(
 	t *testing.T,
-	class *domain.Class,
+	class *classdomain.Class,
 	user *domain.User,
 ) {
 	t.Helper()

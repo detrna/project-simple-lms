@@ -1,16 +1,16 @@
 package mapper
 
 import (
-	"main/internal/domain"
 	"main/internal/infrastructure/database"
+	classdomain "main/internal/modules/class/domain"
 )
 
-func ToDomainClass(dbClass *database.Class) *domain.Class {
+func ToDomainClass(dbClass *database.Class) *classdomain.Class {
 	if dbClass == nil {
 		return nil
 	}
 
-	return &domain.Class{
+	return &classdomain.Class{
 		ID:        dbClass.ID,
 		SystemID:  dbClass.SystemID,
 		Name:      dbClass.Name,
@@ -19,7 +19,7 @@ func ToDomainClass(dbClass *database.Class) *domain.Class {
 	}
 }
 
-func ToDatabaseClass(classDomain *domain.Class) *database.Class {
+func ToDatabaseClass(classDomain *classdomain.Class) *database.Class {
 	if classDomain == nil {
 		return nil
 	}
