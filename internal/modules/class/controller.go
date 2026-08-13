@@ -5,10 +5,10 @@ import (
 )
 
 type Controller struct {
-	usecase *UseCase
+	usecase IUseCase
 }
 
-func NewController(usecase *UseCase) *Controller {
+func NewController(usecase IUseCase) *Controller {
 	return &Controller{usecase: usecase}
 }
 
