@@ -33,9 +33,16 @@ packages:
       recursive: true
       pkgname: "middleware_mocks"
 
-  main/internal/modules/class:
+  main/internal/modules/class/controller:
     config:
       all: true
       recursive: true
       pkgname: "mocks"
-      dir: "{{.InterfaceDir}}/tests/mocks"
+      dir: "{{.InterfaceDir}}/mocks"
+
+  main/internal/modules/class/usecase:
+    config:
+      all: true
+      recursive: true
+      pkgname: "mocks"
+      dir: "{{.InterfaceDir}}/mocks"

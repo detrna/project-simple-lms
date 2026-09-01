@@ -1,4 +1,4 @@
-package domain
+﻿package domain
 
 import (
 	"time"
@@ -30,3 +30,4 @@ type Teaches struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
