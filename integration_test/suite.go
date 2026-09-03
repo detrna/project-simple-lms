@@ -1,19 +1,33 @@
-package test_suite
+package testsuite
 
 import (
 	"fmt"
 	"log"
 
-	"main/integration_test/factory"
 	"main/internal/app"
 	"main/internal/config"
 	"main/internal/infrastructure"
+	"main/internal/pkg"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-func SetupSuite() (*gin.Engine, *factory.Factory) {
+type Suite struct {
+	Router *gin.Engine
+	Infra  *pkg.Packages
+	DB     *gorm.DB
+	Config *config.Config
+}
+
+type IntegrationTest[T any] struct {
+	Name               string
+	Data               T
+	ExpectedStatusCode int
+	ExpectedResponse   any
+}
+
+func New() *Suite {
 	fmt.Print("TEST")
 	cfg, err := config.Load()
 
@@ -32,15 +46,19 @@ func SetupSuite() (*gin.Engine, *factory.Factory) {
 	}
 
 	router := app.SetupRouter(cfg, infra, repo)
-	factories := factory.NewFactory(infra, db, cfg)
 
-	return router, factories
+	return &Suite{
+		Router: router,
+		Infra:  infra,
+		DB:     db,
+		Config: cfg,
+	}
 }
 
 func TruncateDatabase(db *gorm.DB) error {
 	return db.Exec(`
         TRUNCATE TABLE
-            course_enrollments,
+            enrollments,
             classes,
             courses,
             users

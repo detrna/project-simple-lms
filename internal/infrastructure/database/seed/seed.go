@@ -30,5 +30,6 @@ func Run(db *gorm.DB) error {
 
 type State struct {
 	Users   []database.User
+	Courses []database.Course
 	Classes []database.Class
 }

@@ -50,10 +50,9 @@ func Migrate() error {
 		&Submission{},
 		&AcademicTranscript{},
 		&SemesterTranscript{},
-		&CourseEnrollment{},
+		&Enrollment{},
 		&Announcement{},
 		&Comment{},
-		&ClassEnrollment{},
 		&JWT{},
 	)
 }

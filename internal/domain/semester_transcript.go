@@ -9,7 +9,7 @@ import (
 type SemesterTranscript struct {
 	ID                   uuid.UUID
 	AcademicTranscriptID uuid.UUID
-	course_enrollments   CourseEnrollment
+	Enrollment           Enrollment
 	Period               string
 	Grade                float64
 	CreatedAt            time.Time

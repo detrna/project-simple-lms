@@ -16,9 +16,9 @@ type User struct {
 	CreatedAt time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 
-	SubmissionGrades  []SubmissionGrades `gorm:"foreignKey:UserID"`
-	CourseEnrollments []CourseEnrollment `gorm:"foreignKey:StudentID"`
-	Teaches           []Teaches          `gorm:"foreignKey:UserID"`
+	SubmissionGrades []SubmissionGrades `gorm:"foreignKey:UserID"`
+	Enrollment       []Enrollment       `gorm:"foreignKey:StudentID"`
+	Teaches          []Teaches          `gorm:"foreignKey:UserID"`
 }
 
 type Course struct {
@@ -30,11 +30,11 @@ type Course struct {
 	CreatedAt    time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
 	UpdatedAt    time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 
-	Teachers          []User             `gorm:"many2many:course_teachers;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Materials         []Material         `gorm:"foreignKey:CourseID"`
-	Assignments       []Assignment       `gorm:"foreignKey:CourseID"`
-	Announcements     []Announcement     `gorm:"foreignKey:CourseID"`
-	CourseEnrollments []CourseEnrollment `gorm:"foreignKey:CourseID"`
+	Teachers      []User         `gorm:"many2many:course_teachers;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Materials     []Material     `gorm:"foreignKey:CourseID"`
+	Assignments   []Assignment   `gorm:"foreignKey:CourseID"`
+	Announcements []Announcement `gorm:"foreignKey:CourseID"`
+	Enrollment    []Enrollment   `gorm:"foreignKey:CourseID"`
 }
 
 type Teaches struct {
@@ -51,7 +51,6 @@ type Teaches struct {
 type Class struct {
 	ID        uuid.UUID `gorm:"primaryKey"`
 	SystemID  string    `gorm:"not null;uniqueIndex"`
-	CourseID  uuid.UUID `gorm:"not null"`
 	Name      string    `gorm:"not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
@@ -153,20 +152,7 @@ type SemesterTranscript struct {
 	UpdatedAt            time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 
 	AcademicTranscript AcademicTranscript `gorm:"foreignKey:AcademicTranscriptID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Enrollments        []CourseEnrollment `gorm:"many2many:semester_transcript_enrollments;"`
-}
-
-type CourseEnrollment struct {
-	ID          uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
-	CourseID    uuid.UUID `gorm:"not null;index"`
-	StudentID   uuid.UUID `gorm:"not null;index"`
-	Score       float64
-	TeacherNote string
-	CreatedAt   time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
-	UpdatedAt   time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
-
-	Course  Course `gorm:"foreignKey:CourseID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Student User   `gorm:"foreignKey:StudentID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Enrollments        []Enrollment       `gorm:"many2many:semester_transcript_enrollments;"`
 }
 
 type Announcement struct {
@@ -193,16 +179,20 @@ type Comment struct {
 	User User `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
-type ClassEnrollment struct {
+type Enrollment struct {
 	ID           uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
+	CourseID     uuid.UUID `gorm:"not null;index"`
 	StudentID    uuid.UUID `gorm:"not null;index"`
 	ClassID      uuid.UUID `gorm:"not null;index"`
 	Status       string    `gorm:"not null"`
 	AcademicYear string    `gorm:"not null"`
+	TeacherNote  *string
+	Score        *int
 	LeftAt       *time.Time
 	CreatedAt    time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
 	UpdatedAt    time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
 
-	Student User  `gorm:"foreignKey:StudentID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Class   Class `gorm:"foreignKey:ClassID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Course  Course `gorm:"foreignKey:CourseID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Student User   `gorm:"foreignKey:StudentID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Class   Class  `gorm:"foreignKey:ClassID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
