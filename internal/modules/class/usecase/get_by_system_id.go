@@ -5,7 +5,12 @@ import (
 	"main/internal/modules/class/domain"
 )
 
-func (useCase ClassUseCase) GetBySystemID(ctx context.Context, systemID string) (*domain.Class, error) {
-	return nil, nil
-}
+func (uc ClassUseCase) GetBySystemID(ctx context.Context, systemID string) (*domain.Class, error) {
+	class, err := uc.repo.GetBySystemID(ctx, systemID)
 
+	if err != nil {
+		return nil, err
+	}
+
+	return class, nil
+}

@@ -6,7 +6,7 @@ import (
 	"main/internal/infrastructure/database"
 	"main/internal/modules/class/domain"
 	"main/internal/modules/class/repository/mapper"
-	"main/internal/shared"
+	"main/internal/shared/pagination"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -20,11 +20,11 @@ func NewClassRepository(db *gorm.DB) *ClassRepository {
 	return &ClassRepository{db: db}
 }
 
-func (repo ClassRepository) GetAll(ctx context.Context) (*[]domain.Class, error) {
-	rows, err := gorm.G[database.Class](repo.db).Find(ctx)
+func (repo ClassRepository) GetAll(ctx context.Context, pagination pagination.PaginationInput) (*[]domain.Class, int, error) {
+	rows, err := gorm.G[database.Class](repo.db).Limit(pagination.Limit).Offset(pagination.Offset).Order("created_at DESC").Find(ctx)
 
 	if err != nil {
-		return nil, shared.ErrRecordNotFound
+		return nil, 0, err
 	}
 
 	var classes []domain.Class
@@ -33,14 +33,19 @@ func (repo ClassRepository) GetAll(ctx context.Context) (*[]domain.Class, error)
 		classes = append(classes, *domainClass)
 	}
 
-	return &classes, nil
+	count, err := gorm.G[database.Class](repo.db).Count(ctx, "*")
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return &classes, int(count), nil
 }
 
 func (repo ClassRepository) GetByID(ctx context.Context, classID uuid.UUID) (*domain.Class, error) {
 	rows, err := gorm.G[database.Class](repo.db).Where("id = ?", classID).First(ctx)
 
 	if err != nil {
-		return nil, shared.ErrRecordNotFound
+		return nil, domain.ErrClassNotFound
 	}
 
 	class := mapper.ToDomainClass(&rows)
@@ -52,7 +57,7 @@ func (repo ClassRepository) GetBySystemID(ctx context.Context, systemID string) 
 	rows, err := gorm.G[database.Class](repo.db).Where("system_id = ?", systemID).First(ctx)
 
 	if err != nil {
-		return nil, shared.ErrRecordNotFound
+		return nil, domain.ErrClassNotFound
 	}
 
 	class := mapper.ToDomainClass(&rows)
@@ -79,7 +84,7 @@ func (repo ClassRepository) Update(ctx context.Context, data *domain.Class) (*do
 	_, err := gorm.G[database.Class](repo.db).Where("id = ?", data.ID).Updates(ctx, *dbClass)
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, shared.ErrRecordNotFound
+		return nil, domain.ErrClassNotFound
 	}
 
 	if err != nil {
@@ -89,7 +94,7 @@ func (repo ClassRepository) Update(ctx context.Context, data *domain.Class) (*do
 	result, err := gorm.G[database.Class](repo.db).Where("id = ?", data.ID).First(ctx)
 
 	if err != nil {
-		return nil, shared.ErrRecordNotFound
+		return nil, domain.ErrClassNotFound
 	}
 
 	class := mapper.ToDomainClass(&result)

@@ -2,10 +2,10 @@
 
 import (
 	"context"
+	"main/internal/modules/class/domain"
 	"main/internal/modules/class/factory"
 	"main/internal/modules/class/usecase"
 	"main/internal/modules/class/usecase/mocks"
-	"main/internal/shared"
 	"testing"
 
 	"github.com/google/uuid"
@@ -17,15 +17,15 @@ func TestDelete_ClassNotFound(t *testing.T) {
 	ctx := context.Background()
 
 	id := uuid.New()
-	_ = factory.NewClass(id, "class-A") // existing class
+	_ = factory.NewClass(id, "class-A")
 
 	nonexistentID := uuid.New()
 	requestData := nonexistentID
 
-	expected := shared.ErrRecordNotFound
+	expected := domain.ErrClassNotFound
 
 	mockRepo := mocks.NewMockClassRepositoryI(t)
-	mockRepo.EXPECT().GetByID(ctx, mock.AnythingOfType("uuid.UUID")).Return(nil, shared.ErrRecordNotFound)
+	mockRepo.EXPECT().GetByID(ctx, mock.AnythingOfType("uuid.UUID")).Return(nil, domain.ErrClassNotFound)
 
 	classUseCase := usecase.NewClassUseCase(mockRepo)
 
@@ -50,4 +50,3 @@ func TestDelete_Success(t *testing.T) {
 	err := classUseCase.Delete(ctx, requestData)
 	require.NoError(t, err)
 }
-

@@ -4,12 +4,13 @@ import (
 	"context"
 	"main/internal/modules/class/domain"
 	"main/internal/modules/class/dto"
+	"main/internal/shared/pagination"
 
 	"github.com/google/uuid"
 )
 
 type ClassUseCaseI interface {
-	GetAll(ctx context.Context) ([]*domain.Class, error)
+	GetAll(ctx context.Context, pagination *pagination.PaginationInput) (*[]domain.Class, int, error)
 	GetByID(ctx context.Context, classID uuid.UUID) (*domain.Class, error)
 	GetBySystemID(ctx context.Context, systemID string) (*domain.Class, error)
 	Create(ctx context.Context, data *dto.CreateClassRequest) (*domain.Class, error)
@@ -18,10 +19,9 @@ type ClassUseCaseI interface {
 }
 
 type ClassController struct {
-	useCase ClassUseCaseI
+	uc ClassUseCaseI
 }
 
-func NewClassController(useCase ClassUseCaseI) *ClassController {
-	return &ClassController{useCase: useCase}
+func NewClassController(uc ClassUseCaseI) *ClassController {
+	return &ClassController{uc: uc}
 }
-

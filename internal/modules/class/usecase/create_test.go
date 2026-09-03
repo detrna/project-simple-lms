@@ -3,12 +3,12 @@
 import (
 	"context"
 
+	"main/internal/modules/class/domain"
 	"main/internal/modules/class/dto"
 	"main/internal/modules/class/factory"
 	"main/internal/modules/class/usecase/mocks"
 
 	"main/internal/modules/class/usecase"
-	"main/internal/shared"
 	"testing"
 
 	"github.com/google/uuid"
@@ -28,10 +28,10 @@ func TestCreate_SystemIDTaken(t *testing.T) {
 		Name:     "new-class",
 	}
 
-	expected := shared.ErrSystemIDTaken
+	expected := domain.ErrClassSystemIDTaken
 
 	mockRepo := mocks.NewMockClassRepositoryI(t)
-	mockRepo.EXPECT().GetByID(ctx, mock.AnythingOfType("uuid.UUID")).Return(existingClass, nil)
+	mockRepo.EXPECT().GetBySystemID(ctx, mock.AnythingOfType("string")).Return(existingClass, nil)
 
 	classUseCase := usecase.NewClassUseCase(mockRepo)
 
@@ -55,8 +55,8 @@ func TestCreate_Success(t *testing.T) {
 	expected := classSample
 
 	mockRepo := mocks.NewMockClassRepositoryI(t)
-	mockRepo.EXPECT().GetByID(ctx, mock.AnythingOfType("uuid.UUID")).Return(nil, shared.ErrRecordNotFound)
-	mockRepo.EXPECT().Create(ctx, mock.AnythingOfType("*dto.CreateClassRequest")).Return(classSample, nil)
+	mockRepo.EXPECT().GetBySystemID(ctx, mock.AnythingOfType("string")).Return(nil, domain.ErrClassNotFound)
+	mockRepo.EXPECT().Create(ctx, mock.AnythingOfType("*domain.Class")).Return(classSample, nil)
 
 	classUseCase := usecase.NewClassUseCase(mockRepo)
 
@@ -65,4 +65,3 @@ func TestCreate_Success(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, expected, result)
 }
-

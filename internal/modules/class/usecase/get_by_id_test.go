@@ -2,10 +2,10 @@
 
 import (
 	"context"
+	"main/internal/modules/class/domain"
 	"main/internal/modules/class/factory"
 	"main/internal/modules/class/usecase"
 	"main/internal/modules/class/usecase/mocks"
-	"main/internal/shared"
 	"testing"
 
 	"github.com/google/uuid"
@@ -22,10 +22,10 @@ func TestClassByID_ClassNotFound(t *testing.T) {
 	nonexistentID := uuid.New()
 	requestData := nonexistentID
 
-	expected := shared.ErrRecordNotFound
+	expected := domain.ErrClassNotFound
 
 	mockRepo := mocks.NewMockClassRepositoryI(t)
-	mockRepo.EXPECT().GetByID(ctx, mock.AnythingOfType("uuid.UUID")).Return(nil, shared.ErrRecordNotFound)
+	mockRepo.EXPECT().GetByID(ctx, mock.AnythingOfType("uuid.UUID")).Return(nil, domain.ErrClassNotFound)
 
 	classUseCase := usecase.NewClassUseCase(mockRepo)
 
@@ -55,4 +55,3 @@ func TestClassByID_Success(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expected, result)
 }
-

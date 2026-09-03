@@ -6,9 +6,11 @@ import (
 	"main/internal/modules/class/factory"
 	"main/internal/modules/class/usecase"
 	"main/internal/modules/class/usecase/mocks"
+	"main/internal/shared/pagination"
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -23,16 +25,18 @@ func TestGetAll_Success(t *testing.T) {
 		*factory.NewClass(uuid.New(), "class-E"),
 	}
 
+	pagination := pagination.PaginationInput{Limit: 10, Offset: 0}
+
 	expected := existingClasses
 
 	mockRepo := mocks.NewMockClassRepositoryI(t)
-	mockRepo.EXPECT().GetAll(ctx).Return(&existingClasses, nil)
+	mockRepo.EXPECT().GetAll(ctx, mock.AnythingOfType("pagination.PaginationInput")).Return(&existingClasses, len(existingClasses), nil)
 
 	classUseCase := usecase.NewClassUseCase(mockRepo)
 
-	result, err := classUseCase.GetAll(ctx)
+	result, total, err := classUseCase.GetAll(ctx, &pagination)
 
 	require.NoError(t, err)
-	require.Equal(t, expected, result)
+	require.Equal(t, expected, *result)
+	require.Equal(t, total, len(existingClasses))
 }
-

@@ -3,13 +3,24 @@ package shared
 import (
 	"errors"
 	"main/internal/pkg"
+	apperrors "main/internal/shared/errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type ResponseError struct {
-	Error string `json:"error"`
+	Error   string `json:"error"`
+	Message string `json:"message"`
+}
+
+func HandleErrorV2(c *gin.Context, logger pkg.Logger, appErr apperrors.AppError, err error) {
+	logger.WarnSkip(1, err.Error())
+
+	c.JSON(appErr.StatusCode, gin.H{
+		"error":   err.Error(),
+		"message": appErr.Message,
+	})
 }
 
 func HandleError(c *gin.Context, logger pkg.Logger, err error) {

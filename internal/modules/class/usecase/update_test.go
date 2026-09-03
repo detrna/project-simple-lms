@@ -2,11 +2,11 @@
 
 import (
 	"context"
+	"main/internal/modules/class/domain"
 	"main/internal/modules/class/dto"
 	"main/internal/modules/class/factory"
 	"main/internal/modules/class/usecase"
 	"main/internal/modules/class/usecase/mocks"
-	"main/internal/shared"
 	"testing"
 
 	"github.com/google/uuid"
@@ -28,10 +28,10 @@ func TestUpdate_ClassNotFound(t *testing.T) {
 		Name: &newName,
 	}
 
-	expected := shared.ErrRecordNotFound
+	expected := domain.ErrClassNotFound
 
 	mockRepo := mocks.NewMockClassRepositoryI(t)
-	mockRepo.EXPECT().GetByID(ctx, mock.AnythingOfType("uuid.UUID")).Return(nil, shared.ErrRecordNotFound)
+	mockRepo.EXPECT().GetByID(ctx, mock.AnythingOfType("uuid.UUID")).Return(nil, domain.ErrClassNotFound)
 
 	classUseCase := usecase.NewClassUseCase(mockRepo)
 
@@ -56,7 +56,7 @@ func TestUpdate_SystemIDTaken(t *testing.T) {
 		SystemID: &newSystemID,
 	}
 
-	expected := shared.ErrSystemIDTaken
+	expected := domain.ErrClassSystemIDTaken
 
 	mockRepo := mocks.NewMockClassRepositoryI(t)
 	mockRepo.EXPECT().GetByID(ctx, mock.AnythingOfType("uuid.UUID")).Return(existingClass, nil)
@@ -70,7 +70,7 @@ func TestUpdate_SystemIDTaken(t *testing.T) {
 	require.Nil(t, result)
 }
 
-func TestUpdate_Success(t *testing.T) {
+func TestUpdate_SuccessWithoutSystemID(t *testing.T) {
 	ctx := context.Background()
 
 	id := uuid.New()
@@ -87,8 +87,7 @@ func TestUpdate_Success(t *testing.T) {
 
 	mockRepo := mocks.NewMockClassRepositoryI(t)
 	mockRepo.EXPECT().GetByID(ctx, mock.AnythingOfType("uuid.UUID")).Return(existingClass, nil)
-	mockRepo.EXPECT().GetBySystemID(ctx, mock.AnythingOfType("string")).Return(nil, shared.ErrRecordNotFound)
-	mockRepo.EXPECT().Update(ctx, mock.AnythingOfType("*dto.UpdateClassRequest")).Return(expected, nil)
+	mockRepo.EXPECT().Update(ctx, mock.AnythingOfType("*domain.Class")).Return(expected, nil)
 
 	classUseCase := usecase.NewClassUseCase(mockRepo)
 
@@ -98,3 +97,33 @@ func TestUpdate_Success(t *testing.T) {
 	require.Equal(t, expected, result)
 }
 
+func TestUpdate_SuccessWithSystemID(t *testing.T) {
+	ctx := context.Background()
+
+	id := uuid.New()
+	existingClass := factory.NewClass(id, "class-A")
+
+	newName := "new-class-name"
+	newSystemID := "new-system-ID"
+
+	requestData := dto.UpdateClassRequest{
+		ID:       existingClass.ID,
+		SystemID: &newSystemID,
+		Name:     &newName,
+	}
+
+	expected := existingClass
+	expected.Name = newName
+
+	mockRepo := mocks.NewMockClassRepositoryI(t)
+	mockRepo.EXPECT().GetByID(ctx, mock.AnythingOfType("uuid.UUID")).Return(existingClass, nil)
+	mockRepo.EXPECT().GetBySystemID(ctx, mock.AnythingOfType("string")).Return(nil, domain.ErrClassNotFound)
+	mockRepo.EXPECT().Update(ctx, mock.AnythingOfType("*domain.Class")).Return(expected, nil)
+
+	classUseCase := usecase.NewClassUseCase(mockRepo)
+
+	result, err := classUseCase.Update(ctx, &requestData)
+
+	require.NoError(t, err)
+	require.Equal(t, expected, result)
+}

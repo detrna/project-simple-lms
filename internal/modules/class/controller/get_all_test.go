@@ -15,18 +15,19 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetAll_Success(t *testing.T) {
 	ctx := context.Background()
 	id := uuid.New()
-	existingClasses := []*domain.Class{
-		factory.NewClass(id, "class-A"),
-		factory.NewClass(id, "class-B"),
-		factory.NewClass(id, "class-C"),
-		factory.NewClass(id, "class-D"),
-		factory.NewClass(id, "class-E"),
+	existingClasses := []domain.Class{
+		*factory.NewClass(id, "class-A"),
+		*factory.NewClass(id, "class-B"),
+		*factory.NewClass(id, "class-C"),
+		*factory.NewClass(id, "class-D"),
+		*factory.NewClass(id, "class-E"),
 	}
 
 	expected := existingClasses
@@ -35,7 +36,7 @@ func TestGetAll_Success(t *testing.T) {
 	mockUseCase := mocks.NewMockClassUseCaseI(t)
 
 	mockResult := existingClasses
-	mockUseCase.EXPECT().GetAll(ctx).Return(mockResult, nil)
+	mockUseCase.EXPECT().GetAll(ctx, mock.AnythingOfType("*pagination.PaginationInput")).Return(&mockResult, len(existingClasses), nil)
 
 	classController := controller.NewClassController(mockUseCase)
 
@@ -55,4 +56,3 @@ func TestGetAll_Success(t *testing.T) {
 
 	assert.Equal(t, expected, response)
 }
-

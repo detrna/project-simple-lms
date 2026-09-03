@@ -2,10 +2,10 @@
 
 import (
 	"context"
+	"main/internal/modules/class/domain"
 	"main/internal/modules/class/factory"
 	"main/internal/modules/class/usecase"
 	"main/internal/modules/class/usecase/mocks"
-	"main/internal/shared"
 	"testing"
 
 	"github.com/google/uuid"
@@ -21,10 +21,10 @@ func TestGetBySystemID_ClassNotFound(t *testing.T) {
 
 	requestData := "nonexistent-systemID"
 
-	expected := shared.ErrRecordNotFound
+	expected := domain.ErrClassNotFound
 
 	mockRepo := mocks.NewMockClassRepositoryI(t)
-	mockRepo.EXPECT().GetBySystemID(ctx, mock.AnythingOfType("string")).Return(nil, shared.ErrRecordNotFound)
+	mockRepo.EXPECT().GetBySystemID(ctx, mock.AnythingOfType("string")).Return(nil, domain.ErrClassNotFound)
 
 	classUseCase := usecase.NewClassUseCase(mockRepo)
 
@@ -54,4 +54,3 @@ func TestGetBySystemID_Success(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expected, result)
 }
-

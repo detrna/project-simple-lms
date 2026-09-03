@@ -3,9 +3,15 @@
 import (
 	"context"
 	"main/internal/modules/class/domain"
+	"main/internal/shared/pagination"
 )
 
-func (useCase ClassUseCase) GetAll(ctx context.Context) ([]*domain.Class, error) {
-	return nil, nil
-}
+func (uc ClassUseCase) GetAll(ctx context.Context, pagination *pagination.PaginationInput) (*[]domain.Class, int, error) {
+	classes, total, err := uc.repo.GetAll(ctx, *pagination)
 
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return classes, total, nil
+}
