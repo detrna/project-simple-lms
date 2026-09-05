@@ -3,8 +3,8 @@ package auth_integration_test
 import (
 	"bytes"
 	"encoding/json"
-	testsuite "main/integration_test"
 	userfactory "main/integration_test/modules/user/factory"
+	suite "main/integration_test/suite"
 	"main/internal/modules/auth"
 	"net/http"
 	"net/http/httptest"
@@ -15,9 +15,9 @@ import (
 )
 
 func TestRecover_Success(t *testing.T) {
-	suite := testsuite.New()
+	ts := suite.New()
 
-	existingUser := userfactory.CreateUser(t, suite.DB, suite.Infra.Hasher, "Student1")
+	existingUser := userfactory.CreateUser(t, ts.DB, ts.Infra.Hasher, "Student1")
 
 	reqData := auth.RecoverSchema{
 		Email: existingUser.Email,
@@ -29,15 +29,15 @@ func TestRecover_Success(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/recover", bytes.NewBuffer(reqBody))
 
-	suite.Router.ServeHTTP(w, req)
+	ts.Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 
 func TestRecover_NonexistentUser(t *testing.T) {
-	suite := testsuite.New()
+	ts := suite.New()
 
-	_ = userfactory.CreateUser(t, suite.DB, suite.Infra.Hasher, "Student1")
+	_ = userfactory.CreateUser(t, ts.DB, ts.Infra.Hasher, "Student1")
 
 	reqData := auth.RecoverSchema{
 		Email: "nonexistent-email",
@@ -49,7 +49,7 @@ func TestRecover_NonexistentUser(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/recover", bytes.NewBuffer(reqBody))
 
-	suite.Router.ServeHTTP(w, req)
+	ts.Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }

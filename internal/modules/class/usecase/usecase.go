@@ -9,7 +9,7 @@ import (
 )
 
 type ClassRepositoryI interface {
-	GetAll(ctx context.Context, pagination pagination.PaginationInput) (*[]domain.Class, int, error)
+	GetAll(ctx context.Context, pagination pagination.Pagination) (*[]domain.Class, int, error)
 	GetByID(ctx context.Context, classID uuid.UUID) (*domain.Class, error)
 	GetBySystemID(ctx context.Context, systemID string) (*domain.Class, error)
 	Create(ctx context.Context, data *domain.Class) (*domain.Class, error)

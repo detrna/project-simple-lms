@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"main/internal/http/validator"
 	"main/internal/pkg"
 	"main/internal/shared"
 	"net/http"
@@ -27,7 +28,7 @@ type IController interface {
 }
 
 func (controller *Controller) Login(c *gin.Context) {
-	body := shared.ParseJSON[LoginSchema](c, controller.logger)
+	body := validator.ValidateBody[LoginSchema](c, controller.logger)
 
 	ctx := c.Request.Context()
 	Tokens, err := controller.usecase.Login(ctx, body)
@@ -118,7 +119,7 @@ func (controller *Controller) Refresh(c *gin.Context) {
 }
 
 func (controller *Controller) Recover(c *gin.Context) {
-	body := shared.ParseJSON[RecoverSchema](c, controller.logger)
+	body := validator.ValidateBody[RecoverSchema](c, controller.logger)
 
 	ctx := c.Request.Context()
 	err := controller.usecase.Recover(ctx, body)
@@ -132,7 +133,7 @@ func (controller *Controller) Recover(c *gin.Context) {
 }
 
 func (controller *Controller) VerifyRecovery(c *gin.Context) {
-	body := shared.ParseJSON[VerifyRecoverySchema](c, controller.logger)
+	body := validator.ValidateBody[VerifyRecoverySchema](c, controller.logger)
 
 	ctx := c.Request.Context()
 	err := controller.usecase.VerifyRecovery(ctx, body)

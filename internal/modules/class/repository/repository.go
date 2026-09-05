@@ -20,7 +20,7 @@ func NewClassRepository(db *gorm.DB) *ClassRepository {
 	return &ClassRepository{db: db}
 }
 
-func (repo ClassRepository) GetAll(ctx context.Context, pagination pagination.PaginationInput) (*[]domain.Class, int, error) {
+func (repo ClassRepository) GetAll(ctx context.Context, pagination pagination.Pagination) (*[]domain.Class, int, error) {
 	rows, err := gorm.G[database.Class](repo.db).Limit(pagination.Limit).Offset(pagination.Offset).Order("created_at DESC").Find(ctx)
 
 	if err != nil {

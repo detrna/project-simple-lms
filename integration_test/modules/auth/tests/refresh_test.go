@@ -2,9 +2,9 @@ package auth_integration_test
 
 import (
 	"encoding/json"
-	testsuite "main/integration_test"
 	authfactory "main/integration_test/modules/auth/factory"
 	userfactory "main/integration_test/modules/user/factory"
+	suite "main/integration_test/suite"
 	"main/internal/modules/auth"
 	"main/internal/shared"
 	"net/http"
@@ -16,11 +16,11 @@ import (
 )
 
 func TestRefresh_Success(t *testing.T) {
-	suite := testsuite.New()
+	ts := suite.New()
 
-	existingUser := userfactory.CreateUser(t, suite.DB, suite.Infra.Hasher, "Student1")
-	existingJWT := authfactory.CreateJWT(t, suite.DB, suite.Infra.TokenService, existingUser)
-	accessToken, err := suite.Infra.TokenService.GenerateRefreshToken(existingUser)
+	existingUser := userfactory.CreateUser(t, ts.DB, ts.Infra.Hasher, "Student1")
+	existingJWT := authfactory.CreateJWT(t, ts.DB, ts.Infra.TokenService, existingUser)
+	accessToken, err := ts.Infra.TokenService.GenerateRefreshToken(existingUser)
 	require.NoError(t, err)
 
 	w := httptest.NewRecorder()
@@ -33,7 +33,7 @@ func TestRefresh_Success(t *testing.T) {
 
 	req.Header.Set("Authorization", "Bearer "+accessToken.Value)
 
-	suite.Router.ServeHTTP(w, req)
+	ts.Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
@@ -54,9 +54,9 @@ func TestRefresh_Success(t *testing.T) {
 }
 
 func TestRefresh_RevokedToken(t *testing.T) {
-	suite := testsuite.New()
+	ts := suite.New()
 
-	_ = userfactory.CreateUser(t, suite.DB, suite.Infra.Hasher, "Student1")
+	_ = userfactory.CreateUser(t, ts.DB, ts.Infra.Hasher, "Student1")
 
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/refresh", nil)
@@ -66,7 +66,7 @@ func TestRefresh_RevokedToken(t *testing.T) {
 		Value: "revoked-token",
 	})
 
-	suite.Router.ServeHTTP(w, req)
+	ts.Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 

@@ -3,7 +3,7 @@ package factory
 import (
 	"context"
 	"crypto/rand"
-	testsuite "main/integration_test"
+	suite "main/integration_test/suite"
 	"main/internal/domain"
 	"main/internal/infrastructure/database"
 	"main/internal/infrastructure/repository/mapper"
@@ -81,17 +81,17 @@ func CreateAdmin(
 	return mapper.ToDomainUser(user)
 }
 
-func CreateOTP(t *testing.T, db *gorm.DB, suite *testsuite.Suite, user *domain.User) (string, error) {
+func CreateOTP(t *testing.T, db *gorm.DB, ts *suite.Suite, user *domain.User) (string, error) {
 	t.Helper()
 
 	rng, _ := rand.Int(rand.Reader, big.NewInt(1000000))
 	otp := rng.String()
 
-	if err := suite.Infra.RedisClient.Set(
+	if err := ts.Infra.RedisClient.Set(
 		context.Background(),
 		"otp:"+user.Email,
 		otp,
-		time.Duration(suite.Config.Mail.OTPExpiryMin)*time.Minute,
+		time.Duration(ts.Config.Mail.OTPExpiryMin)*time.Minute,
 	); err != nil {
 		return "", err
 	}

@@ -8,7 +8,7 @@ import (
 	auth_mocks "main/internal/modules/auth/mocks"
 	user_factory "main/internal/modules/user/tests"
 	"main/internal/shared"
-	shared_testing "main/internal/shared/testing_helper"
+	"main/internal/testutil/logger"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -30,7 +30,7 @@ func TestLogin_Success(t *testing.T) {
 	refreshToken := user_factory.NewJWT("refresh-token", jwtPayload)
 
 	mockUsecase := auth_mocks.NewMockIUseCase(t)
-	mockLogger := shared_testing.NewMockLogger(t)
+	mockLogger := logger.NewMockLogger(t)
 
 	usecaseResult := auth.Tokens{
 		AccessToken:  accessToken.Value,
@@ -97,7 +97,7 @@ func TestLogin_IncorrectEmail(t *testing.T) {
 	existingUser := user_factory.NewUser(id)
 
 	mockUsecase := auth_mocks.NewMockIUseCase(t)
-	mockLogger := shared_testing.NewMockLogger(t)
+	mockLogger := logger.NewMockLogger(t)
 
 	mockUsecase.
 		EXPECT().
@@ -146,7 +146,7 @@ func TestLogin_IncorrectPassword(t *testing.T) {
 	existingUser := user_factory.NewUser(id)
 
 	mockUsecase := auth_mocks.NewMockIUseCase(t)
-	mockLogger := shared_testing.NewMockLogger(t)
+	mockLogger := logger.NewMockLogger(t)
 
 	mockUsecase.
 		EXPECT().

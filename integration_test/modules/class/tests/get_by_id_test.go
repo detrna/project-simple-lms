@@ -2,8 +2,8 @@ package class_test
 
 import (
 	"encoding/json"
-	testsuite "main/integration_test"
 	"main/integration_test/modules/class/factory"
+	suite "main/integration_test/suite"
 	"main/internal/modules/class/domain"
 	"main/internal/shared"
 	"net/http"
@@ -17,10 +17,10 @@ import (
 )
 
 func TestGetByID(t *testing.T) {
-	suite := testsuite.New()
-	existingData := factory.CreateClass(t, suite.DB, "Class-A")
+	ts := suite.New()
+	existingData := factory.CreateClass(t, ts.DB, "Class-A")
 
-	tests := []testsuite.IntegrationTest[string]{
+	tests := []suite.IntegrationTest[string]{
 		{
 			Name:               "success",
 			Data:               existingData.ID.String(),
@@ -47,7 +47,7 @@ func TestGetByID(t *testing.T) {
 
 			w := httptest.NewRecorder()
 
-			suite.Router.ServeHTTP(w, req)
+			ts.Router.ServeHTTP(w, req)
 			assert.Equal(t, test.ExpectedStatusCode, w.Code)
 
 			responseType := reflect.TypeOf(test.ExpectedResponse)

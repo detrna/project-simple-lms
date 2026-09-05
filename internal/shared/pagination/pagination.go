@@ -11,23 +11,13 @@ type PaginationResponse struct {
 	TotalPages int  `json:"totalPages"`
 }
 
-type PaginationInput struct {
-	Page   int
-	Offset int
-	Limit  int
+type Pagination struct {
+	Offset int `form:"-"`
+	Page   int `form:"page" binding:"required"`
+	Limit  int `form:"limit" binding:"required"`
 }
 
-type PaginationRequest struct {
-	Page  int
-	Limit int
-}
-
-type Items interface {
-	[]any
-	int
-}
-
-func GetPaginationResponse(pagination PaginationRequest, totalItems int) *PaginationResponse {
+func GetPaginationResponse(pagination Pagination, totalItems int) *PaginationResponse {
 	return &PaginationResponse{
 		Page:       pagination.Page,
 		Limit:      pagination.Limit,

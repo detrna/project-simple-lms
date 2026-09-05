@@ -2,9 +2,9 @@ package class_test
 
 import (
 	"encoding/json"
-	testsuite "main/integration_test"
 	"main/integration_test/helper"
 	"main/integration_test/modules/class/factory"
+	suite "main/integration_test/suite"
 	"main/internal/modules/class/domain"
 	"main/internal/modules/class/dto"
 	"main/internal/shared"
@@ -18,10 +18,10 @@ import (
 )
 
 func TestCreate(t *testing.T) {
-	suite := testsuite.New()
-	sampleData := factory.CreateClass(t, suite.DB, "Class-A")
+	ts := suite.New()
+	sampleData := factory.CreateClass(t, ts.DB, "Class-A")
 
-	tests := []testsuite.IntegrationTest[dto.CreateClassRequest]{
+	tests := []suite.IntegrationTest[dto.CreateClassRequest]{
 		{
 			Name: "When create class and success",
 			Data: dto.CreateClassRequest{
@@ -45,7 +45,7 @@ func TestCreate(t *testing.T) {
 
 			w := httptest.NewRecorder()
 
-			suite.Router.ServeHTTP(w, req)
+			ts.Router.ServeHTTP(w, req)
 			assert.Equal(t, test.ExpectedStatusCode, w.Code)
 
 			responseType := reflect.TypeOf(test.ExpectedResponse)

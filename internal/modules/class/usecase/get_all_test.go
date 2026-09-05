@@ -25,12 +25,12 @@ func TestGetAll_Success(t *testing.T) {
 		*factory.NewClass(uuid.New(), "class-E"),
 	}
 
-	pagination := pagination.PaginationInput{Limit: 10, Offset: 0}
+	pagination := pagination.Pagination{Limit: 10, Offset: 0}
 
 	expected := existingClasses
 
 	mockRepo := mocks.NewMockClassRepositoryI(t)
-	mockRepo.EXPECT().GetAll(ctx, mock.AnythingOfType("pagination.PaginationInput")).Return(&existingClasses, len(existingClasses), nil)
+	mockRepo.EXPECT().GetAll(ctx, mock.AnythingOfType("pagination.Pagination")).Return(&existingClasses, len(existingClasses), nil)
 
 	classUseCase := usecase.NewClassUseCase(mockRepo)
 

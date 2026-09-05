@@ -1,9 +1,9 @@
 package auth_integration_test
 
 import (
-	testsuite "main/integration_test"
 	authfactory "main/integration_test/modules/auth/factory"
 	userfactory "main/integration_test/modules/user/factory"
+	suite "main/integration_test/suite"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,12 +13,12 @@ import (
 )
 
 func TestLogout_Success(t *testing.T) {
-	suite := testsuite.New()
+	ts := suite.New()
 
-	existingUser := userfactory.CreateUser(t, suite.DB, suite.Infra.Hasher, "Student1")
-	existingJWT := authfactory.CreateJWT(t, suite.DB, suite.Infra.TokenService, existingUser)
+	existingUser := userfactory.CreateUser(t, ts.DB, ts.Infra.Hasher, "Student1")
+	existingJWT := authfactory.CreateJWT(t, ts.DB, ts.Infra.TokenService, existingUser)
 
-	accessToken, err := suite.Infra.TokenService.GenerateRefreshToken(existingUser)
+	accessToken, err := ts.Infra.TokenService.GenerateRefreshToken(existingUser)
 	require.NoError(t, err)
 
 	w := httptest.NewRecorder()
@@ -31,7 +31,7 @@ func TestLogout_Success(t *testing.T) {
 
 	req.Header.Set("Authorization", "Bearer "+accessToken.Value)
 
-	suite.Router.ServeHTTP(w, req)
+	ts.Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }

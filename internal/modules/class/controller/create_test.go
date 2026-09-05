@@ -5,12 +5,15 @@ import (
 	"context"
 	"encoding/json"
 
+	"main/internal/http/response"
 	"main/internal/modules/class/controller"
 	"main/internal/modules/class/controller/mocks"
 	"main/internal/modules/class/domain"
 	"main/internal/modules/class/dto"
 	"main/internal/modules/class/factory"
-	"main/internal/shared"
+	"main/internal/shared/errors"
+	"main/internal/testutil/logger"
+
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -32,14 +35,16 @@ func TestCreate_SystemIDTaken(t *testing.T) {
 		Name:     existingClass.Name,
 	}
 
-	expected := shared.ErrSystemIDTaken.Error()
+	expected := domain.ErrClassSystemIDTaken
 
 	expectedStatusCode := http.StatusConflict
 
 	mockUseCase := mocks.NewMockClassUseCaseI(t)
-	mockUseCase.EXPECT().Create(ctx, mock.AnythingOfType("*dto.CreateClassRequest")).Return(nil, shared.ErrSystemIDTaken)
+	mockLogger := logger.NewMockLogger(t)
 
-	classController := controller.NewClassController(mockUseCase)
+	mockUseCase.EXPECT().Create(ctx, mock.AnythingOfType("*dto.CreateClassRequest")).Return(nil, domain.ErrClassSystemIDTaken)
+
+	classController := controller.NewClassController(mockUseCase, mockLogger)
 
 	router := gin.New()
 	router.POST("/classes", classController.Create)
@@ -53,11 +58,11 @@ func TestCreate_SystemIDTaken(t *testing.T) {
 
 	assert.Equal(t, expectedStatusCode, w.Code)
 
-	var response shared.ResponseError
+	var response errors.AppError
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	require.NoError(t, err)
 
-	assert.Equal(t, expected, response.Error)
+	assert.Equal(t, expected.Message, response.Message)
 }
 
 func TestCreate_Success(t *testing.T) {
@@ -70,7 +75,7 @@ func TestCreate_Success(t *testing.T) {
 		Name:     classSample.Name,
 	}
 
-	expected := domain.Class{
+	expected := dto.ClassResponse{
 		SystemID: requestData.SystemID,
 		Name:     requestData.Name,
 	}
@@ -78,13 +83,14 @@ func TestCreate_Success(t *testing.T) {
 	expectedStatusCode := http.StatusCreated
 
 	mockUseCase := mocks.NewMockClassUseCaseI(t)
+	mockLogger := logger.NewMockLogger(t)
 
 	mockResult := classSample
 	mockResult.ID = uuid.New()
 
 	mockUseCase.EXPECT().Create(ctx, mock.AnythingOfType("*dto.CreateClassRequest")).Return(mockResult, nil)
 
-	classController := controller.NewClassController(mockUseCase)
+	classController := controller.NewClassController(mockUseCase, mockLogger)
 
 	router := gin.New()
 	router.POST("/classes", classController.Create)
@@ -98,10 +104,10 @@ func TestCreate_Success(t *testing.T) {
 
 	assert.Equal(t, expectedStatusCode, w.Code)
 
-	var response shared.ResponseSuccess[domain.Class]
+	var response response.ResponseDTO[dto.ClassResponse]
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	require.NoError(t, err)
 
-	assert.Equal(t, expected, response)
+	assert.Equal(t, expected.Name, response.Data.Name)
+	assert.Equal(t, expected.SystemID, response.Data.SystemID)
 }
-

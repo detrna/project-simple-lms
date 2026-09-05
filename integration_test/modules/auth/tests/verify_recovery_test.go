@@ -3,8 +3,8 @@ package auth_integration_test
 import (
 	"bytes"
 	"encoding/json"
-	testsuite "main/integration_test"
 	userfactory "main/integration_test/modules/user/factory"
+	suite "main/integration_test/suite"
 	"main/internal/modules/auth"
 	"net/http"
 	"net/http/httptest"
@@ -15,10 +15,10 @@ import (
 )
 
 func TestVerifyRecovery_Success(t *testing.T) {
-	suite := testsuite.New()
+	ts := suite.New()
 
-	existingUser := userfactory.CreateUser(t, suite.DB, suite.Infra.Hasher, "student-1")
-	otp, err := userfactory.CreateOTP(t, suite.DB, suite, existingUser)
+	existingUser := userfactory.CreateUser(t, ts.DB, ts.Infra.Hasher, "student-1")
+	otp, err := userfactory.CreateOTP(t, ts.DB, ts, existingUser)
 	require.NoError(t, err)
 
 	requestData := auth.VerifyRecoverySchema{
@@ -37,15 +37,15 @@ func TestVerifyRecovery_Success(t *testing.T) {
 		bytes.NewReader(requestBody),
 	)
 
-	suite.Router.ServeHTTP(w, req)
+	ts.Router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 
 func TestVerifyRecovery_IncorrectOTP(t *testing.T) {
-	suite := testsuite.New()
+	ts := suite.New()
 
-	existingUser := userfactory.CreateUser(t, suite.DB, suite.Infra.Hasher, "student-1")
-	_, err := userfactory.CreateOTP(t, suite.DB, suite, existingUser)
+	existingUser := userfactory.CreateUser(t, ts.DB, ts.Infra.Hasher, "student-1")
+	_, err := userfactory.CreateOTP(t, ts.DB, ts, existingUser)
 	require.NoError(t, err)
 
 	requestData := auth.VerifyRecoverySchema{
@@ -64,6 +64,6 @@ func TestVerifyRecovery_IncorrectOTP(t *testing.T) {
 		bytes.NewReader(requestBody),
 	)
 
-	suite.Router.ServeHTTP(w, req)
+	ts.Router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }

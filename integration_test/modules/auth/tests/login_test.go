@@ -3,8 +3,8 @@ package auth_integration_test
 import (
 	"bytes"
 	"encoding/json"
-	testsuite "main/integration_test"
 	userfactory "main/integration_test/modules/user/factory"
+	suite "main/integration_test/suite"
 
 	"main/internal/modules/auth"
 	"main/internal/shared"
@@ -17,9 +17,9 @@ import (
 )
 
 func TestLogin_Success(t *testing.T) {
-	suite := testsuite.New()
+	ts := suite.New()
 
-	existingUser := userfactory.CreateUser(t, suite.DB, suite.Infra.Hasher, "Student1")
+	existingUser := userfactory.CreateUser(t, ts.DB, ts.Infra.Hasher, "Student1")
 
 	reqData := auth.LoginSchema{Email: existingUser.Email, Password: "password123"}
 
@@ -29,7 +29,7 @@ func TestLogin_Success(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/login", bytes.NewBuffer(reqBody))
 
-	suite.Router.ServeHTTP(w, req)
+	ts.Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
@@ -47,7 +47,7 @@ func TestLogin_Success(t *testing.T) {
 }
 
 func TestLogin_NonexistentEmail(t *testing.T) {
-	suite := testsuite.New()
+	ts := suite.New()
 
 	reqData := auth.LoginSchema{Email: "incorrect-email", Password: "password123"}
 
@@ -57,7 +57,7 @@ func TestLogin_NonexistentEmail(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/login", bytes.NewBuffer(reqBody))
 
-	suite.Router.ServeHTTP(w, req)
+	ts.Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
@@ -73,9 +73,9 @@ func TestLogin_NonexistentEmail(t *testing.T) {
 }
 
 func TestLogin_IncorrectPassword(t *testing.T) {
-	suite := testsuite.New()
+	ts := suite.New()
 
-	existingUser := userfactory.CreateUser(t, suite.DB, suite.Infra.Hasher, "Student1")
+	existingUser := userfactory.CreateUser(t, ts.DB, ts.Infra.Hasher, "Student1")
 
 	reqData := auth.LoginSchema{Email: existingUser.Email, Password: "incorrect-password"}
 
@@ -85,7 +85,7 @@ func TestLogin_IncorrectPassword(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/login", bytes.NewBuffer(reqBody))
 
-	suite.Router.ServeHTTP(w, req)
+	ts.Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 

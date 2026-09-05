@@ -9,7 +9,7 @@ import (
 	user_mocks "main/internal/modules/user/mocks"
 	user_factory "main/internal/modules/user/tests"
 	"main/internal/shared"
-	shared_testing "main/internal/shared/testing_helper"
+	"main/internal/testutil/logger"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -23,7 +23,7 @@ import (
 
 func TestAdminUpdateUser_Success(t *testing.T) {
 	mockUsecase := user_mocks.NewMockIUseCase(t)
-	mockLogger := shared_testing.NewMockLogger(t)
+	mockLogger := logger.NewMockLogger(t)
 	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	id := uuid.New()
@@ -79,7 +79,7 @@ func TestAdminUpdateUser_Success(t *testing.T) {
 
 func TestAdminUpdateUser_RecordNotFound(t *testing.T) {
 	mockUsecase := user_mocks.NewMockIUseCase(t)
-	mockLogger := shared_testing.NewMockLogger(t)
+	mockLogger := logger.NewMockLogger(t)
 	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	id := uuid.New()
@@ -127,7 +127,7 @@ func TestAdminUpdateUser_RecordNotFound(t *testing.T) {
 
 func TestAdminUpdateUser_EmailTaken(t *testing.T) {
 	mockUsecase := user_mocks.NewMockIUseCase(t)
-	mockLogger := shared_testing.NewMockLogger(t)
+	mockLogger := logger.NewMockLogger(t)
 	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	newEmail := "user-test-updated@mail.com"
@@ -170,7 +170,7 @@ func TestAdminUpdateUser_EmailTaken(t *testing.T) {
 
 func TestAdminUpdateUser_SystemIDTaken(t *testing.T) {
 	mockUsecase := user_mocks.NewMockIUseCase(t)
-	mockLogger := shared_testing.NewMockLogger(t)
+	mockLogger := logger.NewMockLogger(t)
 	ctrl := user.NewController(mockUsecase, mockLogger)
 
 	newSystemID := "user-test-2"

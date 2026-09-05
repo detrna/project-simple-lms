@@ -7,7 +7,7 @@ import (
 	auth_mocks "main/internal/modules/auth/mocks"
 	user_factory "main/internal/modules/user/tests"
 	"main/internal/shared"
-	shared_testing "main/internal/shared/testing_helper"
+	"main/internal/testutil/logger"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -31,7 +31,7 @@ func TestRefresh_Success(t *testing.T) {
 	newRefreshToken := user_factory.NewJWT("new-refresh-token", jwtPayload)
 
 	mockUsecase := auth_mocks.NewMockIUseCase(t)
-	mockLogger := shared_testing.NewMockLogger(t)
+	mockLogger := logger.NewMockLogger(t)
 
 	usecaseResult := auth.Tokens{
 		AccessToken:  accessToken.Value,
@@ -90,7 +90,7 @@ func TestRefresh_ExpiredToken(t *testing.T) {
 	refreshToken := user_factory.NewJWT("expired-refresh-token", jwtPayload)
 
 	mockUsecase := auth_mocks.NewMockIUseCase(t)
-	mockLogger := shared_testing.NewMockLogger(t)
+	mockLogger := logger.NewMockLogger(t)
 
 	mockUsecase.
 		EXPECT().
@@ -137,7 +137,7 @@ func TestRefresh_RevokedToken(t *testing.T) {
 	refreshToken := user_factory.NewJWT("revoked-refresh-token", jwtPayload)
 
 	mockUsecase := auth_mocks.NewMockIUseCase(t)
-	mockLogger := shared_testing.NewMockLogger(t)
+	mockLogger := logger.NewMockLogger(t)
 
 	mockUsecase.EXPECT().Refresh(ctx, mock.AnythingOfType("string")).Return(nil, shared.ErrUnauthorized)
 

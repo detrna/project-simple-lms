@@ -10,9 +10,12 @@ import (
 	"main/internal/modules/class/dto"
 	"main/internal/modules/class/factory"
 	"main/internal/shared"
+	"main/internal/shared/errors"
+	"main/internal/testutil/logger"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -34,18 +37,19 @@ func TestUpdate_ClassNotFound(t *testing.T) {
 	}
 
 	expectedCode := http.StatusNotFound
-	expected := shared.ErrRecordNotFound.Error()
+	expected := domain.ErrClassNotFound
 
 	requestBody, err := json.Marshal(&requestData)
 	require.NoError(t, err)
 
 	mockUseCase := mocks.NewMockClassUseCaseI(t)
-	mockUseCase.EXPECT().GetByID(ctx, mock.AnythingOfType("uuid.UUID")).Return(nil, shared.ErrRecordNotFound)
+	mockLogger := logger.NewMockLogger(t)
+	mockUseCase.EXPECT().Update(ctx, mock.AnythingOfType("*dto.UpdateClassRequest")).Return(nil, domain.ErrClassNotFound)
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPatch, "/classes/"+existingClass.ID.String(), bytes.NewReader(requestBody))
+	req := httptest.NewRequest(http.MethodPatch, "/classes/"+uuid.NewString(), bytes.NewReader(requestBody))
 
-	classController := controller.NewClassController(mockUseCase)
+	classController := controller.NewClassController(mockUseCase, mockLogger)
 
 	router := gin.New()
 	router.PATCH("/classes/:id", classController.Update)
@@ -54,11 +58,11 @@ func TestUpdate_ClassNotFound(t *testing.T) {
 
 	assert.Equal(t, expectedCode, w.Code)
 
-	var response shared.ResponseError
+	var response errors.AppError
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	require.NoError(t, err)
 
-	assert.Equal(t, expected, response.Error)
+	assert.Equal(t, expected.Message, response.Message)
 }
 
 func TestUpdate_SystemIDTaken(t *testing.T) {
@@ -75,19 +79,19 @@ func TestUpdate_SystemIDTaken(t *testing.T) {
 	}
 
 	expectedCode := http.StatusConflict
-	expected := shared.ErrSystemIDTaken.Error()
+	expected := domain.ErrClassSystemIDTaken
 
 	requestBody, err := json.Marshal(&requestData)
 	require.NoError(t, err)
 
 	mockUseCase := mocks.NewMockClassUseCaseI(t)
-	mockUseCase.EXPECT().GetByID(ctx, mock.AnythingOfType("uuid.UUID")).Return(existingClass, nil)
-	mockUseCase.EXPECT().GetBySystemID(ctx, mock.AnythingOfType("string")).Return(otherClass, nil)
+	mockLogger := logger.NewMockLogger(t)
+	mockUseCase.EXPECT().Update(ctx, mock.AnythingOfType("*dto.UpdateClassRequest")).Return(nil, domain.ErrClassSystemIDTaken)
 
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPatch, "/classes/"+existingClass.ID.String(), bytes.NewReader(requestBody))
 
-	classController := controller.NewClassController(mockUseCase)
+	classController := controller.NewClassController(mockUseCase, mockLogger)
 
 	router := gin.New()
 	router.PATCH("/classes/:id", classController.Update)
@@ -96,11 +100,11 @@ func TestUpdate_SystemIDTaken(t *testing.T) {
 
 	assert.Equal(t, expectedCode, w.Code)
 
-	var response shared.ResponseError
+	var response errors.AppError
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	require.NoError(t, err)
 
-	assert.Equal(t, expected, response.Error)
+	assert.Equal(t, expected.Message, response.Message)
 }
 
 func TestUpdate_Success(t *testing.T) {
@@ -115,25 +119,24 @@ func TestUpdate_Success(t *testing.T) {
 	}
 
 	expectedCode := http.StatusOK
-	expected := *existingClass
+	expected := dto.DomainToResponse(*existingClass)
 	expected.Name = newName
 
 	requestBody, err := json.Marshal(&requestData)
 	require.NoError(t, err)
 
 	mockUseCase := mocks.NewMockClassUseCaseI(t)
+	mockLogger := logger.NewMockLogger(t)
 
 	mockResult := *existingClass
 	mockResult.Name = newName
 
-	mockUseCase.EXPECT().GetByID(ctx, mock.AnythingOfType("uuid.UUID")).Return(existingClass, nil)
-	mockUseCase.EXPECT().GetBySystemID(ctx, mock.AnythingOfType("string")).Return(nil, shared.ErrRecordNotFound)
 	mockUseCase.EXPECT().Update(ctx, mock.AnythingOfType("*dto.UpdateClassRequest")).Return(&mockResult, nil)
 
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPatch, "/classes/"+existingClass.ID.String(), bytes.NewReader(requestBody))
 
-	classController := controller.NewClassController(mockUseCase)
+	classController := controller.NewClassController(mockUseCase, mockLogger)
 
 	router := gin.New()
 	router.PATCH("/classes/:id", classController.Update)
@@ -142,10 +145,15 @@ func TestUpdate_Success(t *testing.T) {
 
 	assert.Equal(t, expectedCode, w.Code)
 
-	var response shared.ResponseSuccess[domain.Class]
+	var response shared.ResponseDTO[dto.ClassResponse]
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	require.NoError(t, err)
 
-	assert.Equal(t, expected, response.Data)
-}
+	expected.CreatedAt = time.Time{}
+	expected.UpdatedAt = time.Time{}
 
+	response.Data.CreatedAt = time.Time{}
+	response.Data.UpdatedAt = time.Time{}
+
+	assert.Equal(t, *expected, *response.Data)
+}

@@ -14,13 +14,20 @@ type ResponseError struct {
 	Message string `json:"message"`
 }
 
-func HandleErrorV2(c *gin.Context, logger pkg.Logger, appErr apperrors.AppError, err error) {
+func HandleErrorV2(c *gin.Context, logger pkg.Logger, err error) {
 	logger.WarnSkip(1, err.Error())
 
-	c.JSON(appErr.StatusCode, gin.H{
-		"error":   err.Error(),
-		"message": appErr.Message,
-	})
+	var appErr *apperrors.AppError
+	if errors.As(err, &appErr) {
+		c.JSON(appErr.StatusCode, gin.H{
+			"error":   err.Error(),
+			"message": appErr.Message,
+		})
+	} else {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+	}
 }
 
 func HandleError(c *gin.Context, logger pkg.Logger, err error) {

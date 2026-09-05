@@ -8,7 +8,7 @@ import (
 	user_factory "main/internal/modules/user/tests"
 	pkg_mocks "main/internal/pkg/mocks"
 	"main/internal/shared"
-	shared_testing "main/internal/shared/testing_helper"
+	"main/internal/testutil/logger"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -68,7 +68,7 @@ func TestGetUserByID_Success(t *testing.T) {
 
 func TestGetUserByID_RecordNotFound(t *testing.T) {
 	mockUsecase := user_mocks.NewMockIUseCase(t)
-	MockLogger := shared_testing.NewMockLogger(t)
+	MockLogger := logger.NewMockLogger(t)
 	ctrl := user.NewController(mockUsecase, MockLogger)
 
 	id := uuid.New()

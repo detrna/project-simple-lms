@@ -3,11 +3,14 @@
 import (
 	"context"
 	"encoding/json"
+	"main/internal/http/response"
+	"main/internal/middleware"
 	"main/internal/modules/class/controller"
 	"main/internal/modules/class/controller/mocks"
 	"main/internal/modules/class/domain"
+	"main/internal/modules/class/dto"
 	"main/internal/modules/class/factory"
-	"main/internal/shared"
+	"main/internal/testutil/logger"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -30,18 +33,20 @@ func TestGetAll_Success(t *testing.T) {
 		*factory.NewClass(id, "class-E"),
 	}
 
-	expected := existingClasses
+	expected := *dto.DomainToResponseBatch(existingClasses)
 	expectedStatusCode := http.StatusOK
 
 	mockUseCase := mocks.NewMockClassUseCaseI(t)
+	mockLogger := logger.NewMockLogger(t)
 
 	mockResult := existingClasses
-	mockUseCase.EXPECT().GetAll(ctx, mock.AnythingOfType("*pagination.PaginationInput")).Return(&mockResult, len(existingClasses), nil)
+	mockUseCase.EXPECT().GetAll(ctx, mock.AnythingOfType("*pagination.Pagination")).Return(&mockResult, len(existingClasses), nil)
 
-	classController := controller.NewClassController(mockUseCase)
+	classController := controller.NewClassController(mockUseCase, mockLogger)
 
 	router := gin.New()
-	router.GET("/classes", classController.GetAll)
+
+	router.GET("/classes", middleware.HandlePagination(10, 50, mockLogger), classController.GetAll)
 
 	w := httptest.NewRecorder()
 	request := httptest.NewRequest(http.MethodGet, "/classes", nil)
@@ -50,9 +55,10 @@ func TestGetAll_Success(t *testing.T) {
 
 	assert.Equal(t, expectedStatusCode, w.Code)
 
-	var response shared.ResponseSuccess[[]domain.Class]
+	var response response.ResponseDTO[[]dto.ClassResponse]
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	require.NoError(t, err)
 
-	assert.Equal(t, expected, response)
+	assert.Equal(t, expected[0].Name, response.Data[0].Name)
+	assert.Equal(t, len(expected), len(response.Data))
 }

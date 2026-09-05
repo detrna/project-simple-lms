@@ -8,7 +8,7 @@ import (
 	auth_mocks "main/internal/modules/auth/mocks"
 	user_factory "main/internal/modules/user/tests"
 	"main/internal/shared"
-	shared_testing "main/internal/shared/testing_helper"
+	"main/internal/testutil/logger"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -27,7 +27,7 @@ func TestVerifyRecovery_Success(t *testing.T) {
 	existingUser := user_factory.NewUser(id)
 
 	mockUsecase := auth_mocks.NewMockIUseCase(t)
-	mockLogger := shared_testing.NewMockLogger(t)
+	mockLogger := logger.NewMockLogger(t)
 
 	mockUsecase.EXPECT().VerifyRecovery(ctx, mock.AnythingOfType("*auth.VerifyRecoverySchema")).Return(nil)
 
@@ -68,7 +68,7 @@ func TestVerifyRecovery_IncorrectOTP(t *testing.T) {
 	existingUser := user_factory.NewUser(id)
 
 	mockUsecase := auth_mocks.NewMockIUseCase(t)
-	mockLogger := shared_testing.NewMockLogger(t)
+	mockLogger := logger.NewMockLogger(t)
 
 	mockUsecase.
 		EXPECT().
@@ -118,7 +118,7 @@ func TestVerifyRecovery_OTPNotFound(t *testing.T) {
 	existingUser := user_factory.NewUser(id)
 
 	mockUsecase := auth_mocks.NewMockIUseCase(t)
-	mockLogger := shared_testing.NewMockLogger(t)
+	mockLogger := logger.NewMockLogger(t)
 
 	mockUsecase.
 		EXPECT().

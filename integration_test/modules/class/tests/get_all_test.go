@@ -3,9 +3,9 @@ package class_test
 import (
 	"encoding/json"
 	"fmt"
-	testsuite "main/integration_test"
 	"main/integration_test/helper"
 	"main/integration_test/modules/class/factory"
+	suite "main/integration_test/suite"
 	"main/internal/modules/class/domain"
 	"main/internal/shared"
 	"main/internal/shared/pagination"
@@ -19,22 +19,27 @@ import (
 )
 
 func TestGetAll_Success(t *testing.T) {
-	suite := testsuite.New()
-	existingData := []domain.Class{*factory.CreateClass(t, suite.DB, "Class-A")}
+	ts := suite.New()
+	existingData := []domain.Class{*factory.CreateClass(t, ts.DB, "Class-A")}
 
-	paginationRequest := pagination.PaginationRequest{
-		Page:  0,
-		Limit: 10,
+	page := 0
+	limit := 10
+	paginationRequest := pagination.Pagination{
+		Page:  page,
+		Limit: limit,
 	}
 
-	tests := []testsuite.IntegrationTest[pagination.PaginationRequest]{
+	tests := []suite.IntegrationTest[pagination.Pagination]{
 		{
 			Name:               "success",
 			Data:               paginationRequest,
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse: shared.PaginatedResponseSuccess[domain.Class]{
-				Data:       &existingData,
-				Pagination: pagination.GetPaginationResponse(paginationRequest, len(existingData)),
+				Data: &existingData,
+				Pagination: pagination.GetPaginationResponse(pagination.Pagination{
+					Page:  page,
+					Limit: limit,
+				}, len(existingData)),
 			},
 		},
 	}
@@ -49,7 +54,7 @@ func TestGetAll_Success(t *testing.T) {
 
 			w := httptest.NewRecorder()
 
-			suite.Router.ServeHTTP(w, req)
+			ts.Router.ServeHTTP(w, req)
 			assert.Equal(t, test.ExpectedStatusCode, w.Code)
 
 			responseType := reflect.TypeOf(test.ExpectedResponse)

@@ -8,8 +8,7 @@ type CreateClassRequest struct {
 }
 
 type UpdateClassRequest struct {
-	ID       uuid.UUID `json:"-"`
+	ID       uuid.UUID `json:"-" uri:"id,parser=encoding.TextUnmarshaler"`
 	SystemID *string   `json:"systemId"`
 	Name     *string   `json:"name"`
 }
-

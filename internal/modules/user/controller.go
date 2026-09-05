@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+	"main/internal/http/validator"
 	"main/internal/pkg"
 	"main/internal/shared"
 	"net/http"
@@ -29,7 +30,7 @@ type IController interface {
 }
 
 func (controller *Controller) GetUserByID(c *gin.Context) {
-	params := shared.ParseParams[GetUserByIDSchema](c, controller.logger)
+	params := validator.ValidateParams[GetUserByIDSchema](c, controller.logger)
 
 	ctx := c.Request.Context()
 	result, err := controller.usecase.GetUserByID(ctx, params.ID)
@@ -47,7 +48,7 @@ func (controller *Controller) GetUserByID(c *gin.Context) {
 }
 
 func (controller *Controller) GetUserBySystemID(c *gin.Context) {
-	params := shared.ParseParams[GetUserBySystemIDSchema](c, controller.logger)
+	params := validator.ValidateParams[GetUserBySystemIDSchema](c, controller.logger)
 
 	ctx := c.Request.Context()
 	result, err := controller.usecase.GetUserBySystemID(ctx, params.SystemID)
@@ -89,7 +90,7 @@ func (controller *Controller) GetMyAccount(c *gin.Context) {
 }
 
 func (controller *Controller) CreateUser(c *gin.Context) {
-	body := shared.ParseJSON[CreateUserSchema](c, controller.logger)
+	body := validator.ValidateBody[CreateUserSchema](c, controller.logger)
 
 	ctx := c.Request.Context()
 	result, err := controller.usecase.CreateUser(ctx, body)
@@ -109,8 +110,8 @@ func (controller *Controller) CreateUser(c *gin.Context) {
 }
 
 func (controller *Controller) AdminUpdateUser(c *gin.Context) {
-	body := shared.ParseJSON[AdminUpdateUserSchema](c, controller.logger)
-	params := shared.ParseParams[AdminUpdateUserSchema](c, controller.logger)
+	body := validator.ValidateBody[AdminUpdateUserSchema](c, controller.logger)
+	params := validator.ValidateParams[AdminUpdateUserSchema](c, controller.logger)
 
 	dto := AdminUpdateUserSchema{
 		ID:       params.ID,
@@ -123,7 +124,7 @@ func (controller *Controller) AdminUpdateUser(c *gin.Context) {
 	result, err := controller.usecase.AdminUpdateUser(ctx, &dto)
 
 	if err != nil {
-		shared.HandleValidationError(c, controller.logger, err)
+		validator.HandleValidationError(c, controller.logger, err)
 		return
 	}
 
@@ -135,7 +136,7 @@ func (controller *Controller) AdminUpdateUser(c *gin.Context) {
 }
 
 func (controller *Controller) DeleteUser(c *gin.Context) {
-	params := shared.ParseParams[DeleteUserSchema](c, controller.logger)
+	params := validator.ValidateParams[DeleteUserSchema](c, controller.logger)
 
 	ctx := c.Request.Context()
 	if err := controller.usecase.DeleteUser(ctx, params.ID); err != nil {
@@ -153,7 +154,7 @@ func (controller Controller) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	body := shared.ParseJSON[UpdateUserSchema](c, controller.logger)
+	body := validator.ValidateBody[UpdateUserSchema](c, controller.logger)
 
 	dto := UpdateUserDTO{
 		User:     user,

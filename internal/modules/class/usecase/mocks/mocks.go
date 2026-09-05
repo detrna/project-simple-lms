@@ -166,7 +166,7 @@ func (_c *MockClassRepositoryI_Delete_Call) RunAndReturn(run func(ctx context.Co
 }
 
 // GetAll provides a mock function for the type MockClassRepositoryI
-func (_mock *MockClassRepositoryI) GetAll(ctx context.Context, pagination1 pagination.PaginationInput) (*[]domain.Class, int, error) {
+func (_mock *MockClassRepositoryI) GetAll(ctx context.Context, pagination1 pagination.Pagination) (*[]domain.Class, int, error) {
 	ret := _mock.Called(ctx, pagination1)
 
 	if len(ret) == 0 {
@@ -176,22 +176,22 @@ func (_mock *MockClassRepositoryI) GetAll(ctx context.Context, pagination1 pagin
 	var r0 *[]domain.Class
 	var r1 int
 	var r2 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, pagination.PaginationInput) (*[]domain.Class, int, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, pagination.Pagination) (*[]domain.Class, int, error)); ok {
 		return returnFunc(ctx, pagination1)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, pagination.PaginationInput) *[]domain.Class); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, pagination.Pagination) *[]domain.Class); ok {
 		r0 = returnFunc(ctx, pagination1)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*[]domain.Class)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, pagination.PaginationInput) int); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, pagination.Pagination) int); ok {
 		r1 = returnFunc(ctx, pagination1)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
-	if returnFunc, ok := ret.Get(2).(func(context.Context, pagination.PaginationInput) error); ok {
+	if returnFunc, ok := ret.Get(2).(func(context.Context, pagination.Pagination) error); ok {
 		r2 = returnFunc(ctx, pagination1)
 	} else {
 		r2 = ret.Error(2)
@@ -206,20 +206,20 @@ type MockClassRepositoryI_GetAll_Call struct {
 
 // GetAll is a helper method to define mock.On call
 //   - ctx context.Context
-//   - pagination1 pagination.PaginationInput
+//   - pagination1 pagination.Pagination
 func (_e *MockClassRepositoryI_Expecter) GetAll(ctx any, pagination1 any) *MockClassRepositoryI_GetAll_Call {
 	return &MockClassRepositoryI_GetAll_Call{Call: _e.mock.On("GetAll", ctx, pagination1)}
 }
 
-func (_c *MockClassRepositoryI_GetAll_Call) Run(run func(ctx context.Context, pagination1 pagination.PaginationInput)) *MockClassRepositoryI_GetAll_Call {
+func (_c *MockClassRepositoryI_GetAll_Call) Run(run func(ctx context.Context, pagination1 pagination.Pagination)) *MockClassRepositoryI_GetAll_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 pagination.PaginationInput
+		var arg1 pagination.Pagination
 		if args[1] != nil {
-			arg1 = args[1].(pagination.PaginationInput)
+			arg1 = args[1].(pagination.Pagination)
 		}
 		run(
 			arg0,
@@ -234,7 +234,7 @@ func (_c *MockClassRepositoryI_GetAll_Call) Return(classs *[]domain.Class, n int
 	return _c
 }
 
-func (_c *MockClassRepositoryI_GetAll_Call) RunAndReturn(run func(ctx context.Context, pagination1 pagination.PaginationInput) (*[]domain.Class, int, error)) *MockClassRepositoryI_GetAll_Call {
+func (_c *MockClassRepositoryI_GetAll_Call) RunAndReturn(run func(ctx context.Context, pagination1 pagination.Pagination) (*[]domain.Class, int, error)) *MockClassRepositoryI_GetAll_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -6,7 +6,7 @@ import (
 	"main/internal/shared/pagination"
 )
 
-func (uc ClassUseCase) GetAll(ctx context.Context, pagination *pagination.PaginationInput) (*[]domain.Class, int, error) {
+func (uc ClassUseCase) GetAll(ctx context.Context, pagination *pagination.Pagination) (*[]domain.Class, int, error) {
 	classes, total, err := uc.repo.GetAll(ctx, *pagination)
 
 	if err != nil {

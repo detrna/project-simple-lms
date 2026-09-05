@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	testsuite "main/integration_test"
 	authfactory "main/integration_test/modules/auth/factory"
 	userfactory "main/integration_test/modules/user/factory"
+	suite "main/integration_test/suite"
 	"main/internal/modules/user"
 	"main/internal/shared"
 
@@ -21,9 +21,9 @@ import (
 )
 
 func TestGetUserByID(t *testing.T) {
-	suite := testsuite.New()
+	ts := suite.New()
 
-	existingUser := userfactory.CreateUser(t, suite.DB, suite.Infra.Hasher, "Student1")
+	existingUser := userfactory.CreateUser(t, ts.DB, ts.Infra.Hasher, "Student1")
 	expected := user.UserResponse{
 		ID:        existingUser.ID,
 		SystemID:  existingUser.SystemID,
@@ -40,7 +40,7 @@ func TestGetUserByID(t *testing.T) {
 		nil,
 	)
 
-	suite.Router.ServeHTTP(w, req)
+	ts.Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
@@ -52,10 +52,10 @@ func TestGetUserByID(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	suite := testsuite.New()
+	ts := suite.New()
 
-	admin := userfactory.CreateUser(t, suite.DB, suite.Infra.Hasher, "Student1")
-	token := authfactory.CreateJWT(t, suite.DB, suite.Infra.TokenService, admin)
+	admin := userfactory.CreateUser(t, ts.DB, ts.Infra.Hasher, "Student1")
+	token := authfactory.CreateJWT(t, ts.DB, ts.Infra.TokenService, admin)
 
 	requestData := user.CreateUserSchema{
 		SystemID: "student1",
@@ -83,7 +83,7 @@ func TestCreate(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+token.Value)
 	req.Header.Set("Content-Type", "application/json")
 
-	suite.Router.ServeHTTP(w, req)
+	ts.Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 
@@ -97,11 +97,11 @@ func TestCreate(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
-	suite := testsuite.New()
+	ts := suite.New()
 
-	admin := userfactory.CreateUser(t, suite.DB, suite.Infra.Hasher, "Student1")
-	token := authfactory.CreateJWT(t, suite.DB, suite.Infra.TokenService, admin)
-	existingUser := userfactory.CreateUser(t, suite.DB, suite.Infra.Hasher, "Student1")
+	admin := userfactory.CreateUser(t, ts.DB, ts.Infra.Hasher, "Student1")
+	token := authfactory.CreateJWT(t, ts.DB, ts.Infra.TokenService, admin)
+	existingUser := userfactory.CreateUser(t, ts.DB, ts.Infra.Hasher, "Student1")
 
 	newName := "Student2"
 	requestData := user.AdminUpdateUserSchema{Name: &newName}
@@ -128,7 +128,7 @@ func TestUpdateUser(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token.Value)
 
-	suite.Router.ServeHTTP(w, req)
+	ts.Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
@@ -140,11 +140,11 @@ func TestUpdateUser(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
-	suite := testsuite.New()
+	ts := suite.New()
 
-	admin := userfactory.CreateUser(t, suite.DB, suite.Infra.Hasher, "Student1")
-	token := authfactory.CreateJWT(t, suite.DB, suite.Infra.TokenService, admin)
-	existingUser := userfactory.CreateUser(t, suite.DB, suite.Infra.Hasher, "Student1")
+	admin := userfactory.CreateUser(t, ts.DB, ts.Infra.Hasher, "Student1")
+	token := authfactory.CreateJWT(t, ts.DB, ts.Infra.TokenService, admin)
+	existingUser := userfactory.CreateUser(t, ts.DB, ts.Infra.Hasher, "Student1")
 
 	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/users/%s", existingUser.ID), nil)
 
@@ -152,7 +152,7 @@ func TestDeleteUser(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	suite.Router.ServeHTTP(w, req)
+	ts.Router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }

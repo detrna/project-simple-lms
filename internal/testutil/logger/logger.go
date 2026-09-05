@@ -1,0 +1,17 @@
+package logger
+
+import (
+	pkg_mocks "main/internal/pkg/mocks"
+	"testing"
+
+	"github.com/stretchr/testify/mock"
+)
+
+func NewMockLogger(t *testing.T) *pkg_mocks.MockLogger {
+	mockLogger := pkg_mocks.NewMockLogger(t)
+	mockLogger.On("Info", mock.Anything).Return().Maybe()
+	mockLogger.On("Warn", mock.Anything).Return().Maybe()
+	mockLogger.On("WarnSkip", mock.Anything, mock.Anything).Return().Maybe()
+
+	return mockLogger
+}

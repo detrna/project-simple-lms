@@ -5,7 +5,7 @@ import (
 	"main/internal/modules/auth"
 	auth_mocks "main/internal/modules/auth/mocks"
 	user_factory "main/internal/modules/user/tests"
-	shared_testing "main/internal/shared/testing_helper"
+	"main/internal/testutil/logger"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -25,7 +25,7 @@ func TestLogout_Success(t *testing.T) {
 	refreshToken := user_factory.NewJWT("refresh-token", jwtPayload)
 
 	mockUsecase := auth_mocks.NewMockIUseCase(t)
-	mockLogger := shared_testing.NewMockLogger(t)
+	mockLogger := logger.NewMockLogger(t)
 
 	mockUsecase.EXPECT().Logout(ctx, mock.AnythingOfType("string")).Return(nil)
 

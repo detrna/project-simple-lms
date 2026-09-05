@@ -17,7 +17,7 @@ type UserResponse struct {
 }
 
 type GetUserByIDSchema struct {
-	ID uuid.UUID `uri:"id" binding:"required,uuid"`
+	ID uuid.UUID `uri:"id,parser=encoding.TextUnmarshaler" binding:"required"`
 }
 
 type GetUserBySystemIDSchema struct {
@@ -25,11 +25,11 @@ type GetUserBySystemIDSchema struct {
 }
 
 type DeleteUserSchema struct {
-	ID uuid.UUID `uri:"id" binding:"required,uuid"`
+	ID uuid.UUID `uri:"id,parser=encoding.TextUnmarshaler" binding:"required"`
 }
 
 type CreateUserSchema struct {
-	ID       uuid.UUID `uri:"id" binding:"required,uuid"`
+	ID       uuid.UUID `uri:"id,parser=encoding.TextUnmarshaler" binding:"required"`
 	SystemID string    `json:"systemId" binding:"required"`
 	Name     string    `json:"name" binding:"required"`
 	Email    string    `json:"email" binding:"required,email"`
@@ -38,7 +38,7 @@ type CreateUserSchema struct {
 }
 
 type AdminUpdateUserSchema struct {
-	ID       uuid.UUID `uri:"id" binding:"required,uuid"`
+	ID       uuid.UUID `uri:"id,parser=encoding.TextUnmarshaler" binding:"required"`
 	SystemID *string   `json:"systemId"`
 	Name     *string   `json:"name"`
 	Email    *string   `json:"email" binding:"email"`
