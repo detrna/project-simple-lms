@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"main/internal/domain"
 	"main/internal/pkg"
 	"main/internal/shared"
@@ -33,8 +32,6 @@ func parseHeader(c *gin.Context, tokenService pkg.TokenService) (*domain.JWTPayl
 	}
 
 	accessToken := strings.TrimPrefix(authHeader, "Bearer ")
-
-	fmt.Print("TOKENIZER " + accessToken)
 
 	return tokenService.ParseAccessToken(string(accessToken))
 }

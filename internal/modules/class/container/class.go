@@ -14,10 +14,10 @@ type ClassContainer struct {
 	Routes     *routes.ClassRoutes
 }
 
-func NewClassContainer(repo usecase.ClassRepositoryI, logger pkg.Logger) *ClassContainer {
+func NewClassContainer(repo usecase.ClassRepositoryI, tokenService pkg.TokenService, logger pkg.Logger) *ClassContainer {
 	uc := usecase.NewClassUseCase(repo)
 	controller := controller.NewClassController(uc, logger)
-	routes := routes.NewClassRoutes(controller, logger)
+	routes := routes.NewClassRoutes(controller, tokenService, logger)
 
 	return &ClassContainer{
 		Repo:       repo,

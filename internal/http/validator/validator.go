@@ -73,10 +73,6 @@ func HandleValidationError(c *gin.Context, logger pkg.Logger, err error) {
 			}
 		}
 
-		logMsg := fmt.Sprint(errors)
-		logger.Warn(logMsg)
-		fmt.Print("TESTING")
-
 		c.JSON(http.StatusBadRequest, gin.H{
 			"errors": errors,
 		})

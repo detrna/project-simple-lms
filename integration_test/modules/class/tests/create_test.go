@@ -1,36 +1,50 @@
 package class_test
 
 import (
-	"encoding/json"
 	"main/integration_test/helper"
-	"main/integration_test/modules/class/factory"
+	authfactory "main/integration_test/modules/auth/factory"
+	classfactory "main/integration_test/modules/class/factory"
 	suite "main/integration_test/suite"
 	"main/internal/modules/class/domain"
 	"main/internal/modules/class/dto"
 	"main/internal/shared"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestCreate(t *testing.T) {
 	ts := suite.New()
-	sampleData := factory.CreateClass(t, ts.DB, "Class-A")
+	sampleData := classfactory.CreateClass(t, ts.DB, "Class-A")
+	jwt := authfactory.CreateAdminJWT(t, ts.DB, ts.Infra.TokenService, ts.Infra.Hasher)
 
 	tests := []suite.IntegrationTest[dto.CreateClassRequest]{
 		{
 			Name: "When create class and success",
 			Data: dto.CreateClassRequest{
-				SystemID: sampleData.SystemID,
+				SystemID: "new-class-id",
 				Name:     sampleData.Name,
 			},
 			ExpectedStatusCode: http.StatusCreated,
 			ExpectedResponse: shared.ResponseSuccess[domain.Class]{
-				Data: sampleData,
+				Data: &domain.Class{
+					SystemID: "new-class-id",
+					Name:     sampleData.Name,
+				},
+			},
+		},
+		{
+			Name: "When create class and systemID taken",
+			Data: dto.CreateClassRequest{
+				SystemID: sampleData.SystemID,
+				Name:     sampleData.Name,
+			},
+			ExpectedStatusCode: http.StatusConflict,
+			ExpectedResponse: shared.ResponseError{
+				Error:   domain.ErrClassSystemIDTaken.Error(),
+				Message: domain.ErrClassSystemIDTaken.Message,
 			},
 		},
 	}
@@ -43,18 +57,17 @@ func TestCreate(t *testing.T) {
 				helper.StructToJSON(t, &test.Data),
 			)
 
+			req.Header.Set("Authorization", "Bearer "+jwt.Value)
+
 			w := httptest.NewRecorder()
 
 			ts.Router.ServeHTTP(w, req)
 			assert.Equal(t, test.ExpectedStatusCode, w.Code)
 
-			responseType := reflect.TypeOf(test.ExpectedResponse)
-			response := reflect.New(responseType).Interface()
+			responseRaw := helper.ParseJSON(t, w, test.ExpectedResponse)
+			response := helper.NullifyProperties(responseRaw, []string{"ID", "CreatedAt", "UpdatedAt"})
 
-			err := json.Unmarshal(w.Body.Bytes(), response)
-			require.NoError(t, err)
-
-			assert.Equal(t, test.ExpectedResponse, &response)
+			assert.Equal(t, test.ExpectedResponse, response)
 		})
 	}
 }

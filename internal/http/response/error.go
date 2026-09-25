@@ -16,6 +16,7 @@ type ResponseError struct {
 
 func Error(c *gin.Context, logger pkg.Logger, err error) {
 	logger.WarnSkip(1, err.Error())
+	logger.Info("testing123")
 
 	var appErr *apperrors.AppError
 	if errors.As(err, &appErr) {

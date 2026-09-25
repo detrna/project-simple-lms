@@ -22,31 +22,34 @@ type ClassRoutes struct {
 	tokenService pkg.TokenService
 }
 
-func NewClassRoutes(c IController, logger pkg.Logger) *ClassRoutes {
-	return &ClassRoutes{controller: c, logger: logger}
+func NewClassRoutes(c IController, tokenService pkg.TokenService, logger pkg.Logger) *ClassRoutes {
+	return &ClassRoutes{
+		controller:   c,
+		tokenService: tokenService,
+		logger:       logger,
+	}
 }
 
 func (r ClassRoutes) RegisterRoutes(rg *gin.RouterGroup) {
 	router := rg.Group("/classes")
 	router.Use(middleware.Authenticate(r.tokenService, r.logger))
 
-	router.GET("/", r.controller.GetAll)
-	router.GET("/:classId", r.controller.GetByID)
-	router.GET("/system/:systemId", r.controller.GetBySystemID)
+	router.GET("", middleware.HandlePagination(10, 10, r.logger), r.controller.GetAll)
+	router.GET("/:id", r.controller.GetByID)
+	router.GET("/system/:id", r.controller.GetBySystemID)
 	router.POST(
 		"",
 		middleware.RequiredRole("admin", r.logger),
 		r.controller.Create,
 	)
 	router.PATCH(
-		"/:classId",
+		"/:id",
 		middleware.RequiredRole("admin", r.logger),
 		r.controller.Update,
 	)
 	router.DELETE(
-		"/:classId",
+		"/:id",
 		middleware.RequiredRole("admin", r.logger),
 		r.controller.Delete,
 	)
 }
-

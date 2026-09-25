@@ -1,29 +1,29 @@
 package class_test
 
 import (
-	"encoding/json"
 	"main/integration_test/helper"
-	"main/integration_test/modules/class/factory"
+	authfactory "main/integration_test/modules/auth/factory"
+	classfactory "main/integration_test/modules/class/factory"
 	suite "main/integration_test/suite"
 	"main/internal/modules/class/domain"
 	"main/internal/modules/class/dto"
 	"main/internal/shared"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestUpdate(t *testing.T) {
 	ts := suite.New()
-	existingData := factory.CreateClass(t, ts.DB, "Class-A")
+	existingData := classfactory.CreateClass(t, ts.DB, "Class-A")
+	otherExistingData := classfactory.CreateClass(t, ts.DB, "Class-B")
+	jwt := authfactory.CreateAdminJWT(t, ts.DB, ts.Infra.TokenService, ts.Infra.Hasher)
 
 	updatedData := existingData
-	updatedData.Name = "class-B"
+	updatedData.Name = "Class-C"
 
 	tests := []suite.IntegrationTest[dto.UpdateClassRequest]{
 		{
@@ -34,7 +34,11 @@ func TestUpdate(t *testing.T) {
 			},
 			ExpectedStatusCode: http.StatusOK,
 			ExpectedResponse: shared.ResponseSuccess[domain.Class]{
-				Data: existingData,
+				Data: &domain.Class{
+					ID:       existingData.ID,
+					SystemID: existingData.SystemID,
+					Name:     updatedData.Name,
+				},
 			},
 		},
 		{
@@ -44,17 +48,23 @@ func TestUpdate(t *testing.T) {
 				Name: &updatedData.Name,
 			},
 			ExpectedStatusCode: http.StatusNotFound,
-			ExpectedResponse:   shared.ErrRecordNotFound,
+			ExpectedResponse: shared.ResponseError{
+				Error:   domain.ErrClassNotFound.Error(),
+				Message: domain.ErrClassNotFound.Message,
+			},
 		},
 		{
-			Name: "systemID taken not found",
+			Name: "systemID taken",
 			Data: dto.UpdateClassRequest{
 				ID:       existingData.ID,
-				SystemID: &existingData.SystemID,
+				SystemID: &otherExistingData.SystemID,
 				Name:     &updatedData.Name,
 			},
 			ExpectedStatusCode: http.StatusConflict,
-			ExpectedResponse:   shared.ErrSystemIDTaken,
+			ExpectedResponse: shared.ResponseError{
+				Error:   domain.ErrClassSystemIDTaken.Error(),
+				Message: domain.ErrClassSystemIDTaken.Message,
+			},
 		},
 	}
 
@@ -62,20 +72,18 @@ func TestUpdate(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			req := httptest.NewRequest(
 				http.MethodPatch,
-				"/api/v1/classes",
+				"/api/v1/classes/"+(test.Data.ID).String(),
 				helper.StructToJSON(t, &test.Data),
 			)
+			req.Header.Set("Authorization", "Bearer "+jwt.Value)
 
 			w := httptest.NewRecorder()
 
 			ts.Router.ServeHTTP(w, req)
 			assert.Equal(t, test.ExpectedStatusCode, w.Code)
 
-			responseType := reflect.TypeOf(test.ExpectedResponse)
-			response := reflect.New(responseType).Interface()
-
-			err := json.Unmarshal(w.Body.Bytes(), response)
-			require.NoError(t, err)
+			responseRaw := helper.ParseJSON(t, w, test.ExpectedResponse)
+			response := helper.NullifyProperties(responseRaw, []string{"CreatedAt", "UpdatedAt"})
 
 			assert.Equal(t, test.ExpectedResponse, response)
 		})

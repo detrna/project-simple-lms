@@ -20,8 +20,9 @@ func CreateClass(
 	t.Helper()
 
 	class := &database.Class{
-		ID:   uuid.New(),
-		Name: name,
+		ID:       uuid.New(),
+		SystemID: uuid.NewString(),
+		Name:     name,
 	}
 
 	err := db.

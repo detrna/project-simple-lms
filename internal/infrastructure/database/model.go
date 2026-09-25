@@ -54,8 +54,6 @@ type Class struct {
 	Name      string    `gorm:"not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime;default:CURRENT_TIMESTAMP"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime;default:CURRENT_TIMESTAMP"`
-
-	Course Course `gorm:"foreignKey:CourseID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type Material struct {
